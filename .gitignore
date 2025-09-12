@@ -1,0 +1,19 @@
+# Visual Studio 임시/빌드 파일
+.vs/
+*.user
+*.suo
+*.opensdf
+*.VC.db
+*.VC.opendb
+
+# 빌드 폴더
+x64/
+Debug/
+Release/
+
+# 기타
+*.obj
+*.exe
+*.dll
+*.pdb
+*.idb
