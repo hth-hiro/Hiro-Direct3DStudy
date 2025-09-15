@@ -30,12 +30,12 @@ void RenderGUI::Render()
 		ImGui::Begin("Controller");                          // Create a window called "Hello, world!" and append into it.
 
 		//ImGui::Text("Controller");               // Display some text (you can use a format strings too)
-		ImGui::Text("");
+		//ImGui::Text("");
 		ImGui::SeparatorText("Object Control");
 
 		//ImGui::SliderFloat("Camera Distance", &m_PlayerPosZ, 0.0f, 10.0f);            // Edit 1 float using a slider from 0.0f to 1.0f
 
-		ImGui::Separator();
+		//ImGui::Separator();
 
 		// Object
 		float objectPos[3] = { objectPosX , objectPosY, objectPosZ };
@@ -47,17 +47,13 @@ void RenderGUI::Render()
 			objectPosZ = objectPos[2];
 		}
 
-		// Light
-		float lightPos[3] = { lightPosX, lightPosY, lightPosZ };
+		float objectRotate[2] = {objectYaw, objectPitch};
 
-		if (ImGui::SliderFloat3(" LightPos", lightPos, -10.0f, 10.0f))
+		if (ImGui::DragFloat2("Yaw & Pitch", objectRotate, 0.1f))
 		{
-			lightPosX = lightPos[0];
-			lightPosY = lightPos[1];
-			lightPosZ = lightPos[2];
+			objectYaw = objectRotate[0];
+			objectPitch = objectRotate[1];
 		}
-
-		float lightDir[3] = {};
 
 		if (ImGui::Button("Object Reset"))
 		{
@@ -65,10 +61,57 @@ void RenderGUI::Render()
 			objectPosY = 0.0f;
 			objectPosZ = 0.0f;
 
-			lightPosX = 0.0f;
-			lightPosY = 0.0f;
-			lightPosZ = 0.0f;
+			objectYaw = 45.0f;
+			objectPitch = 0.0f;
 		}
+
+		ImGui::Text("");
+
+		// Light
+		ImGui::SeparatorText("Light Control");
+		//float lightPos[3] = { lightPosX, lightPosY, lightPosZ };
+
+		//if (ImGui::SliderFloat3(" LightPos", lightPos, -10.0f, 10.0f))
+		//{
+		//	lightPosX = lightPos[0];
+		//	lightPosY = lightPos[1];
+		//	lightPosZ = lightPos[2];
+		//}
+
+		float lightColor[3] = { lightColorR, lightColorG, lightColorB };
+
+		if (ImGui::ColorEdit3(" Light Color", lightColor))
+		{
+			lightColorR = lightColor[0];
+			lightColorG = lightColor[1];
+			lightColorB = lightColor[2];
+		}
+
+		float lightDir[3] = { lightDirX, lightDirY, lightDirZ };
+
+		if (ImGui::DragFloat3(" LightDirection", lightDir))
+		{
+			lightDirX = lightDir[0];
+			lightDirY = lightDir[1];
+			lightDirZ = lightDir[2];
+			lightDirZ = lightDir[2];
+		}
+
+		if (ImGui::Button("Light Reset"))
+		{
+			//lightPosX = 0.0f;
+			//lightPosY = 0.0f;
+			//lightPosZ = 0.0f
+
+			lightColorR = 1.0f;
+			lightColorG = 1.0f;
+			lightColorB = 1.0f;
+
+			lightDirX = -0.577f;
+			lightDirY = 0.577f;
+			lightDirZ = -0.577f;
+		}
+
 
 		ImGui::Text("");
 

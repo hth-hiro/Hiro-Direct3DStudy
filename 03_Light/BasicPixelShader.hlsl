@@ -7,8 +7,8 @@ float4 main(PS_INPUT input) : SV_Target
 {
     float4 finalColor = { 0, 0, 0, 0 };
     
-    float4 surfaceColor = float4(0, 1, 0, 0);
-    
+    float4 surfaceColor = float4(0, 1, 1, 0);
+
     float3 N = normalize(input.Norm);       // ≥Î∏÷ ∫§≈Õ
     float3 L = normalize(vLightDir.xyz);    // ∫˚¿« πÊ«‚
     
