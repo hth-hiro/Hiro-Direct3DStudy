@@ -39,7 +39,7 @@ public:
 
 	RenderGUI m_GUI;
 
-	float m_Angle = 0.0f;
+	//float m_Angle = 0.0f;
 
 	// 라이트 관련
 	// 씬 안에서 라이트는 여러개 존재할 수 있다. 이를 묶어서 처리할 수도 있음

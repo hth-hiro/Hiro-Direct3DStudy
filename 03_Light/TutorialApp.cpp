@@ -57,7 +57,7 @@ bool TutorialApp::Initialize(UINT Width, UINT Height)
 void TutorialApp::Update()
 {
     // Light
-    m_InitialLightDirs = { m_GUI.lightDirX,m_GUI.lightDirY, m_GUI.lightDirZ, 1.0f };
+    m_InitialLightDirs = { m_GUI.lightDirX, m_GUI.lightDirY, m_GUI.lightDirZ, 1.0f };
     m_LightDirsEvaluated = m_InitialLightDirs;
 
     m_LightColor = { m_GUI.lightColorR, m_GUI.lightColorG, m_GUI.lightColorB, 1 };
@@ -125,7 +125,8 @@ void TutorialApp::Update()
 void TutorialApp::Render()
 {
     // Clear
-    float color[4] = { 0.5f, 0.5f, 0.5f, 1.0f };
+    float color[4] = { 0.0f, 0.7f, 0.7f, 1.0f };
+
     m_pDeviceContext->OMSetRenderTargets(1, &m_pRenderTargetView, m_pDepthStencilView);
     m_pDeviceContext->ClearRenderTargetView(m_pRenderTargetView, color);
     m_pDeviceContext->ClearDepthStencilView(m_pDepthStencilView, D3D11_CLEAR_DEPTH, 1.0f, 0);

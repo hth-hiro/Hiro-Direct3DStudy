@@ -89,7 +89,7 @@ void RenderGUI::Render()
 
 		float lightDir[3] = { lightDirX, lightDirY, lightDirZ };
 
-		if (ImGui::DragFloat3(" LightDirection", lightDir))
+		if (ImGui::DragFloat3(" LightDirection", lightDir, 0.1f, -1.0f, 1.0f))
 		{
 			lightDirX = lightDir[0];
 			lightDirY = lightDir[1];
@@ -112,7 +112,6 @@ void RenderGUI::Render()
 			lightDirZ = -0.577f;
 		}
 
-
 		ImGui::Text("");
 
 		ImGui::SeparatorText(" Camera Control");
@@ -120,7 +119,7 @@ void RenderGUI::Render()
 		float playerPos[3] = { playerPosX, playerPosY, playerPosZ };
 
 		// 플레이어 위치 조정은 자유롭게 조절 가능
-		if (ImGui::DragFloat3(" CameraPos", playerPos))
+		if (ImGui::DragFloat3(" CameraPos", playerPos, 0.1f))
 		{
 			playerPosX = playerPos[0];
 			playerPosY = playerPos[1];
@@ -131,7 +130,7 @@ void RenderGUI::Render()
 
 		float depth[2] = { nearZ, farZ };
 
-		if (ImGui::DragFloat2(" Near & Far", depth, 1.0f, 0.01f, 1000.0f))
+		if (ImGui::DragFloat2(" Near & Far", depth, 0.1f, 0.01f, 1000.0f, "%.1f"))
 		{
 			nearZ = depth[0];
 			farZ = depth[1];
