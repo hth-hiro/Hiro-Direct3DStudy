@@ -57,7 +57,7 @@ bool TutorialApp::Initialize(UINT Width, UINT Height)
 void TutorialApp::Update()
 {
     // Light
-    m_InitialLightDirs = { m_GUI.lightDirX, m_GUI.lightDirY, m_GUI.lightDirZ, 1.0f };
+    //m_InitialLightDirs = { m_GUI.lightDirX, m_GUI.lightDirY, m_GUI.lightDirZ, 0.0f };
     m_LightDirsEvaluated = m_InitialLightDirs;
 
     m_LightColor = { m_GUI.lightColorR, m_GUI.lightColorG, m_GUI.lightColorB, 1 };
@@ -118,8 +118,6 @@ void TutorialApp::Update()
 
     m_View = XMMatrixLookAtLH(Eye, At, Up);
     m_Projection = XMMatrixPerspectiveFovLH(XM_PIDIV2 / m_GUI.FOV, m_ClientWidth / (FLOAT)m_ClientHeight, nearZ, finalFarZ);
-
-    //m_InitialLightDirs = { m_GUI.m_LightPosX , m_GUI.m_LightPosY, m_GUI.m_LightPosZ, 1.0f };
 }
 
 void TutorialApp::Render()
@@ -415,6 +413,8 @@ bool TutorialApp::InitScene()
     XMVECTOR Up = XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);
     m_View = XMMatrixLookAtLH(Eye, At, Up);
     m_Projection = XMMatrixPerspectiveFovLH(XM_PIDIV2 / 2.0f , m_ClientWidth / (FLOAT)m_ClientHeight, 0.01f, 100.0f);
+
+    m_LightDirsEvaluated = m_InitialLightDirs;
 
     return true;
 }

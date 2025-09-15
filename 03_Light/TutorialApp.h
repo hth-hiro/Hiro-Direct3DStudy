@@ -57,7 +57,7 @@ public:
 
 	// 지금 쓰고 있는건 1개
 	XMFLOAT4 m_LightColor = { 1.0f, 1.0f, 1.0f, 1.0f };
-	XMFLOAT4 m_InitialLightDirs = { -0.577f, 0.577f, -0.577f, 1.0f };
+	XMFLOAT4 m_InitialLightDirs = { -0.577f, 0.577f, -0.577f, 0.0f };
 	XMFLOAT4 m_LightDirsEvaluated = {};
 
 	bool Initialize(UINT Width, UINT Height) override;
