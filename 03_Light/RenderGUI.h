@@ -20,27 +20,25 @@ public:
 	void Release();
 
 	// 카메라의 위치
-	float m_PlayerPosX = 0.0f;
-	float m_PlayerPosY = 0.0f;
-	float m_PlayerPosZ = -10.0f;
+	float playerPosX = 0.0f;
+	float playerPosY = 0.0f;
+	float playerPosZ = -10.0f;
 
 	// 오브젝트의 위치
-	float m_ObjectPosX = 0.0f;
-	float m_ObjectPosY = 0.0f;
-	float m_ObjectPosZ = 0.0f;
+	float objectPosX = 0.0f;
+	float objectPosY = 0.0f;
+	float objectPosZ = 0.0f;
 
 	// 빛의 위치
-	float m_LightPosX = 0.0f;
-	float m_LightPosY = 0.0f;
-	float m_LightPosZ = 0.0f;
+	float lightPosX = 0.0f;
+	float lightPosY = 0.0f;
+	float lightPosZ = 0.0f;
 
-	float m_FOV = 1.0f;
+	float FOV = 1.0f;
 
-	float m_NearZ = 0.01f;
-	float m_FarZ = 100.0f;
+	float nearZ = 0.01f;
+	float farZ = 100.0f;
 
-	bool m_FocusParent = false;
-
-	int m_counter = 0;
+	bool isFocusParent = false;
 };
 

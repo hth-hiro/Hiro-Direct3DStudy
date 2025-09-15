@@ -55,12 +55,12 @@ void TutorialApp::Update()
     m_Child1Angle += 0.001f;
     m_Child2Angle += 0.001f;
 
-    float PosX = m_GUI.m_PlayerPosX;
-    float PosY = m_GUI.m_PlayerPosY;
-    float PosZ = m_GUI.m_PlayerPosZ;
+    float PosX = m_GUI.playerPosX;
+    float PosY = m_GUI.playerPosY;
+    float PosZ = m_GUI.playerPosZ;
 
-    float nearZ = m_GUI.m_NearZ;
-    float farZ = m_GUI.m_FarZ;
+    float nearZ = m_GUI.nearZ;
+    float farZ = m_GUI.farZ;
 
     XMVECTOR Eye = XMVectorSet(PosX, PosY, PosZ, 0);
 
@@ -79,7 +79,7 @@ void TutorialApp::Update()
     }
 
     // 안전하게 좌표 설정
-    if (m_GUI.m_FocusParent)
+    if (m_GUI.isFocusParent)
     {
         float dz = m_GUI.m_ParentWorldZ - PosZ;
 
@@ -111,7 +111,7 @@ void TutorialApp::Update()
     // XM_PI = 180도
     // 세로의 시야각이 180도라는 것은 Eye를 기준으로 위로 180도, 아래로 180도(-180도) 라는 의미.
     //XMMatrixPerspectiveFovLH 함수 구조상 투영행렬은 tan(FovY/2)=tan(π/2)=∞ 이므로 화면에 표시되지 않음.
-    m_Projection = XMMatrixPerspectiveFovLH(XM_PIDIV2 / m_GUI.m_FOV, m_ClientWidth / (FLOAT)m_ClientHeight, nearZ, finalFarZ);
+    m_Projection = XMMatrixPerspectiveFovLH(XM_PIDIV2 / m_GUI.FOV, m_ClientWidth / (FLOAT)m_ClientHeight, nearZ, finalFarZ);
 
     UpdateWorld(m_ParentObj);
 }

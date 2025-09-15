@@ -86,7 +86,7 @@ void RenderGUI::Render()
 
 		ImGui::SeparatorText(" Camera Control");
 
-		float playerPos[3] = { m_PlayerPosX, m_PlayerPosY, m_PlayerPosZ };
+		float playerPos[3] = { playerPosX, playerPosY, playerPosZ };
 
 		//if (ImGui::SliderFloat3("PlayerPos", playerPos, -10.0f, 10.0f))
 		//{
@@ -98,38 +98,38 @@ void RenderGUI::Render()
 		// 플레이어 위치 조정은 자유롭게 조절 가능
 		if (ImGui::DragFloat3(" CameraPos", playerPos))
 		{
-			m_PlayerPosX = playerPos[0];
-			m_PlayerPosY = playerPos[1];
-			m_PlayerPosZ = playerPos[2];
+			playerPosX = playerPos[0];
+			playerPosY = playerPos[1];
+			playerPosZ = playerPos[2];
 		}
 
-		ImGui::SliderFloat(" FOV", &m_FOV, 0.6f, 10.0f);
+		ImGui::SliderFloat(" FOV", &FOV, 0.6f, 10.0f);
 
-		float depth[2] = { m_NearZ, m_FarZ };
+		float depth[2] = { nearZ, farZ };
 
 		if (ImGui::DragFloat2(" Near & Far", depth, 1.0f, 0.01f, 1000.0f))
 		{
-			m_NearZ = depth[0];
-			m_FarZ = depth[1];
+			nearZ = depth[0];
+			farZ = depth[1];
 
-			if (m_NearZ > m_FarZ)
+			if (nearZ > farZ)
 			{
-				m_FarZ = m_NearZ;
+				farZ = nearZ;
 			}
 		}
 
 		if (ImGui::Button("Camera Reset"))
 		{
-			m_PlayerPosX = 0.0f;
-			m_PlayerPosY = 0.0f;
-			m_PlayerPosZ = -10.0f;
+			playerPosX = 0.0f;
+			playerPosY = 0.0f;
+			playerPosZ = -10.0f;
 
-			m_FOV = 1.0f;
+			FOV = 1.0f;
 
-			m_NearZ = 0.01f;
-			m_FarZ = 100.0f;
+			nearZ = 0.01f;
+			farZ = 100.0f;
 
-			m_FocusParent = false;
+			isFocusParent = false;
 
 			m_counter = 0;
 		}
@@ -139,7 +139,7 @@ void RenderGUI::Render()
 
 		if (ImGui::CollapsingHeader("Dummy"))
 		{
-			ImGui::Checkbox(" Focus Parent", &m_FocusParent);
+			ImGui::Checkbox(" Focus Parent", &isFocusParent);
 			if (ImGui::Button("Click"))                            // Buttons return true when clicked (most widgets return true when edited/activated)
 				m_counter++;
 

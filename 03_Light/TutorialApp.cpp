@@ -63,12 +63,12 @@ void TutorialApp::Update()
     //vLightDir = XMVector3Transform(vLightDir, mRotate);
     //XMStoreFloat4(&m_LightDirsEvaluated, vLightDir);
 
-    float PosX = m_GUI.m_PlayerPosX;
-    float PosY = m_GUI.m_PlayerPosY;
-    float PosZ = m_GUI.m_PlayerPosZ;
+    float PosX = m_GUI.playerPosX;
+    float PosY = m_GUI.playerPosY;
+    float PosZ = m_GUI.playerPosZ;
 
-    float nearZ = m_GUI.m_NearZ;
-    float farZ = m_GUI.m_FarZ;
+    float nearZ = m_GUI.nearZ;
+    float farZ = m_GUI.farZ;
 
     XMVECTOR Eye = XMVectorSet(PosX, PosY, PosZ, 0);
 
@@ -87,9 +87,9 @@ void TutorialApp::Update()
     }
 
     // 안전하게 좌표 설정
-    if (m_GUI.m_FocusParent)
+    if (m_GUI.isFocusParent)
     {
-        float dz = m_GUI.m_ObjectPosZ - PosZ;
+        float dz = m_GUI.objectPosZ - PosZ;
 
         if (fabs(dz) < minZ)
         {
@@ -97,7 +97,7 @@ void TutorialApp::Update()
             else dz = -minZ;
         }
 
-        At = XMVectorSet(m_GUI.m_ObjectPosX, m_GUI.m_ObjectPosY, PosZ + dz, 0);
+        At = XMVectorSet(m_GUI.objectPosX, m_GUI.objectPosY, PosZ + dz, 0);
     }
     else
     {
@@ -105,11 +105,11 @@ void TutorialApp::Update()
     }
 
     XMVECTOR Up = XMVectorSet(0, 1, 0, 0);
-    m_World = XMMatrixRotationY(m_Angle) * XMMatrixTranslation(m_GUI.m_ObjectPosX, m_GUI.m_ObjectPosY, m_GUI.m_ObjectPosZ);
+    m_World = XMMatrixRotationY(m_Angle) * XMMatrixTranslation(m_GUI.objectPosX, m_GUI.objectPosY, m_GUI.objectPosZ);
     m_Angle += 0.0001f;
 
     m_View = XMMatrixLookAtLH(Eye, At, Up);
-    m_Projection = XMMatrixPerspectiveFovLH(XM_PIDIV2 / m_GUI.m_FOV, m_ClientWidth / (FLOAT)m_ClientHeight, nearZ, finalFarZ);
+    m_Projection = XMMatrixPerspectiveFovLH(XM_PIDIV2 / m_GUI.FOV, m_ClientWidth / (FLOAT)m_ClientHeight, nearZ, finalFarZ);
 
     //m_InitialLightDirs = { m_GUI.m_LightPosX , m_GUI.m_LightPosY, m_GUI.m_LightPosZ, 1.0f };
 }

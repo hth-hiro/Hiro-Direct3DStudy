@@ -19,9 +19,9 @@ public:
 	void Render() override;
 	void Release();
 
-	float m_PlayerPosX = 0.0f;
-	float m_PlayerPosY = 0.0f;
-	float m_PlayerPosZ = -10.0f;
+	float playerPosX = 0.0f;
+	float playerPosY = 0.0f;
+	float playerPosZ = -10.0f;
 	
 	float m_ParentWorldX = 0.0f;
 	float m_ParentWorldY = 0.0f;
@@ -35,12 +35,12 @@ public:
 	float m_Child2LocalY = 0.0f;
 	float m_Child2LocalZ = 0.0f;
 
-	float m_FOV = 1.0f;
+	float FOV = 1.0f;
 
-	float m_NearZ = 0.01f;
-	float m_FarZ = 100.0f;
+	float nearZ = 0.01f;
+	float farZ = 100.0f;
 
-	bool m_FocusParent = false;
+	bool isFocusParent = false;
 
 	int m_counter = 0;
 };

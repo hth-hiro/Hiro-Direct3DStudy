@@ -38,93 +38,86 @@ void RenderGUI::Render()
 		ImGui::Separator();
 
 		// Object
-		float objectPos[3] = { m_ObjectPosX , m_ObjectPosY, m_ObjectPosZ };
+		float objectPos[3] = { objectPosX , objectPosY, objectPosZ };
 
-		if (ImGui::SliderFloat3(" ParentPos", objectPos, -10.0f, 10.0f))
+		if (ImGui::SliderFloat3(" ObjectPos", objectPos, -10.0f, 10.0f))
 		{
-			m_ObjectPosX = objectPos[0];
-			m_ObjectPosY = objectPos[1];
-			m_ObjectPosZ = objectPos[2];
+			objectPosX = objectPos[0];
+			objectPosY = objectPos[1];
+			objectPosZ = objectPos[2];
 		}
 
 		// Light
-		float lightPos[3] = { m_LightPosX, m_LightPosY, m_LightPosZ };
+		float lightPos[3] = { lightPosX, lightPosY, lightPosZ };
 
-		if (ImGui::SliderFloat3(" Child1Pos", lightPos, -10.0f, 10.0f))
+		if (ImGui::SliderFloat3(" LightPos", lightPos, -10.0f, 10.0f))
 		{
-			m_LightPosX = lightPos[0];
-			m_LightPosY = lightPos[1];
-			m_LightPosZ = lightPos[2];
+			lightPosX = lightPos[0];
+			lightPosY = lightPos[1];
+			lightPosZ = lightPos[2];
 		}
+
+		float lightDir[3] = {};
 
 		if (ImGui::Button("Object Reset"))
 		{
-			m_ObjectPosX = 0.0f;
-			m_ObjectPosY = 0.0f;
-			m_ObjectPosZ = 0.0f;
+			objectPosX = 0.0f;
+			objectPosY = 0.0f;
+			objectPosZ = 0.0f;
 
-			m_LightPosX = 0.0f;
-			m_LightPosY = 0.0f;
-			m_LightPosZ = 0.0f;
+			lightPosX = 0.0f;
+			lightPosY = 0.0f;
+			lightPosZ = 0.0f;
 		}
 
 		ImGui::Text("");
 
 		ImGui::SeparatorText(" Camera Control");
 
-		float playerPos[3] = { m_PlayerPosX, m_PlayerPosY, m_PlayerPosZ };
+		float playerPos[3] = { playerPosX, playerPosY, playerPosZ };
 
 		// 플레이어 위치 조정은 자유롭게 조절 가능
 		if (ImGui::DragFloat3(" CameraPos", playerPos))
 		{
-			m_PlayerPosX = playerPos[0];
-			m_PlayerPosY = playerPos[1];
-			m_PlayerPosZ = playerPos[2];
+			playerPosX = playerPos[0];
+			playerPosY = playerPos[1];
+			playerPosZ = playerPos[2];
 		}
 
-		ImGui::SliderFloat(" FOV", &m_FOV, 0.6f, 10.0f);
+		ImGui::SliderFloat(" FOV", &FOV, 0.6f, 10.0f);
 
-		float depth[2] = { m_NearZ, m_FarZ };
+		float depth[2] = { nearZ, farZ };
 
 		if (ImGui::DragFloat2(" Near & Far", depth, 1.0f, 0.01f, 1000.0f))
 		{
-			m_NearZ = depth[0];
-			m_FarZ = depth[1];
+			nearZ = depth[0];
+			farZ = depth[1];
 
-			if (m_NearZ > m_FarZ)
+			if (nearZ > farZ)
 			{
-				m_FarZ = m_NearZ;
+				farZ = nearZ;
 			}
 		}
 
 		if (ImGui::Button("Camera Reset"))
 		{
-			m_PlayerPosX = 0.0f;
-			m_PlayerPosY = 0.0f;
-			m_PlayerPosZ = -10.0f;
+			playerPosX = 0.0f;
+			playerPosY = 0.0f;
+			playerPosZ = -10.0f;
 
-			m_FOV = 1.0f;
+			FOV = 1.0f;
 
-			m_NearZ = 0.01f;
-			m_FarZ = 100.0f;
+			nearZ = 0.01f;
+			farZ = 100.0f;
 
-			m_FocusParent = false;
-
-			m_counter = 0;
+			isFocusParent = false;
 		}
 
 		ImGui::Text("");
+		ImGui::SeparatorText("[Debug]");
+		ImGui::Checkbox(" Focus Parent", &isFocusParent);
+
 		ImGui::Separator();
-
-		if (ImGui::CollapsingHeader("Dummy"))
-		{
-			ImGui::Checkbox(" Focus Parent", &m_FocusParent);
-			if (ImGui::Button("Click"))                            // Buttons return true when clicked (most widgets return true when edited/activated)
-				m_counter++;
-
-			ImGui::SameLine();
-			ImGui::Text("counter = %d", m_counter);
-		}
 
 		ImGui::Text("");
 		ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / io.Framerate, io.Framerate);
