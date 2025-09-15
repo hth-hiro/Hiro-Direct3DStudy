@@ -13,6 +13,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "03_Light", "03_Light\03_Lig
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "99_FBXtest", "99_FBXtest\99_FBXtest.vcxproj", "{FCA13A0F-D059-42DF-BAF0-8771AC88F587}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "04_Texture", "04_Texture\04_Texture.vcxproj", "{A43509F3-6826-4023-B9C0-E247FAD16792}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -61,6 +63,14 @@ Global
 		{FCA13A0F-D059-42DF-BAF0-8771AC88F587}.Release|x64.Build.0 = Release|x64
 		{FCA13A0F-D059-42DF-BAF0-8771AC88F587}.Release|x86.ActiveCfg = Release|Win32
 		{FCA13A0F-D059-42DF-BAF0-8771AC88F587}.Release|x86.Build.0 = Release|Win32
+		{A43509F3-6826-4023-B9C0-E247FAD16792}.Debug|x64.ActiveCfg = Debug|x64
+		{A43509F3-6826-4023-B9C0-E247FAD16792}.Debug|x64.Build.0 = Debug|x64
+		{A43509F3-6826-4023-B9C0-E247FAD16792}.Debug|x86.ActiveCfg = Debug|Win32
+		{A43509F3-6826-4023-B9C0-E247FAD16792}.Debug|x86.Build.0 = Debug|Win32
+		{A43509F3-6826-4023-B9C0-E247FAD16792}.Release|x64.ActiveCfg = Release|x64
+		{A43509F3-6826-4023-B9C0-E247FAD16792}.Release|x64.Build.0 = Release|x64
+		{A43509F3-6826-4023-B9C0-E247FAD16792}.Release|x86.ActiveCfg = Release|Win32
+		{A43509F3-6826-4023-B9C0-E247FAD16792}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
