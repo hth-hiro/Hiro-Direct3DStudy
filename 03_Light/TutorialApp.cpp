@@ -129,7 +129,7 @@ void TutorialApp::Render()
     cb.mProjection = XMMatrixTranspose(m_Projection);
     cb.vLightDir = m_LightDirsEvaluated;
     cb.vLightColor = m_LightColor;
-    cb.vOutputColor = XMFLOAT4(0, 0, 0, 0); // Parent Obj
+    cb.vOutputColor = XMFLOAT4(1, 1, 1, 1); // Parent Obj
     m_pDeviceContext->UpdateSubresource(m_pConstantBuffer, 0, nullptr, &cb, 0, 0);
 
     // Render the cube

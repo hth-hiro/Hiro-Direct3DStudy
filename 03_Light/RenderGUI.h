@@ -19,14 +19,17 @@ public:
 	void Render() override;
 	void Release();
 
+	// 카메라의 위치
 	float m_PlayerPosX = 0.0f;
 	float m_PlayerPosY = 0.0f;
 	float m_PlayerPosZ = -10.0f;
 
+	// 오브젝트의 위치
 	float m_ObjectPosX = 0.0f;
 	float m_ObjectPosY = 0.0f;
 	float m_ObjectPosZ = 0.0f;
 
+	// 빛의 위치
 	float m_LightPosX = 0.0f;
 	float m_LightPosY = 0.0f;
 	float m_LightPosZ = 0.0f;
