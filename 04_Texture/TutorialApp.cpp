@@ -288,6 +288,10 @@ bool TutorialApp::InitScene()
 
     Vertex vertices[] =
     {
+        // Y를 기본 축으로 잡았을 때 XZ 평면
+        // XZ평면에서 X가 u, Z가 v
+        // 그리고, Y가 + 방향이라면
+
         { Vector3(-1.0f, 1.0f, -1.0f),	Vector3(0.0f, 1.0f, 0.0f),   Vector2(1.0f, 0.0f) },   // Normal Y +	 
         { Vector3(1.0f, 1.0f, -1.0f),	Vector3(0.0f, 1.0f, 0.0f),   Vector2(0.0f, 0.0f) },   
         { Vector3(1.0f, 1.0f, 1.0f),	Vector3(0.0f, 1.0f, 0.0f),   Vector2(0.0f, 1.0f) },
@@ -299,24 +303,24 @@ bool TutorialApp::InitScene()
         { Vector3(-1.0f, -1.0f, 1.0f),	Vector3(0.0f, -1.0f, 0.0f),  Vector2(0.0f, 1.0f) },
 
         { Vector3(-1.0f, -1.0f, 1.0f),	Vector3(-1.0f, 0.0f, 0.0f),  Vector2(0.0f, 1.0f) },   //	Normal X -
-        { Vector3(-1.0f, -1.0f, -1.0f), Vector3(-1.0f, 0.0f, 0.0f),  Vector2() },
-        { Vector3(-1.0f, 1.0f, -1.0f),	Vector3(-1.0f, 0.0f, 0.0f),  Vector2() },
-        { Vector3(-1.0f, 1.0f, 1.0f),	Vector3(-1.0f, 0.0f, 0.0f),  Vector2() },
+        { Vector3(-1.0f, -1.0f, -1.0f), Vector3(-1.0f, 0.0f, 0.0f),  Vector2(1.0f, 1.0f) },
+        { Vector3(-1.0f, 1.0f, -1.0f),	Vector3(-1.0f, 0.0f, 0.0f),  Vector2(1.0f, 0.0f) },
+        { Vector3(-1.0f, 1.0f, 1.0f),	Vector3(-1.0f, 0.0f, 0.0f),  Vector2(0.0f, 0.0f) },
 
-        { Vector3(1.0f, -1.0f, 1.0f),	Vector3(1.0f, 0.0f, 0.0f),   Vector2() },   // Normal X +
-        { Vector3(1.0f, -1.0f, -1.0f),	Vector3(1.0f, 0.0f, 0.0f),   Vector2() },
-        { Vector3(1.0f, 1.0f, -1.0f),	Vector3(1.0f, 0.0f, 0.0f),   Vector2() },
-        { Vector3(1.0f, 1.0f, 1.0f),	Vector3(1.0f, 0.0f, 0.0f),   Vector2() },
+        { Vector3(1.0f, -1.0f, 1.0f),	Vector3(1.0f, 0.0f, 0.0f),   Vector2(0.1f, 1.0f) },   // Normal X +
+        { Vector3(1.0f, -1.0f, -1.0f),	Vector3(1.0f, 0.0f, 0.0f),   Vector2(1.0f, 1.0f) },
+        { Vector3(1.0f, 1.0f, -1.0f),	Vector3(1.0f, 0.0f, 0.0f),   Vector2(1.0f, 0.0f) },
+        { Vector3(1.0f, 1.0f, 1.0f),	Vector3(1.0f, 0.0f, 0.0f),   Vector2(0.0f, 0.0f) },
 
-        { Vector3(-1.0f, -1.0f, -1.0f), Vector3(0.0f, 0.0f, -1.0f),  Vector2() },   // Normal Z -
-        { Vector3(1.0f, -1.0f, -1.0f),	Vector3(0.0f, 0.0f, -1.0f),  Vector2() },
-        { Vector3(1.0f, 1.0f, -1.0f),	Vector3(0.0f, 0.0f, -1.0f),  Vector2() },
-        { Vector3(-1.0f, 1.0f, -1.0f),	Vector3(0.0f, 0.0f, -1.0f),  Vector2() },
+        { Vector3(-1.0f, -1.0f, -1.0f), Vector3(0.0f, 0.0f, -1.0f),  Vector2(1.0f, 1.0f) },   // Normal Z -
+        { Vector3(1.0f, -1.0f, -1.0f),	Vector3(0.0f, 0.0f, -1.0f),  Vector2(0.0f, 1.0f) },
+        { Vector3(1.0f, 1.0f, -1.0f),	Vector3(0.0f, 0.0f, -1.0f),  Vector2(0.0f, 0.0f) },
+        { Vector3(-1.0f, 1.0f, -1.0f),	Vector3(0.0f, 0.0f, -1.0f),  Vector2(1.0f, 0.0f) },
 
-        { Vector3(-1.0f, -1.0f, 1.0f),	Vector3(0.0f, 0.0f, 1.0f),   Vector2() },   // Normal Z +
-        { Vector3(1.0f, -1.0f, 1.0f),	Vector3(0.0f, 0.0f, 1.0f),   Vector2() },
-        { Vector3(1.0f, 1.0f, 1.0f),	Vector3(0.0f, 0.0f, 1.0f),   Vector2() },
-        { Vector3(-1.0f, 1.0f, 1.0f),	Vector3(0.0f, 0.0f, 1.0f),   Vector2() },
+        { Vector3(-1.0f, -1.0f, 1.0f),	Vector3(0.0f, 0.0f, 1.0f),   Vector2(0.0f, 1.0f) },   // Normal Z +
+        { Vector3(1.0f, -1.0f, 1.0f),	Vector3(0.0f, 0.0f, 1.0f),   Vector2(1.0f, 1.0f) },
+        { Vector3(1.0f, 1.0f, 1.0f),	Vector3(0.0f, 0.0f, 1.0f),   Vector2(1.0f, 0.0f) },
+        { Vector3(-1.0f, 1.0f, 1.0f),	Vector3(0.0f, 0.0f, 1.0f),   Vector2(0.0f, 0.0f) },
     };
 
     WORD indices[] =
@@ -388,16 +392,23 @@ bool TutorialApp::InitScene()
 
     SAFE_RELEASE(pixelShaderBuffer);
 
-    HR_T(CompileShaderFromFile(L"SolidPixelShader.hlsl", "main", "ps_4_0", &pixelShaderBuffer));
-    HR_T(m_pDevice->CreatePixelShader(pixelShaderBuffer->GetBufferPointer(),
-        pixelShaderBuffer->GetBufferSize(), NULL, &m_pPixelShaderSolid));
-    SAFE_RELEASE(pixelShaderBuffer);
+    // 왜 있는거지?
+    //HR_T(CompileShaderFromFile(L"SolidPixelShader.hlsl", "main", "ps_4_0", &pixelShaderBuffer));
+    //HR_T(m_pDevice->CreatePixelShader(pixelShaderBuffer->GetBufferPointer(),
+    //    pixelShaderBuffer->GetBufferSize(), NULL, &m_pPixelShaderSolid));
+    //SAFE_RELEASE(pixelShaderBuffer);
 
     vbDesc.Usage = D3D11_USAGE_DEFAULT;
     vbDesc.ByteWidth = sizeof(ConstantBuffer);
     vbDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
     vbDesc.CPUAccessFlags = 0;
     HR_T(m_pDevice->CreateBuffer(&vbDesc, nullptr, &m_pConstantBuffer));
+
+    // 여기에 텍스처 렌더, CreateDDSTextureFromFile 사용
+
+    // 여기에 Sampler State 생성, CreateSamplerState 사용
+
+
 
     //m_World = XMMatrixIdentity();
 
