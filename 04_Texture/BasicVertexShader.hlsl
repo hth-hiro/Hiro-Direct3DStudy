@@ -1,4 +1,4 @@
-#include "Shared.fxh"
+#include "Shared.hlsli"
 
 //--------------------------------------------------------------------------------------
 // Vertex Shader
@@ -23,7 +23,6 @@ PS_INPUT main(VS_INPUT input)
     
     // 스케일이 적용된 후라면 빛의 세기가 실제보다 왜곡됨.
     // 따라서 정규화를 거친다.
-    
     output.Norm = normalize(mul(input.Norm, (float3x3) World));
 
     return output;

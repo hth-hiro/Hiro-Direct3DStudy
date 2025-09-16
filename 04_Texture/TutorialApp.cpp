@@ -153,20 +153,22 @@ void TutorialApp::Render()
     m_pDeviceContext->VSSetConstantBuffers(0, 1, &m_pConstantBuffer);
     m_pDeviceContext->PSSetShader(m_pPixelShader, nullptr, 0);
     m_pDeviceContext->PSSetConstantBuffers(0, 1, &m_pConstantBuffer);
+    m_pDeviceContext->PSSetShaderResources(0, 1, &m_pTextureRV);
+    m_pDeviceContext->PSSetSamplers(0, 1, &m_pSamplerLinear);
 
     m_pDeviceContext->DrawIndexed(m_nIndices, 0, 0);
 
     // Render the Light
-    XMMATRIX mLight = XMMatrixTranslationFromVector(5.0f * XMLoadFloat4(&m_LightDirsEvaluated));
-    XMMATRIX mLightScale = XMMatrixScaling(0.2f, 0.2f, 0.2f);
-    mLight = mLightScale * mLight;
+    //XMMATRIX mLight = XMMatrixTranslationFromVector(5.0f * XMLoadFloat4(&m_LightDirsEvaluated));
+    //XMMATRIX mLightScale = XMMatrixScaling(0.2f, 0.2f, 0.2f);
+    //mLight = mLightScale * mLight;
 
-    cb.mWorld = XMMatrixTranspose(mLight);
-    cb.vOutputColor = m_LightColor;
-    m_pDeviceContext->UpdateSubresource(m_pConstantBuffer, 0, nullptr, &cb, 0, 0);
+    //cb.mWorld = XMMatrixTranspose(mLight);
+    //cb.vOutputColor = m_LightColor;
+    //m_pDeviceContext->UpdateSubresource(m_pConstantBuffer, 0, nullptr, &cb, 0, 0);
 
-    m_pDeviceContext->PSSetShader(m_pPixelShaderSolid, nullptr, 0);
-    m_pDeviceContext->DrawIndexed(m_nIndices, 0, 0);
+    //m_pDeviceContext->PSSetShader(m_pPixelShaderSolid, nullptr, 0);
+    //m_pDeviceContext->DrawIndexed(m_nIndices, 0, 0);
 
     // GUI는 맨 나중에 렌더하도록 한다.
     m_GUI.Render();
@@ -407,22 +409,25 @@ bool TutorialApp::InitScene()
     HR_T(m_pDevice->CreateBuffer(&vbDesc, nullptr, &m_pConstantBuffer));
 
     // 여기에 텍스처 렌더, CreateDDSTextureFromFile 사용
+    HR_T(CreateDDSTextureFromFile(m_pDevice, L"../Resource/seafloor.dds", nullptr, &m_pTextureRV));
 
     // 여기에 Sampler State 생성, CreateSamplerState 사용
+    D3D11_SAMPLER_DESC sampDesc = {};
+
+    // 샘플링하는 여러가지 옵션을 설정한다.
+    sampDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
+    sampDesc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
+    sampDesc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
+    sampDesc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
+    sampDesc.ComparisonFunc = D3D11_COMPARISON_NEVER;
+    sampDesc.MinLOD = 0;                                    // 밉맵 최솟값
+    sampDesc.MaxLOD = D3D11_FLOAT32_MAX;                    // 밉맵 최대값
+    HR_T(m_pDevice->CreateSamplerState(&sampDesc, &m_pSamplerLinear));
 
 
-
-    //m_World = XMMatrixIdentity();
-
-    //XMVECTOR Eye = XMVectorSet(0, 1, -15, 0);
-    //XMVECTOR At = XMVectorSet(0, 1, 0, 0);
-    //XMVECTOR Up = XMVectorSet(0, 1, 0, 0);
-
-    //m_View = XMMatrixLookAtLH(Eye, At, Up);
-
-    //// 투영 변환(절두체를 이해하면 된다.)
-    //// 그려지는 범위 NearZ, FarZ값으로 설정
-    //m_Projection = XMMatrixPerspectiveFovLH(XM_PIDIV2, m_ClientWidth / (FLOAT)m_ClientHeight, 0.01f, 100.0f);
+    // 투영 변환(절두체를 이해하면 된다.)
+    // 그려지는 범위 NearZ, FarZ값으로 설정
+    m_Projection = XMMatrixPerspectiveFovLH(XM_PIDIV2, m_ClientWidth / (FLOAT)m_ClientHeight, 0.01f, 100.0f);
 
     m_World = XMMatrixIdentity();
     XMVECTOR Eye = XMVectorSet(0.0f, 4.0f, -10.0f, 0.0f);

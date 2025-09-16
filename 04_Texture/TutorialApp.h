@@ -33,6 +33,9 @@ public:
 	int m_nIndices = 0;									// 인덱스 개수.
 	ID3D11Buffer* m_pConstantBuffer = nullptr;			// 상수 버퍼.
 
+	ID3D11ShaderResourceView* m_pTextureRV = nullptr;	// 텍스처 파일
+	ID3D11SamplerState* m_pSamplerLinear = nullptr;		// 샘플러 스테이트
+
 	Matrix m_World;
 	Matrix m_View;
 	Matrix m_Projection;
