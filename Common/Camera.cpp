@@ -22,7 +22,7 @@ void Camera::Update(float deltaTime)
 {
     if (m_InputVector.Length() > 0.0f)
     {
-        m_Position += m_InputVector * m_MoveSpeed * deltaTime;
+		m_Position += m_InputVector * m_MoveSpeed * deltaTime;
         m_InputVector = Vector3(0.0f, 0.0f, 0.0f);
     }
 
@@ -73,6 +73,8 @@ void Camera::OnInputProcess(const Keyboard::State& KeyState, const Keyboard::Key
     Vector3 forward = GetForward();
     Vector3 right = GetRight();
 
+	//delta = Vector3(float(MouseState.x), float(MouseState.y), 0.0f);
+
 	if (KeyTracker.IsKeyPressed(Keyboard::Keys::R))
 	{
 		Reset();
@@ -96,14 +98,17 @@ void Camera::OnInputProcess(const Keyboard::State& KeyState, const Keyboard::Key
 		AddInputVector(right);
 	}
 
-	if (KeyState.IsKeyDown(Keyboard::Keys::Q))
+	if (KeyState.IsKeyDown(Keyboard::Keys::LeftShift) || KeyState.IsKeyDown(Keyboard::Keys::Q))
 	{
-
-		AddInputVector(-m_World.Up());
+		//AddInputVector(-m_World.Up());
+		// 월드 좌표계로 상하이동
+		AddInputVector(Vector3(0.0f, -1.0f, 0.0f));
 	}
-	else if (KeyState.IsKeyDown(Keyboard::Keys::E))
+	else if (KeyState.IsKeyDown(Keyboard::Keys::Space) || KeyState.IsKeyDown(Keyboard::Keys::E))
 	{
-		AddInputVector(m_World.Up());
+		//AddInputVector(m_World.Up());
+		// 월드 좌표계로 상하이동
+		AddInputVector(Vector3(0.0f, 1.0f, 0.0f));
 	}
 
 	if (KeyTracker.IsKeyPressed(Keyboard::Keys::F6))
@@ -120,13 +125,13 @@ void Camera::OnInputProcess(const Keyboard::State& KeyState, const Keyboard::Key
 		}
 	}
 
-	if (isFPSMode)
+	if (MouseState.positionMode == Mouse::MODE_RELATIVE)
 	{
-		Vector3 delta = Vector3(float(MouseState.x), float(MouseState.y), 0.0f) * m_RotationSpeed;
-		
 		// 헷갈리지 않게 주의
 		// Pitch는 X축 기반 회전 -> 카메라 기준 상하
 		// Yaw는 Y축 기반 회전 -> 카메라 기준 좌우  
+
+		Vector3 delta = Vector3(float(MouseState.x), float(MouseState.y), 0.f) * m_RotationSpeed;
 		AddPitch(delta.y);
 		AddYaw(delta.x);
 	}

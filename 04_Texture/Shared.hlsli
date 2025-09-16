@@ -9,9 +9,14 @@ cbuffer ConstantBuffer : register(b0)
     float4 vLightDir;
     float4 vLightColor;
     float4 vOutputColor;
+    
+    float3 cameraPos;       // camera위치 반영
+    float padding;
+    
 }
 
 Texture2D txDiffuse : register(t0);
+TextureCube txCube : register(t1);
 SamplerState samLinear : register(s0);
 
 //--------------------------------------------------------------------------------------

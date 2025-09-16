@@ -33,7 +33,9 @@ private:
 	float m_RotationSpeed = 0.004f;	// rad per sec
 
 	bool isFPSMode = false;
+	//Vector3 delta = Vector3(0, 0, 0);
 
+public:
 	virtual void OnInputProcess(
 		const Keyboard::State& KeyState,
 		const Keyboard::KeyboardStateTracker& KeyTracker,

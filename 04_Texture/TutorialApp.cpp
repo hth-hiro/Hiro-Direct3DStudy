@@ -28,9 +28,12 @@ struct ConstantBuffer
     Vector4 vLightDir;
     Vector4 vLightColor;
     Vector4 vOutputColor;
+
+    Vector3 cameraPos;
+    float padding;
 };
 
-TutorialApp::TutorialApp(HINSTANCE hInstance) : GameApp(hInstance)
+TutorialApp::TutorialApp(HINSTANCE hInstance) : GameApp(hInstance), m_GUI(this)
 {
 
 }
@@ -60,6 +63,8 @@ bool TutorialApp::Initialize(UINT Width, UINT Height)
 
 void TutorialApp::Update()
 {
+    __super::Update();
+
     // Light
     m_InitialLightDirs = { m_GUI.lightDirX, m_GUI.lightDirY, m_GUI.lightDirZ, 0.0f };
     m_LightDirsEvaluated = m_InitialLightDirs;
@@ -122,6 +127,9 @@ void TutorialApp::Update()
 
     m_View = XMMatrixLookAtLH(Eye, At, Up);
     m_Projection = XMMatrixPerspectiveFovLH(XM_PIDIV2 / m_GUI.FOV, m_ClientWidth / (FLOAT)m_ClientHeight, nearZ, finalFarZ);
+
+    // 카메라 뷰에 적용
+    m_Camera.GetViewMatrix(m_View);
 }
 
 void TutorialApp::Render()
@@ -141,6 +149,7 @@ void TutorialApp::Render()
     cb.vLightDir = m_LightDirsEvaluated;
     cb.vLightColor = m_LightColor;
     cb.vOutputColor = XMFLOAT4(1, 1, 1, 1); // Parent Obj
+    // 이 부분에 카메라 관련 넣기 cb.cameraPos
     m_pDeviceContext->UpdateSubresource(m_pConstantBuffer, 0, nullptr, &cb, 0, 0);
 
     // Render the cube

@@ -12,7 +12,7 @@ using namespace DirectX::SimpleMath;
 class RenderGUI : public GameApp
 {
 public:
-	RenderGUI() : GameApp(GetModuleHandleW(nullptr)) {}
+	//RenderGUI() : GameApp(GetModuleHandleW(nullptr)) {}
 	RenderGUI(HINSTANCE hInstace) : GameApp(hInstace) {}
 
 	void Initialize(ID3D11Device* _Device, ID3D11DeviceContext* _DeviceContext);

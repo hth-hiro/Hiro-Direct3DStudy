@@ -26,8 +26,6 @@ GameApp::GameApp(HINSTANCE hInstance)
 	m_wcex.hCursor = LoadCursor(nullptr, IDC_ARROW);
 	m_wcex.hbrBackground = (HBRUSH)(COLOR_WINDOW + 1);
 	m_wcex.lpszClassName = m_szWindowClass;
-
-	m_Time.Initialize();
 }
 
 GameApp::~GameApp()
@@ -58,6 +56,9 @@ bool GameApp::Initialize(UINT Width, UINT Height)
 	ShowWindow(m_hWnd, SW_SHOW);
 	UpdateWindow(m_hWnd);
 
+	m_Time.Initialize();
+	m_Input.Initialize(m_hWnd,this);
+
 	return true;
 }
 
@@ -87,8 +88,15 @@ bool GameApp::Run()
 void GameApp::Update()
 {
 	m_Time.Update();
+	float deltaTime = m_Time.GetDeltaTime();
+	m_Input.Update(deltaTime);
+	m_Camera.Update(deltaTime);
 }
 
+void GameApp::OnInputProcess(const Keyboard::State& KeyState, const Keyboard::KeyboardStateTracker& KeyTracker, const Mouse::State& MouseState, const Mouse::ButtonStateTracker& MouseTracker)
+{
+	m_Camera.OnInputProcess(KeyState, KeyTracker, MouseState, MouseTracker);
+}
 
 LRESULT GameApp::WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
@@ -96,6 +104,29 @@ LRESULT GameApp::WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 	{
 	case WM_DESTROY:
 		PostQuitMessage(0);
+		break;
+	case WM_ACTIVATEAPP:
+		Keyboard::ProcessMessage(message, wParam, lParam);
+		Mouse::ProcessMessage(message, wParam, lParam);
+		break;
+	case WM_INPUT:
+	case WM_MOUSEMOVE:
+	case WM_LBUTTONDOWN:
+	case WM_LBUTTONUP:
+	case WM_RBUTTONDOWN:
+	case WM_RBUTTONUP:
+	case WM_MBUTTONDOWN:
+	case WM_MBUTTONUP:
+	case WM_MOUSEWHEEL:
+	case WM_XBUTTONDOWN:
+	case WM_XBUTTONUP:
+	case WM_MOUSEHOVER:
+		Mouse::ProcessMessage(message, wParam, lParam);
+		break;
+	case WM_KEYDOWN:
+	case WM_KEYUP:
+	case WM_SYSKEYUP:
+		Keyboard::ProcessMessage(message, wParam, lParam);
 		break;
 
 	default:

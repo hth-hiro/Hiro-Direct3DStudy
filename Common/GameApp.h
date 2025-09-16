@@ -3,10 +3,12 @@
 #include <imgui.h>
 
 #include "TimeSystem.h"
+#include "InputSystem.h"
+#include "Camera.h"
 
 #define MAX_LOADSTRING 100
 
-class GameApp
+class GameApp : public InputProcesser
 {
 public:
 	GameApp(HINSTANCE hInstace);
@@ -26,12 +28,18 @@ public:
 	UINT m_ClientWidth;
 	UINT m_ClientHeight;
 
-	TimeSystem m_Time;
+	TimeSystem	m_Time;
+	InputSystem	m_Input;
+	Camera		m_Camera;
 
 public:
 	virtual bool Initialize(UINT Width, UINT Height);
 	virtual bool Run();
 	virtual void Update();
 	virtual void Render() = 0;
+
+	virtual void OnInputProcess(const Keyboard::State& KeyState, const Keyboard::KeyboardStateTracker& KeyTracker,
+		const Mouse::State& MouseState, const Mouse::ButtonStateTracker& MouseTracker);
+
 	virtual LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
 };

@@ -28,7 +28,7 @@ struct ConstantBuffer
     Vector4 vOutputColor;
 };
 
-TutorialApp::TutorialApp(HINSTANCE hInstance) : GameApp(hInstance)
+TutorialApp::TutorialApp(HINSTANCE hInstance) : GameApp(hInstance), m_GUI(this)
 {
 
 }

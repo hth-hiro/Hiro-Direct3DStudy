@@ -10,7 +10,7 @@ void RenderGUI::Initialize(ID3D11Device* _Device, ID3D11DeviceContext* _DeviceCo
 	//ImGui::StyleColorsLight();
 	//ImGui::StyleColorsClassic();
 
-	ImGui_ImplWin32_Init(m_hWnd);
+	ImGui_ImplWin32_Init(GameApp::m_hWnd);
 	ImGui_ImplDX11_Init(_Device, _DeviceContext);
 }
 
