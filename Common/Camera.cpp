@@ -98,46 +98,62 @@ void Camera::OnInputProcess(const Keyboard::State& KeyState, const Keyboard::Key
 		AddInputVector(right);
 	}
 
-	if (KeyState.IsKeyDown(Keyboard::Keys::LeftShift) || KeyState.IsKeyDown(Keyboard::Keys::Q))
+	if (KeyState.IsKeyDown(Keyboard::Keys::LeftShift) || KeyState.IsKeyDown(Keyboard::Keys::E))
 	{
-		//AddInputVector(-m_World.Up());
-		// 월드 좌표계로 상하이동
-		AddInputVector(Vector3(0.0f, -1.0f, 0.0f));
+		AddInputVector(-m_World.Up());
 	}
-	else if (KeyState.IsKeyDown(Keyboard::Keys::Space) || KeyState.IsKeyDown(Keyboard::Keys::E))
+	else if (KeyState.IsKeyDown(Keyboard::Keys::Space) || KeyState.IsKeyDown(Keyboard::Keys::Q))
 	{
-		//AddInputVector(m_World.Up());
-		// 월드 좌표계로 상하이동
-		AddInputVector(Vector3(0.0f, 1.0f, 0.0f));
-	}
-
-	if (KeyTracker.IsKeyPressed(Keyboard::Keys::F6))
-	{
-		if (!isFPSMode)
-		{
-			InputSystem::Instance->m_Mouse->SetMode(Mouse::MODE_RELATIVE);
-			isFPSMode = true;
-		}
-		else
-		{
-			InputSystem::Instance->m_Mouse->SetMode(Mouse::MODE_ABSOLUTE);
-			isFPSMode = false;
-		}
-	}
-
-	if (MouseState.positionMode == Mouse::MODE_RELATIVE)
-	{
-		// 헷갈리지 않게 주의
-		// Pitch는 X축 기반 회전 -> 카메라 기준 상하
-		// Yaw는 Y축 기반 회전 -> 카메라 기준 좌우  
-
-		Vector3 delta = Vector3(float(MouseState.x), float(MouseState.y), 0.f) * m_RotationSpeed;
-		AddPitch(delta.y);
-		AddYaw(delta.x);
+		AddInputVector(m_World.Up());
 	}
 
 	if (KeyTracker.IsKeyPressed(Keyboard::Keys::Escape))
 	{
-		PostQuitMessage(0);
+		if (isFPSMode)
+		{
+			InputSystem::Instance->m_Mouse->SetMode(Mouse::MODE_ABSOLUTE);
+			isFPSMode = false;
+		}
+		else
+		{
+			InputSystem::Instance->m_Mouse->SetMode(Mouse::MODE_RELATIVE);
+			isFPSMode = true;
+		}
+	}
+
+	// 나중에 쓸수도 있으니 보류, 현재 교수님 코드 기준으로 반영
+	//if (isFPSMode)
+	//{
+	//	InputSystem::Instance->m_Mouse->SetMode(Mouse::MODE_RELATIVE);
+	//}
+
+	//if (MouseState.positionMode == Mouse::MODE_RELATIVE)
+	//{
+	//	// 헷갈리지 않게 주의
+	//	// Pitch는 X축 기반 회전 -> 카메라 기준 상하
+	//	// Yaw는 Y축 기반 회전 -> 카메라 기준 좌우  
+
+	//	Vector3 delta = Vector3(float(MouseState.x), float(MouseState.y), 0.f) * m_RotationSpeed;
+	//	AddPitch(delta.y);
+	//	AddYaw(delta.x);
+	//}
+
+	//if (KeyState.IsKeyDown(Keyboard::Keys::LeftShift))
+	//{
+	//	// 월드 좌표계로 상하이동
+	//	AddInputVector(Vector3(0.0f, -1.0f, 0.0f));
+	//}
+	//else if (KeyState.IsKeyDown(Keyboard::Keys::Space))
+	//{
+	//	// 월드 좌표계로 상하이동
+	//	AddInputVector(Vector3(0.0f, 1.0f, 0.0f));
+	//}
+
+	InputSystem::Instance->m_Mouse->SetMode(MouseState.rightButton ? Mouse::MODE_RELATIVE : Mouse::MODE_ABSOLUTE);
+	if (MouseState.positionMode == Mouse::MODE_RELATIVE)
+	{
+		Vector3 delta = Vector3(float(MouseState.x), float(MouseState.y), 0.f) * m_RotationSpeed;
+		AddPitch(delta.y);
+		AddYaw(delta.x);
 	}
 }

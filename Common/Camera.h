@@ -32,7 +32,7 @@ private:
 	float m_MoveSpeed = 20.0f;
 	float m_RotationSpeed = 0.004f;	// rad per sec
 
-	bool isFPSMode = false;
+	bool isFPSMode = true;
 	//Vector3 delta = Vector3(0, 0, 0);
 
 public:
