@@ -24,7 +24,8 @@ public:
 	// 렌더링 파이프라인에 적용하는  객체와 정보
 	ID3D11VertexShader* m_pVertexShader = nullptr;		// 정점 셰이더.
 	ID3D11PixelShader* m_pPixelShader = nullptr;		// 픽셀 셰이더.	
-	ID3D11PixelShader* m_pPixelShaderSolid = nullptr;	// 픽셀 셰이더 라이트 표시용.	
+	//ID3D11PixelShader* m_pPixelShaderSolid = nullptr;	// 픽셀 셰이더 라이트 표시용.	
+
 	ID3D11InputLayout* m_pInputLayout = nullptr;		// 입력 레이아웃.
 	ID3D11Buffer* m_pVertexBuffer = nullptr;			// 버텍스 버퍼.
 	UINT m_VertexBufferStride = 0;						// 버텍스 하나의 크기.
@@ -33,8 +34,23 @@ public:
 	int m_nIndices = 0;									// 인덱스 개수.
 	ID3D11Buffer* m_pConstantBuffer = nullptr;			// 상수 버퍼.
 
-	ID3D11ShaderResourceView* m_pTextureRV = nullptr;	// 텍스처 파일
-	ID3D11SamplerState* m_pSamplerLinear = nullptr;		// 샘플러 스테이트
+	ID3D11SamplerState* m_pSamplerLinear = nullptr;			// 샘플러 스테이트
+	ID3D11ShaderResourceView* m_pTextureRV = nullptr;		// 텍스처 파일
+
+	// 스카이박스용
+	ID3D11VertexShader* m_pSkyboxVertexShader = nullptr;// 스카이 박스용 정점 셰이더.
+	ID3D11PixelShader* m_pSkyboxPixelShader = nullptr;	// 스카이박스용 픽셀 셰이더
+
+	ID3D11InputLayout* m_pSkyboxInputLayout = nullptr;	// 스카이 박스 입력 레이아웃.
+	ID3D11Buffer* m_pSkyboxVertexBuffer = nullptr;		// 버텍스 버퍼.
+	UINT m_SkyboxVertexBufferStride = 0;				// 버텍스 하나의 크기.
+	UINT m_SkyboxVertexBufferOffset = 0;				// 버텍스 버퍼의 오프셋.
+	ID3D11Buffer* m_pSkyboxIndexBuffer = nullptr;		// 인덱스 버퍼.
+	int m_nSkyboxIndices = 0;							// 인덱스 개수.
+	ID3D11Buffer* m_pSkyboxConstantBuffer = nullptr;			// 상수 버퍼.
+	ID3D11ShaderResourceView* m_pCubeTextureRV = nullptr;	// 텍스처 파일(큐브맵)
+	ID3D11DepthStencilState* m_pSkyboxDepthStencilState = nullptr;
+
 
 	Matrix m_World;
 	Matrix m_View;

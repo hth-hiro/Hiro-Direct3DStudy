@@ -33,6 +33,17 @@ struct ConstantBuffer
     float padding;
 };
 
+struct Skybox
+{
+    Vector3 Pos;       // 스카이박스는 위치만 필요
+};
+
+struct SkyBoxCB
+{
+    Matrix mView;
+    Matrix mProjection;
+};
+
 TutorialApp::TutorialApp(HINSTANCE hInstance) : GameApp(hInstance), m_GUI(this)
 {
 
@@ -134,54 +145,70 @@ void TutorialApp::Update()
 
 void TutorialApp::Render()
 {
-    // Clear
+    // 1. Clear
     float color[4] = { 0.0f, 0.7f, 0.7f, 1.0f };
-
     m_pDeviceContext->OMSetRenderTargets(1, &m_pRenderTargetView, m_pDepthStencilView);
     m_pDeviceContext->ClearRenderTargetView(m_pRenderTargetView, color);
     m_pDeviceContext->ClearDepthStencilView(m_pDepthStencilView, D3D11_CLEAR_DEPTH, 1.0f, 0);
 
-    // Constant Buffer
-    ConstantBuffer cb;
-    cb.mWorld = XMMatrixTranspose(m_World);
-    cb.mView = XMMatrixTranspose(m_View);
-    cb.mProjection = XMMatrixTranspose(m_Projection);
-    cb.vLightDir = m_LightDirsEvaluated;
-    cb.vLightColor = m_LightColor;
-    cb.vOutputColor = XMFLOAT4(1, 1, 1, 1); // Parent Obj
-    // 이 부분에 카메라 관련 넣기 cb.cameraPos
-    m_pDeviceContext->UpdateSubresource(m_pConstantBuffer, 0, nullptr, &cb, 0, 0);
-
-    // Render the cube
-    // Input Assembler
+    // 2. 스카이박스 렌더
+    m_pDeviceContext->OMSetDepthStencilState(m_pSkyboxDepthStencilState, 0);
     m_pDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+    m_pDeviceContext->IASetVertexBuffers(0, 1, &m_pSkyboxVertexBuffer, &m_SkyboxVertexBufferStride, &m_SkyboxVertexBufferOffset);
+    m_pDeviceContext->IASetIndexBuffer(m_pSkyboxIndexBuffer, DXGI_FORMAT_R16_UINT, 0);
+    m_pDeviceContext->IASetInputLayout(m_pSkyboxInputLayout);
+
+    m_pDeviceContext->VSSetShader(m_pSkyboxVertexShader, nullptr, 0);
+    m_pDeviceContext->PSSetShader(m_pSkyboxPixelShader, nullptr, 0);
+
+    // 스카이박스 상수버퍼
+    // 카메라 위치 중심
+    SkyBoxCB cbSky;
+    XMMATRIX viewNoTranslation = m_View;
+    viewNoTranslation.r[3] = XMVectorSet(0, 0, 0, 1);
+    cbSky.mView = XMMatrixTranspose(viewNoTranslation);
+    cbSky.mProjection = XMMatrixTranspose(m_Projection);
+    m_pDeviceContext->UpdateSubresource(m_pSkyboxConstantBuffer, 0, nullptr, &cbSky, 0, 0);
+
+    m_pDeviceContext->VSSetConstantBuffers(1, 1, &m_pSkyboxConstantBuffer);
+    m_pDeviceContext->PSSetShaderResources(1, 1, &m_pCubeTextureRV);
+    m_pDeviceContext->PSSetSamplers(1, 1, &m_pSamplerLinear);
+
+    m_pDeviceContext->DrawIndexed(m_nSkyboxIndices, 0, 0);
+
+    // 원래 상태 복원
+    m_pDeviceContext->OMSetDepthStencilState(nullptr, 0);
+
+    // 3. 일반 오브젝트 렌더
     m_pDeviceContext->IASetVertexBuffers(0, 1, &m_pVertexBuffer, &m_VertexBufferStride, &m_VertexBufferOffset);
-    m_pDeviceContext->IASetInputLayout(m_pInputLayout);
     m_pDeviceContext->IASetIndexBuffer(m_pIndexBuffer, DXGI_FORMAT_R16_UINT, 0);
+    m_pDeviceContext->IASetInputLayout(m_pInputLayout);
+
     m_pDeviceContext->VSSetShader(m_pVertexShader, nullptr, 0);
-    m_pDeviceContext->VSSetConstantBuffers(0, 1, &m_pConstantBuffer);
     m_pDeviceContext->PSSetShader(m_pPixelShader, nullptr, 0);
+
+    ConstantBuffer cbObj;
+    cbObj.mWorld = XMMatrixTranspose(m_World);
+    cbObj.mView = XMMatrixTranspose(m_View);
+    cbObj.mProjection = XMMatrixTranspose(m_Projection);
+    cbObj.vLightDir = m_LightDirsEvaluated;
+    cbObj.vLightColor = m_LightColor;
+    cbObj.vOutputColor = XMFLOAT4(1, 1, 1, 1);
+    cbObj.cameraPos = m_Camera.GetPosition();
+
+    m_pDeviceContext->VSSetConstantBuffers(0, 1, &m_pConstantBuffer);
     m_pDeviceContext->PSSetConstantBuffers(0, 1, &m_pConstantBuffer);
+    m_pDeviceContext->UpdateSubresource(m_pConstantBuffer, 0, nullptr, &cbObj, 0, 0);
+
     m_pDeviceContext->PSSetShaderResources(0, 1, &m_pTextureRV);
-    m_pDeviceContext->PSSetSamplers(0, 1, &m_pSamplerLinear);
+    m_pDeviceContext->PSSetShaderResources(1, 1, &m_pCubeTextureRV);    m_pDeviceContext->PSSetSamplers(0, 1, &m_pSamplerLinear);
 
     m_pDeviceContext->DrawIndexed(m_nIndices, 0, 0);
 
-    // Render the Light
-    //XMMATRIX mLight = XMMatrixTranslationFromVector(5.0f * XMLoadFloat4(&m_LightDirsEvaluated));
-    //XMMATRIX mLightScale = XMMatrixScaling(0.2f, 0.2f, 0.2f);
-    //mLight = mLightScale * mLight;
-
-    //cb.mWorld = XMMatrixTranspose(mLight);
-    //cb.vOutputColor = m_LightColor;
-    //m_pDeviceContext->UpdateSubresource(m_pConstantBuffer, 0, nullptr, &cb, 0, 0);
-
-    //m_pDeviceContext->PSSetShader(m_pPixelShaderSolid, nullptr, 0);
-    //m_pDeviceContext->DrawIndexed(m_nIndices, 0, 0);
-
-    // GUI는 맨 나중에 렌더하도록 한다.
+    // 4. GUI 렌더
     m_GUI.Render();
 
+    // 5. Present
     m_pSwapChain->Present(0, 0);
 }
 
@@ -259,6 +286,14 @@ bool TutorialApp::InitD3D()
     ID3D11DepthStencilState* depthStencilState;
     m_pDevice->CreateDepthStencilState(&dsDesc, &depthStencilState);
     m_pDeviceContext->OMSetDepthStencilState(depthStencilState, 0);
+
+    D3D11_DEPTH_STENCIL_DESC skyDesc = {};
+    skyDesc.DepthEnable = true;
+    skyDesc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ZERO;
+    // Skybox는 Depth를 기록하지 않음
+    skyDesc.DepthFunc = D3D11_COMPARISON_LESS_EQUAL;
+
+    m_pDevice->CreateDepthStencilState(&skyDesc, &m_pSkyboxDepthStencilState);
 
     /*-------Create RenderTarget View-------*/
     D3D11_VIEWPORT viewport = {};
@@ -342,6 +377,29 @@ bool TutorialApp::InitScene()
         22,20,21, 23,20,22
     };
 
+    Skybox skybox[] =
+    {
+        { Vector3(-1.0f,  1.0f,  1.0f) },
+        { Vector3(1.0f,  1.0f,  1.0f) },
+        { Vector3(1.0f, -1.0f,  1.0f) },
+        { Vector3(-1.0f, -1.0f,  1.0f) },
+
+        { Vector3(-1.0f,  1.0f, -1.0f) },
+        { Vector3(1.0f,  1.0f, -1.0f) },
+        { Vector3(1.0f, -1.0f, -1.0f) },
+        { Vector3(-1.0f, -1.0f, -1.0f) },
+    };
+
+    WORD skyboxIndices[] =
+    {
+        0, 1, 2, 0, 2, 3,
+        4, 6, 5, 4, 7, 6,
+        4, 0, 3, 4, 3, 7,
+        1, 5, 6, 1, 6, 2,
+        4, 5, 1, 4, 1, 0,
+        3, 2, 6, 3, 6, 7,
+    };
+
     // Create Vertex Buffer
     D3D11_BUFFER_DESC vbDesc = {};
     vbDesc.ByteWidth = sizeof(Vertex) * ARRAYSIZE(vertices);
@@ -393,7 +451,6 @@ bool TutorialApp::InitScene()
 
     /*--------Pixel Shader Stage--------*/
     ID3DBlob* pixelShaderBuffer = nullptr;
-    //CompileShaderFromFile(L"BasicPixelShader.hlsl", "main", "ps_4_0", &pixelShaderBuffer);
     CompileShaderFromFile(L"BasicPixelShader.hlsl", "main", "ps_4_0", &pixelShaderBuffer);
 
     HR_T(m_pDevice->CreatePixelShader(pixelShaderBuffer->GetBufferPointer(),
@@ -401,20 +458,11 @@ bool TutorialApp::InitScene()
 
     SAFE_RELEASE(pixelShaderBuffer);
 
-    // 왜 있는거지?
-    //HR_T(CompileShaderFromFile(L"SolidPixelShader.hlsl", "main", "ps_4_0", &pixelShaderBuffer));
-    //HR_T(m_pDevice->CreatePixelShader(pixelShaderBuffer->GetBufferPointer(),
-    //    pixelShaderBuffer->GetBufferSize(), NULL, &m_pPixelShaderSolid));
-    //SAFE_RELEASE(pixelShaderBuffer);
-
     vbDesc.Usage = D3D11_USAGE_DEFAULT;
     vbDesc.ByteWidth = sizeof(ConstantBuffer);
     vbDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
     vbDesc.CPUAccessFlags = 0;
     HR_T(m_pDevice->CreateBuffer(&vbDesc, nullptr, &m_pConstantBuffer));
-
-    // 여기에 텍스처 렌더, CreateDDSTextureFromFile 사용
-    HR_T(CreateDDSTextureFromFile(m_pDevice, L"../Resource/seafloor.dds", nullptr, &m_pTextureRV));
 
     // 여기에 Sampler State 생성, CreateSamplerState 사용
     D3D11_SAMPLER_DESC sampDesc = {};
@@ -429,6 +477,71 @@ bool TutorialApp::InitScene()
     sampDesc.MaxLOD = D3D11_FLOAT32_MAX;                    // 밉맵 최대값
     HR_T(m_pDevice->CreateSamplerState(&sampDesc, &m_pSamplerLinear));
 
+    // 여기에 텍스처 렌더, CreateDDSTextureFromFile 사용
+    HR_T(CreateDDSTextureFromFile(m_pDevice, L"../Resource/seafloor.dds", nullptr, &m_pTextureRV));
+
+
+
+    // 스카이박스 전용 버퍼 생성
+    // Create Vertex Buffer
+    D3D11_BUFFER_DESC skyVBDesc = {};
+    skyVBDesc.ByteWidth = sizeof(Skybox) * ARRAYSIZE(skybox);
+    skyVBDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
+    skyVBDesc.Usage = D3D11_USAGE_DEFAULT;
+    skyVBDesc.CPUAccessFlags = 0;
+
+    D3D11_SUBRESOURCE_DATA skyVBData = {};
+    skyVBData.pSysMem = skybox;
+    HR_T(m_pDevice->CreateBuffer(&skyVBDesc, &skyVBData, &m_pSkyboxVertexBuffer));
+
+    m_SkyboxVertexBufferStride = sizeof(Skybox);
+    m_SkyboxVertexBufferOffset = 0;
+
+    // Create Index Buffer
+    m_nSkyboxIndices = ARRAYSIZE(skyboxIndices);
+    skyVBDesc.ByteWidth = sizeof(WORD) * m_nSkyboxIndices;
+    skyVBDesc.BindFlags = D3D11_BIND_INDEX_BUFFER;
+    skyVBDesc.Usage = D3D11_USAGE_DEFAULT;
+    skyVBDesc.CPUAccessFlags = 0;
+
+    D3D11_SUBRESOURCE_DATA skyIBData = {};
+    skyIBData.pSysMem = skyboxIndices;
+
+    HR_T(m_pDevice->CreateBuffer(&skyVBDesc, &skyIBData, &m_pSkyboxIndexBuffer));
+
+    ID3DBlob* vsBlobSkybox = nullptr;
+    CompileShaderFromFile(L"SkyboxVertexShader.hlsl", "VS_Skybox", "vs_4_0", &vsBlobSkybox);
+
+    HR_T(m_pDevice->CreateVertexShader(vsBlobSkybox->GetBufferPointer(),
+        vsBlobSkybox->GetBufferSize(), NULL, &m_pSkyboxVertexShader));
+
+    D3D11_INPUT_ELEMENT_DESC skylayout[] =
+    {
+        {"POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0},
+    };
+
+    HR_T(m_pDevice->CreateInputLayout(skylayout, ARRAYSIZE(skylayout), vsBlobSkybox->GetBufferPointer(),
+        vsBlobSkybox->GetBufferSize(), &m_pSkyboxInputLayout));
+
+    SAFE_RELEASE(vsBlobSkybox);
+
+    ID3DBlob* psBlobSkybox = nullptr;
+    CompileShaderFromFile(L"SkyboxPixelShader.hlsl", "PS_Skybox", "ps_4_0", &psBlobSkybox);
+    HR_T(m_pDevice->CreatePixelShader(psBlobSkybox->GetBufferPointer(),
+        psBlobSkybox->GetBufferSize(), NULL, &m_pSkyboxPixelShader));
+
+    SAFE_RELEASE(psBlobSkybox);
+
+    skyVBDesc.Usage = D3D11_USAGE_DEFAULT;
+    skyVBDesc.ByteWidth = sizeof(ConstantBuffer);
+    skyVBDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+    skyVBDesc.CPUAccessFlags = 0;
+    HR_T(m_pDevice->CreateBuffer(&skyVBDesc, nullptr, &m_pSkyboxConstantBuffer));
+
+    // Skybox 파일 로드
+    HR_T(CreateDDSTextureFromFile(m_pDevice, L"../Resource/cubemap.dds", nullptr, &m_pCubeTextureRV));
+
+
 
     // 투영 변환(절두체를 이해하면 된다.)
     // 그려지는 범위 NearZ, FarZ값으로 설정
@@ -439,7 +552,7 @@ bool TutorialApp::InitScene()
     XMVECTOR At = XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);
     XMVECTOR Up = XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);
     m_View = XMMatrixLookAtLH(Eye, At, Up);
-    m_Projection = XMMatrixPerspectiveFovLH(XM_PIDIV2 / 2.0f , m_ClientWidth / (FLOAT)m_ClientHeight, 0.01f, 100.0f);
+    m_Projection = XMMatrixPerspectiveFovLH(XM_PIDIV2 / 2.0f, m_ClientWidth / (FLOAT)m_ClientHeight, 0.01f, 100.0f);
 
     m_LightDirsEvaluated = m_InitialLightDirs;
 
@@ -453,5 +566,7 @@ void TutorialApp::UninitScene()
     SAFE_RELEASE(m_pInputLayout);
     SAFE_RELEASE(m_pVertexShader);
     SAFE_RELEASE(m_pPixelShader);
+    SAFE_RELEASE(m_pSkyboxVertexShader);
+    SAFE_RELEASE(m_pSkyboxPixelShader);
     SAFE_RELEASE(m_pConstantBuffer);
 }

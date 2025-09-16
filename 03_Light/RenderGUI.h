@@ -9,14 +9,13 @@
 #include <directxtk/SimpleMath.h>
 using namespace DirectX::SimpleMath;
 
-class RenderGUI : public GameApp
+class RenderGUI
 {
 public:
-	//RenderGUI() : GameApp(GetModuleHandleW(nullptr)) {}
-	RenderGUI(HINSTANCE hInstace) : GameApp(hInstace) {}
+	RenderGUI(GameApp* app) : m_app(app) {}
 
 	void Initialize(ID3D11Device* _Device, ID3D11DeviceContext* _DeviceContext);
-	void Render() override;
+	void Render();
 	void Release();
 
 	// 카메라의 위치
@@ -57,5 +56,8 @@ public:
 	float farZ = 100.0f;
 
 	bool isFocusParent = false;
+
+private:
+	GameApp* m_app;
 };
 
