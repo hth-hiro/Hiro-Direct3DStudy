@@ -61,7 +61,7 @@ bool TutorialApp::Initialize(UINT Width, UINT Height)
 void TutorialApp::Update()
 {
     // Light
-    //m_InitialLightDirs = { m_GUI.lightDirX, m_GUI.lightDirY, m_GUI.lightDirZ, 0.0f };
+    m_InitialLightDirs = { m_GUI.lightDirX, m_GUI.lightDirY, m_GUI.lightDirZ, 0.0f };
     m_LightDirsEvaluated = m_InitialLightDirs;
 
     m_LightColor = { m_GUI.lightColorR, m_GUI.lightColorG, m_GUI.lightColorB, 1 };

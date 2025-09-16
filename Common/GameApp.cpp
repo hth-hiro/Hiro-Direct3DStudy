@@ -26,6 +26,8 @@ GameApp::GameApp(HINSTANCE hInstance)
 	m_wcex.hCursor = LoadCursor(nullptr, IDC_ARROW);
 	m_wcex.hbrBackground = (HBRUSH)(COLOR_WINDOW + 1);
 	m_wcex.lpszClassName = m_szWindowClass;
+
+	m_Time.Initialize();
 }
 
 GameApp::~GameApp()
@@ -84,7 +86,7 @@ bool GameApp::Run()
 
 void GameApp::Update()
 {
-
+	m_Time.Update();
 }
 
 

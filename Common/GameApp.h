@@ -2,6 +2,8 @@
 #include <windows.h>
 #include <imgui.h>
 
+#include "TimeSystem.h"
+
 #define MAX_LOADSTRING 100
 
 class GameApp
@@ -23,6 +25,8 @@ public:
 	
 	UINT m_ClientWidth;
 	UINT m_ClientHeight;
+
+	TimeSystem m_Time;
 
 public:
 	virtual bool Initialize(UINT Width, UINT Height);

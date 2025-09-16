@@ -42,8 +42,9 @@ bool TutorialApp::Initialize(UINT Width, UINT Height)
     return true;
 }
 
-void TutorialApp::Update()
+void TutorialApp::Update(float deltaTime)
 {
+
 }
 
 void TutorialApp::Render()

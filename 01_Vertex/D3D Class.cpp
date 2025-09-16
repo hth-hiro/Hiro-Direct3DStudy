@@ -13,8 +13,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 
     TutorialApp App(hInstance);
 
-    if (!App.Initialize(1024, 768))
-        return -1;
+    App.Initialize(1024, 768);
 
     App.Run();
 }

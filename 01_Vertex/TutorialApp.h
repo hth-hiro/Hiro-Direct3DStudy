@@ -29,7 +29,7 @@ public:
 	UINT m_IndexCount = 0;									// 인덱스 개수
 	
 	virtual bool Initialize(UINT Width, UINT Height);
-	virtual void Update();
+	virtual void Update(float deltaTime);
 	virtual void Render();
 
 	bool InitD3D();
