@@ -292,10 +292,6 @@ bool TutorialApp::InitScene()
 
     Vertex vertices[] =
     {
-        // Y를 기본 축으로 잡았을 때 XZ 평면
-        // XZ평면에서 X가 u, Z가 v
-        // 그리고, Y가 + 방향이라면
-
         { Vector3(-1.0f, 1.0f, -1.0f),	Vector3(0.0f, 1.0f, 0.0f),   Vector2(1.0f, 0.0f) },   // Normal Y +	 
         { Vector3(1.0f, 1.0f, -1.0f),	Vector3(0.0f, 1.0f, 0.0f),   Vector2(0.0f, 0.0f) },   
         { Vector3(1.0f, 1.0f, 1.0f),	Vector3(0.0f, 1.0f, 0.0f),   Vector2(0.0f, 1.0f) },
@@ -311,20 +307,20 @@ bool TutorialApp::InitScene()
         { Vector3(-1.0f, 1.0f, -1.0f),	Vector3(-1.0f, 0.0f, 0.0f),  Vector2(1.0f, 0.0f) },
         { Vector3(-1.0f, 1.0f, 1.0f),	Vector3(-1.0f, 0.0f, 0.0f),  Vector2(0.0f, 0.0f) },
 
-        { Vector3(1.0f, -1.0f, 1.0f),	Vector3(1.0f, 0.0f, 0.0f),   Vector2(0.1f, 1.0f) },   // Normal X +
-        { Vector3(1.0f, -1.0f, -1.0f),	Vector3(1.0f, 0.0f, 0.0f),   Vector2(1.0f, 1.0f) },
-        { Vector3(1.0f, 1.0f, -1.0f),	Vector3(1.0f, 0.0f, 0.0f),   Vector2(1.0f, 0.0f) },
-        { Vector3(1.0f, 1.0f, 1.0f),	Vector3(1.0f, 0.0f, 0.0f),   Vector2(0.0f, 0.0f) },
+        { Vector3(1.0f, -1.0f, 1.0f),	Vector3(1.0f, 0.0f, 0.0f),   Vector2(1.0f, 1.0f) },   // Normal X +
+        { Vector3(1.0f, -1.0f, -1.0f),	Vector3(1.0f, 0.0f, 0.0f),   Vector2(0.0f, 1.0f) },
+        { Vector3(1.0f, 1.0f, -1.0f),	Vector3(1.0f, 0.0f, 0.0f),   Vector2(0.0f, 0.0f) },
+        { Vector3(1.0f, 1.0f, 1.0f),	Vector3(1.0f, 0.0f, 0.0f),   Vector2(1.0f, 0.0f) },
 
-        { Vector3(-1.0f, -1.0f, -1.0f), Vector3(0.0f, 0.0f, -1.0f),  Vector2(1.0f, 1.0f) },   // Normal Z -
-        { Vector3(1.0f, -1.0f, -1.0f),	Vector3(0.0f, 0.0f, -1.0f),  Vector2(0.0f, 1.0f) },
-        { Vector3(1.0f, 1.0f, -1.0f),	Vector3(0.0f, 0.0f, -1.0f),  Vector2(0.0f, 0.0f) },
-        { Vector3(-1.0f, 1.0f, -1.0f),	Vector3(0.0f, 0.0f, -1.0f),  Vector2(1.0f, 0.0f) },
+        { Vector3(-1.0f, -1.0f, -1.0f), Vector3(0.0f, 0.0f, -1.0f),  Vector2(0.0f, 1.0f) },   // Normal Z -
+        { Vector3(1.0f, -1.0f, -1.0f),	Vector3(0.0f, 0.0f, -1.0f),  Vector2(1.0f, 1.0f) },
+        { Vector3(1.0f, 1.0f, -1.0f),	Vector3(0.0f, 0.0f, -1.0f),  Vector2(1.0f, 0.0f) },
+        { Vector3(-1.0f, 1.0f, -1.0f),	Vector3(0.0f, 0.0f, -1.0f),  Vector2(0.0f, 0.0f) },
 
-        { Vector3(-1.0f, -1.0f, 1.0f),	Vector3(0.0f, 0.0f, 1.0f),   Vector2(0.0f, 1.0f) },   // Normal Z +
-        { Vector3(1.0f, -1.0f, 1.0f),	Vector3(0.0f, 0.0f, 1.0f),   Vector2(1.0f, 1.0f) },
-        { Vector3(1.0f, 1.0f, 1.0f),	Vector3(0.0f, 0.0f, 1.0f),   Vector2(1.0f, 0.0f) },
-        { Vector3(-1.0f, 1.0f, 1.0f),	Vector3(0.0f, 0.0f, 1.0f),   Vector2(0.0f, 0.0f) },
+        { Vector3(-1.0f, -1.0f, 1.0f),	Vector3(0.0f, 0.0f, 1.0f),   Vector2(1.0f, 1.0f) },   // Normal Z +
+        { Vector3(1.0f, -1.0f, 1.0f),	Vector3(0.0f, 0.0f, 1.0f),   Vector2(0.0f, 1.0f) },
+        { Vector3(1.0f, 1.0f, 1.0f),	Vector3(0.0f, 0.0f, 1.0f),   Vector2(0.0f, 0.0f) },
+        { Vector3(-1.0f, 1.0f, 1.0f),	Vector3(0.0f, 0.0f, 1.0f),   Vector2(1.0f, 0.0f) },
     };
 
     WORD indices[] =

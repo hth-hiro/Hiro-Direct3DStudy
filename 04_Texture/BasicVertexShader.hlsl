@@ -24,6 +24,9 @@ PS_INPUT main(VS_INPUT input)
     // 스케일이 적용된 후라면 빛의 세기가 실제보다 왜곡됨.
     // 따라서 정규화를 거친다.
     output.Norm = normalize(mul(input.Norm, (float3x3) World));
+    
+    // 입력된 uv텍스처를 출력에 반영한다.
+    output.Tex = input.Tex;
 
     return output;
 }
