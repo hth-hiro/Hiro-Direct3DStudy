@@ -154,6 +154,21 @@ void RenderGUI::Render()
 		}
 
 		ImGui::Text("");
+		ImGui::SeparatorText("Select View");
+
+		if (ImGui::Button("Museum"))
+		{
+			viewChanger = false;
+		}
+
+		ImGui::SameLine();
+		if (ImGui::Button("Daylight"))
+		{
+			viewChanger = true;
+		}
+
+		ImGui::Text("");
+
 		ImGui::Separator();
 		ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / io.Framerate, io.Framerate);
 

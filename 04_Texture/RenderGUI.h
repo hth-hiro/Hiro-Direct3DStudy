@@ -22,6 +22,11 @@ public:
 
 	Camera m_Camera;
 
+	float FOV = 1.0f;
+
+	float nearZ = 0.01f;
+	float farZ = 100.0f;
+
 	// 오브젝트
 	// 위치
 	float objectPosX = 0.0f;
@@ -49,10 +54,7 @@ public:
 	float lightDirY = 0.577f;
 	float lightDirZ = -0.577f;
 
-	float FOV = 1.0f;
-
-	float nearZ = 0.01f;
-	float farZ = 100.0f;
+	bool viewChanger = false;
 
 private:
 	GameApp* m_app;

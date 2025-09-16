@@ -111,6 +111,15 @@ void TutorialApp::Update()
 
     // 카메라 뷰에 적용
     m_Camera.GetViewMatrix(m_View);
+
+    if (m_GUI.viewChanger)
+    {
+        m_pCubeTextureRV = m_pCubeDaylightTextureRV;
+    }
+    else
+    {
+        m_pCubeTextureRV = m_pCubeMuseumTextureRV;
+    }
 }
 
 void TutorialApp::Render()
@@ -509,7 +518,8 @@ bool TutorialApp::InitScene()
     HR_T(m_pDevice->CreateBuffer(&skyVBDesc, nullptr, &m_pSkyboxConstantBuffer));
 
     // Skybox 파일 로드
-    HR_T(CreateDDSTextureFromFile(m_pDevice, L"../Resource/cubemap.dds", nullptr, &m_pCubeTextureRV));
+    HR_T(CreateDDSTextureFromFile(m_pDevice, L"../Resource/cubemap.dds", nullptr, &m_pCubeMuseumTextureRV));
+    HR_T(CreateDDSTextureFromFile(m_pDevice, L"../Resource/Daylight.dds", nullptr, &m_pCubeDaylightTextureRV));
 
 
 
