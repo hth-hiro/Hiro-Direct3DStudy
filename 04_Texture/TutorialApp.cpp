@@ -3,6 +3,8 @@
 #include <dxgi1_3.h>
 #include <d3dcompiler.h>
 #include <wrl/client.h>
+#include <Directxtk/DDSTextureLoader.h>
+#include <directxtk/WICTextureLoader.h>
 
 #pragma comment(lib, "d3d11.lib")
 #pragma comment(lib, "dxgi.lib")
