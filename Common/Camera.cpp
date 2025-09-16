@@ -32,6 +32,69 @@ void Camera::Update(float deltaTime)
 
 void Camera::GetViewMatrix(Matrix& out)
 {
+	//float PosX = m_GUI.playerPosX;
+	//float PosY = m_GUI.playerPosY;
+	//float PosZ = m_GUI.playerPosZ;
+
+	//float nearZ = m_GUI.nearZ;
+	//float farZ = m_GUI.farZ;
+
+	//XMVECTOR Eye = XMVectorSet(PosX, PosY, PosZ, 0);
+
+	//const float minZ = 0.1f;
+
+	//XMVECTOR At;
+
+	//float finalFarZ = farZ;
+	//if (farZ - nearZ <= minZ)
+	//{
+	//	finalFarZ = nearZ + minZ;
+	//}
+	//else
+	//{
+	//	finalFarZ = farZ;
+	//}
+
+	//// 안전하게 좌표 설정
+	//if (m_GUI.isFocusParent)
+	//{
+	//	float dz = m_GUI.objectPosZ - PosZ;
+
+	//	if (fabs(dz) < minZ)
+	//	{
+	//		if (dz >= 0) dz = minZ;
+	//		else dz = -minZ;
+	//	}
+
+	//	At = XMVectorSet(m_GUI.objectPosX, m_GUI.objectPosY, PosZ + dz, 0);
+	//}
+	//else
+	//{
+	//	At = XMVectorSet(PosX, PosY, PosZ + finalFarZ, 0);
+	//}
+
+	//XMVECTOR Up = XMVectorSet(0, 1, 0, 0);
+
+	//// 회전각 변환
+	//XMMATRIX Rotate = XMMatrixRotationX(m_GUI.objectPitch / 180 * XM_PI) * XMMatrixRotationY(m_GUI.objectYaw / 180 * XM_PI)/* * XMMatrixRotationZ()*/;
+
+	//m_World = Rotate * XMMatrixTranslation(m_GUI.objectPosX, m_GUI.objectPosY, m_GUI.objectPosZ);
+	////m_Angle += 0.0001f;
+
+	//m_View = XMMatrixLookAtLH(Eye, At, Up);
+
+
+
+
+
+
+
+
+
+
+
+
+
     Vector3 eye = m_World.Translation();
     Vector3 target = m_World.Translation() + GetForward();
     Vector3 up = m_World.Up();

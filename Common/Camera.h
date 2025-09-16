@@ -22,6 +22,8 @@ public:
 	void AddPitch(float value);
 	void AddYaw(float value);
 
+	Matrix GetWorld() { return m_World; }
+
 private:
 	Vector3 m_Rotation;
 	Vector3 m_Position;

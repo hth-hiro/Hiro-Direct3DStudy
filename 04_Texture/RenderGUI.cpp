@@ -116,15 +116,19 @@ void RenderGUI::Render()
 
 		ImGui::SeparatorText(" Camera Control");
 
-		float playerPos[3] = { playerPosX, playerPosY, playerPosZ };
+		//float cameraPosX = m_Camera.GetPosition().x;
+		//float cameraPosY = m_Camera.GetPosition().y;
+		//float cameraPosZ = m_Camera.GetPosition().z;
 
-		// 플레이어 위치 조정은 자유롭게 조절 가능
-		if (ImGui::DragFloat3(" CameraPos", playerPos, 0.1f))
-		{
-			playerPosX = playerPos[0];
-			playerPosY = playerPos[1];
-			playerPosZ = playerPos[2];
-		}
+		//float cameraPos[3] = { cameraPosX, cameraPosY, cameraPosZ };
+
+		//// 플레이어 위치 조정은 자유롭게 조절 가능
+		//if (ImGui::DragFloat3(" CameraPos", cameraPos, 0.1f))
+		//{
+		//	cameraPosX = cameraPos[0];
+		//	cameraPosY = cameraPos[1];
+		//	cameraPosY = cameraPos[2];
+		//}
 
 		ImGui::SliderFloat(" FOV", &FOV, 0.6f, 10.0f);
 
@@ -143,25 +147,14 @@ void RenderGUI::Render()
 
 		if (ImGui::Button("Camera Reset"))
 		{
-			playerPosX = 0.0f;
-			playerPosY = 0.0f;
-			playerPosZ = -10.0f;
-
 			FOV = 1.0f;
 
 			nearZ = 0.01f;
 			farZ = 100.0f;
-
-			isFocusParent = false;
 		}
 
 		ImGui::Text("");
-		ImGui::SeparatorText("[Debug]");
-		ImGui::Checkbox(" Focus Parent", &isFocusParent);
-
 		ImGui::Separator();
-
-		ImGui::Text("");
 		ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / io.Framerate, io.Framerate);
 
 		ImGui::End();

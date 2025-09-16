@@ -1,5 +1,6 @@
 #pragma once
 #include "../Common/GameApp.h"
+#include "../Common/Camera.h"
 
 #include <imgui.h>
 #include <imgui_impl_win32.h>
@@ -7,6 +8,7 @@
 #include <Psapi.h>
 
 #include <directxtk/SimpleMath.h>
+
 using namespace DirectX::SimpleMath;
 
 class RenderGUI
@@ -18,10 +20,7 @@ public:
 	void Render();
 	void Release();
 
-	// 카메라의 위치
-	float playerPosX = 0.0f;
-	float playerPosY = 0.0f;
-	float playerPosZ = -10.0f;
+	Camera m_Camera;
 
 	// 오브젝트
 	// 위치
@@ -54,8 +53,6 @@ public:
 
 	float nearZ = 0.01f;
 	float farZ = 100.0f;
-
-	bool isFocusParent = false;
 
 private:
 	GameApp* m_app;
