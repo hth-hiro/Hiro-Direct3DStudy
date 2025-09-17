@@ -12,8 +12,8 @@ cbuffer ConstantBuffer : register(b0)
     float4 vLightColor;
     float4 vOutputColor;
     
-    float3 cameraPos;       // camera위치 반영
-    float padding;
+    //float3 cameraPos;
+    //float padding;
 }
 
 cbuffer SkyboxCB : register(b1)

@@ -132,6 +132,7 @@ void TutorialApp::Render()
 
     // 2. 스카이박스 렌더
     m_pDeviceContext->OMSetDepthStencilState(m_pSkyboxDepthStencilState, 0);
+
     m_pDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
     m_pDeviceContext->IASetVertexBuffers(0, 1, &m_pSkyboxVertexBuffer, &m_SkyboxVertexBufferStride, &m_SkyboxVertexBufferOffset);
     m_pDeviceContext->IASetIndexBuffer(m_pSkyboxIndexBuffer, DXGI_FORMAT_R16_UINT, 0);
@@ -145,9 +146,11 @@ void TutorialApp::Render()
     SkyBoxCB cbSky;
     cbSky.mView = XMMatrixTranspose(m_Camera.GetViewMatrixNoTranslation(m_View));
     cbSky.mProjection = XMMatrixTranspose(m_Projection);
-    m_pDeviceContext->UpdateSubresource(m_pSkyboxConstantBuffer, 0, nullptr, &cbSky, 0, 0);
 
     m_pDeviceContext->VSSetConstantBuffers(1, 1, &m_pSkyboxConstantBuffer);
+    m_pDeviceContext->PSSetConstantBuffers(1, 1, &m_pConstantBuffer);
+    m_pDeviceContext->UpdateSubresource(m_pSkyboxConstantBuffer, 0, nullptr, &cbSky, 0, 0);
+
     m_pDeviceContext->PSSetShaderResources(1, 1, &m_pCubeTextureRV);
     m_pDeviceContext->PSSetSamplers(1, 1, &m_pSamplerLinear);
 
@@ -178,7 +181,7 @@ void TutorialApp::Render()
     m_pDeviceContext->UpdateSubresource(m_pConstantBuffer, 0, nullptr, &cbObj, 0, 0);
 
     m_pDeviceContext->PSSetShaderResources(0, 1, &m_pTextureRV);
-    m_pDeviceContext->PSSetShaderResources(1, 1, &m_pCubeTextureRV);    m_pDeviceContext->PSSetSamplers(0, 1, &m_pSamplerLinear);
+    m_pDeviceContext->PSSetSamplers(0, 1, &m_pSamplerLinear);
 
     m_pDeviceContext->DrawIndexed(m_nIndices, 0, 0);
 
@@ -254,7 +257,7 @@ bool TutorialApp::InitD3D()
 
     m_pDevice->CreateDepthStencilView(depthStencilBuffer, &dsvDesc, &m_pDepthStencilView);
 
-    // 깊이 테스트
+    // 깊이 테스트 - 오브젝트 렌더 시 DepthEnable = true 상태로 쓰고 있음
     D3D11_DEPTH_STENCIL_DESC dsDesc = {};
     dsDesc.DepthEnable = true;
     dsDesc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ALL;
@@ -265,7 +268,6 @@ bool TutorialApp::InitD3D()
     m_pDeviceContext->OMSetDepthStencilState(depthStencilState, 0);
 
     D3D11_DEPTH_STENCIL_DESC skyDesc = {};
-    skyDesc.DepthEnable = true;
     skyDesc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ALL;
     // Skybox는 Depth를 기록하지 않으므로 Enable false
     skyDesc.DepthEnable = false;
