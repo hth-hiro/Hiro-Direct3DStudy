@@ -270,7 +270,7 @@ bool TutorialApp::InitD3D()
     D3D11_DEPTH_STENCIL_DESC skyDesc = {};
     skyDesc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ALL;
     // Skybox는 Depth를 기록하지 않으므로 Enable false
-    skyDesc.DepthEnable = false;
+    //skyDesc.DepthEnable = false;
     skyDesc.DepthFunc = D3D11_COMPARISON_LESS_EQUAL;
 
     m_pDevice->CreateDepthStencilState(&skyDesc, &m_pSkyboxDepthStencilState);

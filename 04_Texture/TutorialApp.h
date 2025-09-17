@@ -50,11 +50,10 @@ public:
 	ID3D11Buffer* m_pSkyboxConstantBuffer = nullptr;			// 상수 버퍼.
 	ID3D11ShaderResourceView* m_pCubeTextureRV = nullptr;	// 텍스처 파일(큐브맵, 현재 큐브맵)
 
-	ID3D11ShaderResourceView* m_pCubeMuseumTextureRV = nullptr;	// 텍스처 파일(큐브맵)
-	ID3D11ShaderResourceView* m_pCubeDaylightTextureRV = nullptr;	// 텍스처 파일(큐브맵)
-
 	ID3D11DepthStencilState* m_pSkyboxDepthStencilState = nullptr;
 
+	ID3D11ShaderResourceView* m_pCubeMuseumTextureRV = nullptr;	// 텍스처 파일(큐브맵)
+	ID3D11ShaderResourceView* m_pCubeDaylightTextureRV = nullptr;	// 텍스처 파일(큐브맵)
 
 	Matrix m_World;
 	Matrix m_View;
