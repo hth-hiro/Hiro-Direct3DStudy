@@ -101,6 +101,13 @@ void Camera::GetViewMatrix(Matrix& out)
     out = XMMatrixLookAtLH(eye, target, up);
 }
 
+XMMATRIX Camera::GetViewMatrixNoTranslation(Matrix& out)
+{
+	XMMATRIX view = out;
+	view.r[3] = XMVectorSet(0, 0, 0, 1);
+	return view;
+}
+
 Vector3 Camera::GetForward()
 {
     return -m_World.Forward();

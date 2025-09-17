@@ -143,9 +143,7 @@ void TutorialApp::Render()
     // 스카이박스 상수버퍼
     // 카메라 위치 중심
     SkyBoxCB cbSky;
-    XMMATRIX viewNoTranslation = m_View;
-    viewNoTranslation.r[3] = XMVectorSet(0, 0, 0, 1);
-    cbSky.mView = XMMatrixTranspose(viewNoTranslation);
+    cbSky.mView = XMMatrixTranspose(m_Camera.GetViewMatrixNoTranslation(m_View));
     cbSky.mProjection = XMMatrixTranspose(m_Projection);
     m_pDeviceContext->UpdateSubresource(m_pSkyboxConstantBuffer, 0, nullptr, &cbSky, 0, 0);
 
@@ -268,8 +266,9 @@ bool TutorialApp::InitD3D()
 
     D3D11_DEPTH_STENCIL_DESC skyDesc = {};
     skyDesc.DepthEnable = true;
-    skyDesc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ZERO;
-    // Skybox는 Depth를 기록하지 않음
+    skyDesc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ALL;
+    // Skybox는 Depth를 기록하지 않으므로 Enable false
+    skyDesc.DepthEnable = false;
     skyDesc.DepthFunc = D3D11_COMPARISON_LESS_EQUAL;
 
     m_pDevice->CreateDepthStencilState(&skyDesc, &m_pSkyboxDepthStencilState);

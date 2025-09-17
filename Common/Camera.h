@@ -13,6 +13,7 @@ public:
 	void Reset();
 	void Update(float deltaTime);
 	void GetViewMatrix(Matrix& out);
+	XMMATRIX GetViewMatrixNoTranslation(Matrix& out);
 
 	Vector3 GetForward();
 	Vector3 GetRight();
@@ -32,10 +33,9 @@ private:
 	Vector3 m_InputVector;
 
 	float m_MoveSpeed = 20.0f;
-	float m_RotationSpeed = 0.004f;	// rad per sec
+	float m_RotationSpeed = 0.004f;	// rad per sec, 회전 감도
 
 	bool isFPSMode = true;
-	//Vector3 delta = Vector3(0, 0, 0);
 
 public:
 	virtual void OnInputProcess(
