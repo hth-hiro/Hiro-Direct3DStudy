@@ -177,19 +177,19 @@ void Camera::OnInputProcess(const Keyboard::State& KeyState, const Keyboard::Key
 		AddInputVector(m_World.Up());
 	}
 
-	if (KeyTracker.IsKeyPressed(Keyboard::Keys::Escape))
-	{
-		if (isFPSMode)
-		{
-			InputSystem::Instance->m_Mouse->SetMode(Mouse::MODE_ABSOLUTE);
-			isFPSMode = false;
-		}
-		else
-		{
-			InputSystem::Instance->m_Mouse->SetMode(Mouse::MODE_RELATIVE);
-			isFPSMode = true;
-		}
-	}
+	//if (KeyTracker.IsKeyPressed(Keyboard::Keys::Escape))
+	//{
+	//	if (isFPSMode)
+	//	{
+	//		InputSystem::Instance->m_Mouse->SetMode(Mouse::MODE_ABSOLUTE);
+	//		isFPSMode = false;
+	//	}
+	//	else
+	//	{
+	//		InputSystem::Instance->m_Mouse->SetMode(Mouse::MODE_RELATIVE);
+	//		isFPSMode = true;
+	//	}
+	//}
 
 	// 나중에 쓸수도 있으니 보류, 현재 교수님 코드 기준으로 반영
 	//if (isFPSMode)
