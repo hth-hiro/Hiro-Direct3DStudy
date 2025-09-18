@@ -4,6 +4,15 @@
 
 using namespace DirectX::SimpleMath;
 
+template <typename T>
+T clamp(T value, T minVal, T maxVal)
+{
+	if (value < minVal) return minVal;
+	if (value > maxVal) return maxVal;
+
+	return value;
+}
+
 class Camera : public InputProcesser
 {
 public:
@@ -18,6 +27,9 @@ public:
 	Vector3 GetForward();
 	Vector3 GetRight();
 	Vector3 GetPosition() const { return m_Position; }
+
+	Vector3 GetForwardYaw();
+	void SetSpeed(float speed) { m_MoveSpeed = speed; }
 
 	void AddInputVector(const Vector3& input);
 	void AddPitch(float value);
@@ -34,6 +46,8 @@ private:
 
 	float m_MoveSpeed = 20.0f;
 	float m_RotationSpeed = 0.004f;	// rad per sec, 회전 감도
+
+	int prevScroll = 0; // 이전 프레임 휠 값 저장
 
 	bool isFPSMode = true;
 

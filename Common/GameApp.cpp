@@ -87,8 +87,8 @@ bool GameApp::Run()
 
 void GameApp::Update()
 {
-	m_Time.Update();
 	float deltaTime = m_Time.GetDeltaTime();
+	m_Time.Update();
 	m_Input.Update(deltaTime);
 	m_Camera.Update(deltaTime);
 }
