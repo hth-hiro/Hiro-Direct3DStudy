@@ -56,6 +56,8 @@ public:
 
 	bool viewChanger = false;
 
+	bool m_ControllerWindowOpen = true;
+
 private:
 	GameApp* m_app;
 };

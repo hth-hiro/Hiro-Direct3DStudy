@@ -37,6 +37,8 @@ public:
 
 	Matrix GetWorld() { return m_World; }
 
+	bool isFPSMode = false;
+
 private:
 	Vector3 m_Rotation;
 	Vector3 m_Position;
@@ -49,7 +51,6 @@ private:
 
 	int prevScroll = 0; // 이전 프레임 휠 값 저장
 
-	bool isFPSMode = true;
 
 public:
 	virtual void OnInputProcess(

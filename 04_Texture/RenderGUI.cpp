@@ -12,13 +12,17 @@ void RenderGUI::Initialize(ID3D11Device* _Device, ID3D11DeviceContext* _DeviceCo
 
 	ImGui_ImplWin32_Init(GameApp::m_hWnd);
 	ImGui_ImplDX11_Init(_Device, _DeviceContext);
+
+	ImGuiIO& io = ImGui::GetIO(); (void)io;
+
+	io.Fonts->AddFontFromFileTTF("C:\\Windows\\Fonts\\Malgun.ttf", 20.0f, NULL, io.Fonts->GetGlyphRangesKorean());
+	io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
+	io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;
 }
 
 void RenderGUI::Render()
 {
 	ImGuiIO& io = ImGui::GetIO(); (void)io;
-	io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
-	io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;
 
 	ImGui_ImplDX11_NewFrame();
 	ImGui_ImplWin32_NewFrame();
@@ -26,12 +30,13 @@ void RenderGUI::Render()
 
 	//ImGui::ShowDemoWindow();
 
-	{
-		ImGui::Begin("Controller");                          // Create a window called "Hello, world!" and append into it.
+	//ImGui::SetMouseCursor(ImGuiMouseCursor_Hand);
 
+	{
+		ImGui::Begin(u8"컨트롤러");                        // Create a window called "Hello, world!" and append into it.
 		//ImGui::Text("Controller");               // Display some text (you can use a format strings too)
 		//ImGui::Text("");
-		ImGui::SeparatorText("Object Control");
+		ImGui::SeparatorText(u8"오브젝트 조절");
 
 		//ImGui::SliderFloat("Camera Distance", &m_PlayerPosZ, 0.0f, 10.0f);            // Edit 1 float using a slider from 0.0f to 1.0f
 
@@ -40,22 +45,22 @@ void RenderGUI::Render()
 		// Object
 		float objectPos[3] = { objectPosX , objectPosY, objectPosZ };
 
-		if (ImGui::SliderFloat3(" ObjectPos", objectPos, -10.0f, 10.0f))
+		if (ImGui::SliderFloat3(u8" 위치", objectPos, -10.0f, 10.0f))
 		{
 			objectPosX = objectPos[0];
 			objectPosY = objectPos[1];
 			objectPosZ = objectPos[2];
 		}
 
-		float objectRotate[2] = {objectYaw, objectPitch};
+		float objectRotate[2] = { objectYaw, objectPitch };
 
-		if (ImGui::DragFloat2("Yaw & Pitch", objectRotate, 0.1f))
+		if (ImGui::DragFloat2(u8"Y축 회전 & X축 회전", objectRotate, 0.1f))
 		{
 			objectYaw = objectRotate[0];
 			objectPitch = objectRotate[1];
 		}
 
-		if (ImGui::Button("Object Reset"))
+		if (ImGui::Button(u8"오브젝트 초기화"))
 		{
 			objectPosX = 0.0f;
 			objectPosY = 0.0f;
@@ -68,7 +73,7 @@ void RenderGUI::Render()
 		ImGui::Text("");
 
 		// Light
-		ImGui::SeparatorText("Light Control");
+		ImGui::SeparatorText(u8"빛 조절");
 		//float lightPos[3] = { lightPosX, lightPosY, lightPosZ };
 
 		//if (ImGui::SliderFloat3(" LightPos", lightPos, -10.0f, 10.0f))
@@ -80,7 +85,7 @@ void RenderGUI::Render()
 
 		float lightColor[3] = { lightColorR, lightColorG, lightColorB };
 
-		if (ImGui::ColorEdit3(" Light Color", lightColor))
+		if (ImGui::ColorEdit3(u8" 색상", lightColor))
 		{
 			lightColorR = lightColor[0];
 			lightColorG = lightColor[1];
@@ -89,7 +94,7 @@ void RenderGUI::Render()
 
 		float lightDir[3] = { lightDirX, lightDirY, lightDirZ };
 
-		if (ImGui::DragFloat3(" LightDirection", lightDir, 0.1f, -1.0f, 1.0f))
+		if (ImGui::DragFloat3(u8" 방향", lightDir, 0.1f, -1.0f, 1.0f))
 		{
 			lightDirX = lightDir[0];
 			lightDirY = lightDir[1];
@@ -97,7 +102,7 @@ void RenderGUI::Render()
 			lightDirZ = lightDir[2];
 		}
 
-		if (ImGui::Button("Light Reset"))
+		if (ImGui::Button(u8" 빛 초기화"))
 		{
 			//lightPosX = 0.0f;
 			//lightPosY = 0.0f;
@@ -114,7 +119,7 @@ void RenderGUI::Render()
 
 		ImGui::Text("");
 
-		ImGui::SeparatorText(" Camera Control");
+		ImGui::SeparatorText(u8" 카메라 조절");
 
 		//float cameraPosX = m_Camera.GetPosition().x;
 		//float cameraPosY = m_Camera.GetPosition().y;
@@ -130,11 +135,11 @@ void RenderGUI::Render()
 		//	cameraPosY = cameraPos[2];
 		//}
 
-		ImGui::SliderFloat(" FOV", &FOV, 0.6f, 10.0f);
+		ImGui::SliderFloat(u8" 시야범위", &FOV, 0.6f, 10.0f);
 
 		float depth[2] = { nearZ, farZ };
 
-		if (ImGui::DragFloat2(" Near & Far", depth, 0.1f, 0.01f, 1000.0f, "%.1f"))
+		if (ImGui::DragFloat2(u8" 렌더 최소/최대 거리", depth, 0.1f, 0.01f, 1000.0f, "%.1f"))
 		{
 			nearZ = depth[0];
 			farZ = depth[1];
@@ -145,7 +150,7 @@ void RenderGUI::Render()
 			}
 		}
 
-		if (ImGui::Button("Camera Reset"))
+		if (ImGui::Button(u8"카메라 초기화"))
 		{
 			FOV = 1.0f;
 
@@ -154,15 +159,15 @@ void RenderGUI::Render()
 		}
 
 		ImGui::Text("");
-		ImGui::SeparatorText("Select View");
+		ImGui::SeparatorText(u8" 배경 선택");
 
-		if (ImGui::Button("Museum"))
+		if (ImGui::Button(u8"실내"))
 		{
 			viewChanger = false;
 		}
 
 		ImGui::SameLine();
-		if (ImGui::Button("Daylight"))
+		if (ImGui::Button(u8"실외"))
 		{
 			viewChanger = true;
 		}
@@ -171,7 +176,7 @@ void RenderGUI::Render()
 
 		ImGui::Separator();
 		ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / io.Framerate, io.Framerate);
-
+	
 		ImGui::End();
 	}
 
