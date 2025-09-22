@@ -54,6 +54,7 @@ public:
 
 	ID3D11ShaderResourceView* m_pCubeMuseumTextureRV = nullptr;	// 텍스처 파일(큐브맵)
 	ID3D11ShaderResourceView* m_pCubeDaylightTextureRV = nullptr;	// 텍스처 파일(큐브맵)
+	ID3D11ShaderResourceView* m_pCubeHanakoTextureRV = nullptr;	// 텍스처 파일(큐브맵)
 
 	Matrix m_World;
 	Matrix m_View;

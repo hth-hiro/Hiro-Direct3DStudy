@@ -114,7 +114,8 @@ void TutorialApp::Update()
 
     if (m_GUI.viewChanger)
     {
-        m_pCubeTextureRV = m_pCubeDaylightTextureRV;
+        //m_pCubeTextureRV = m_pCubeDaylightTextureRV;
+        m_pCubeTextureRV = m_pCubeHanakoTextureRV;
     }
     else
     {
@@ -521,6 +522,7 @@ bool TutorialApp::InitScene()
     // Skybox 파일 로드
     HR_T(CreateDDSTextureFromFile(m_pDevice, L"../Resource/cubemap.dds", nullptr, &m_pCubeMuseumTextureRV));
     HR_T(CreateDDSTextureFromFile(m_pDevice, L"../Resource/Daylight.dds", nullptr, &m_pCubeDaylightTextureRV));
+    HR_T(CreateDDSTextureFromFile(m_pDevice, L"../Resource/Hanako.dds", nullptr, &m_pCubeHanakoTextureRV));
 
 
 
