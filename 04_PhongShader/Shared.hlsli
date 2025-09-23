@@ -9,11 +9,13 @@ cbuffer ConstantBuffer : register(b0)
     matrix View;
     matrix Projection;
     float4 vLightDir;
-    float4 vLightColor;
     float4 vOutputColor;
     
-    //float3 cameraPos;
-    //float padding;
+    float4 vDiffuseColor;
+    float4 vAmbientColor;
+    float4 vSpecularColor;
+    
+    float3 cameraPos;
 }
 
 cbuffer SkyboxCB : register(b1)

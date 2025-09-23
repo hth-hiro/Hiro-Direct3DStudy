@@ -28,9 +28,7 @@ struct ConstantBuffer
     Vector4 vLightDir;
     Vector4 vLightColor;
     Vector4 vOutputColor;
-
     Vector3 cameraPos;
-    float padding;
 };
 
 struct Skybox
