@@ -14,7 +14,7 @@ float4 main(PS_INPUT input) : SV_Target
     float3 N = normalize(input.Norm);       // 노멀 벡터
     float3 L = normalize(vLightDir.xyz);    // 빛의 방향
     
-    float diffuse = saturate(dot(N, L));    // 입사량
+    float diffuse = saturate(dot(N, - L));    // 입사량
 
     // 최종 RGB : 빛의 색상 * 표면의 색상 * 입사량 ( N · L )
     // 벡터와 스칼라 곱의 연산이므로 순서가 중요하지 않음.

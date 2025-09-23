@@ -24,6 +24,7 @@
     <ProjectGuid>{087e8670-6314-4d5e-83ba-09850f547e40}</ProjectGuid>
     <RootNamespace>My03Light</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+    <ProjectName>03_Light(ambient)</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
