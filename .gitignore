@@ -17,3 +17,5 @@ Release/
 *.dll
 *.pdb
 *.idb
+
+*.ini
