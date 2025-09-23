@@ -1,8 +1,8 @@
-﻿// 05_PhongShader.cpp : 애플리케이션에 대한 진입점을 정의합니다.
+﻿// 04_PhongShader.cpp : 애플리케이션에 대한 진입점을 정의합니다.
 //
 
 #include "framework.h"
-#include "05_PhongShader.h"
+#include "04_PhongShader.h"
 
 // 여기부터 복사해서 쓰기
 

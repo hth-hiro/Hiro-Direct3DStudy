@@ -1,8 +1,8 @@
-﻿// 04_Texture.cpp : 애플리케이션에 대한 진입점을 정의합니다.
+﻿// 03_Texture.cpp : 애플리케이션에 대한 진입점을 정의합니다.
 //
 
 #include "framework.h"
-#include "04_Texture.h"
+#include "03_Texture.h"
 
 #include "TutorialApp.h"
 //#include <iostream>

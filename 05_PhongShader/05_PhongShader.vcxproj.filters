@@ -24,7 +24,7 @@
     <ClInclude Include="Resource.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="05_PhongShader.h">
+    <ClInclude Include="04_PhongShader.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="TutorialApp.h">
@@ -35,7 +35,7 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="05_PhongShader.cpp">
+    <ClCompile Include="04_PhongShader.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="TutorialApp.cpp">

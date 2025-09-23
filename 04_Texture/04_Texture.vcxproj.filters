@@ -24,7 +24,7 @@
     <ClInclude Include="Resource.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="04_Texture.h">
+    <ClInclude Include="03_Texture.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="RenderGUI.h">
@@ -35,7 +35,7 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="04_Texture.cpp">
+    <ClCompile Include="03_Texture.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="RenderGUI.cpp">

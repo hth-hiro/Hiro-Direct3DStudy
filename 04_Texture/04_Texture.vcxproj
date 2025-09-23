@@ -24,6 +24,7 @@
     <ProjectGuid>{a43509f3-6826-4023-b9c0-e247fad16792}</ProjectGuid>
     <RootNamespace>My04Texture</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+    <ProjectName>03_Texture</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -127,7 +128,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="04_Texture.h" />
+    <ClInclude Include="03_Texture.h" />
     <ClInclude Include="framework.h" />
     <ClInclude Include="RenderGUI.h" />
     <ClInclude Include="Resource.h" />
@@ -135,7 +136,7 @@
     <ClInclude Include="TutorialApp.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="04_Texture.cpp" />
+    <ClCompile Include="03_Texture.cpp" />
     <ClCompile Include="RenderGUI.cpp" />
     <ClCompile Include="TutorialApp.cpp" />
   </ItemGroup>

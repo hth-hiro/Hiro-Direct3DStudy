@@ -24,6 +24,7 @@
     <ProjectGuid>{d8f9a411-5c06-4c38-a2da-46be86ae901c}</ProjectGuid>
     <RootNamespace>My05PhongShader</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+    <ProjectName>04_PhongShader</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -127,7 +128,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="05_PhongShader.h" />
+    <ClInclude Include="04_PhongShader.h" />
     <ClInclude Include="framework.h" />
     <ClInclude Include="IMGUI.h" />
     <ClInclude Include="Resource.h" />
@@ -135,7 +136,7 @@
     <ClInclude Include="TutorialApp.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="05_PhongShader.cpp" />
+    <ClCompile Include="04_PhongShader.cpp" />
     <ClCompile Include="IMGUI.cpp" />
     <ClCompile Include="TutorialApp.cpp" />
   </ItemGroup>
