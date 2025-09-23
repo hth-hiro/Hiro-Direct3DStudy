@@ -34,7 +34,7 @@ public:
 	float objectPosZ = 0.0f;
 
 	// 회전
-	float objectYaw = 45.0f;
+	float objectYaw = 0.0f;
 	float objectPitch = 0.0f;
 	float objectRoll = 0.0f;
 
@@ -50,9 +50,9 @@ public:
 	float lightColorB = 1.0f;
 
 	// 방향
-	float lightDirX = -0.577f;
-	float lightDirY = 0.577f;
-	float lightDirZ = -0.577f;
+	float lightDirX = 1.0f;
+	float lightDirY = 1.0f;
+	float lightDirZ = 1.0f;
 
 	bool viewChanger = false;
 

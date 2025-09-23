@@ -34,8 +34,8 @@ void RenderGUI::Render()
 
 	{
 		ImGui::Begin(u8"컨트롤러");                        // Create a window called "Hello, world!" and append into it.
-		//ImGui::Text("Controller");               // Display some text (you can use a format strings too)
-		//ImGui::Text("");
+		ImGui::Text(u8"TIP : ESC를 누르면 자유롭게 화면을 이동할 수 있습니다.");               // Display some text (you can use a format strings too)
+		ImGui::Text(u8"TIP : 다시 ESC를 눌러 화면 이동을 종료합니다.");
 		ImGui::SeparatorText(u8"오브젝트 조절");
 
 		//ImGui::SliderFloat("Camera Distance", &m_PlayerPosZ, 0.0f, 10.0f);            // Edit 1 float using a slider from 0.0f to 1.0f
@@ -66,7 +66,7 @@ void RenderGUI::Render()
 			objectPosY = 0.0f;
 			objectPosZ = 0.0f;
 
-			objectYaw = 45.0f;
+			objectYaw = 0.0f;
 			objectPitch = 0.0f;
 		}
 
@@ -94,7 +94,7 @@ void RenderGUI::Render()
 
 		float lightDir[3] = { lightDirX, lightDirY, lightDirZ };
 
-		if (ImGui::DragFloat3(u8" 방향", lightDir, 0.1f, -1.0f, 1.0f))
+		if (ImGui::SliderFloat3(u8" 방향", lightDir, -1.0f, 1.0f))
 		{
 			lightDirX = lightDir[0];
 			lightDirY = lightDir[1];
@@ -112,9 +112,9 @@ void RenderGUI::Render()
 			lightColorG = 1.0f;
 			lightColorB = 1.0f;
 
-			lightDirX = -0.577f;
-			lightDirY = 0.577f;
-			lightDirZ = -0.577f;
+			lightDirX = 1.0f;
+			lightDirY = 1.0f;
+			lightDirZ = 1.0f;
 		}
 
 		ImGui::Text("");
