@@ -46,7 +46,7 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ResourceCompile Include="05_PhongShader.rc">
+    <ResourceCompile Include="04_PhongShader.rc">
       <Filter>리소스 파일</Filter>
     </ResourceCompile>
   </ItemGroup>
@@ -54,7 +54,7 @@
     <Image Include="small.ico">
       <Filter>리소스 파일</Filter>
     </Image>
-    <Image Include="05_PhongShader.ico">
+    <Image Include="04_PhongShader.ico">
       <Filter>리소스 파일</Filter>
     </Image>
   </ItemGroup>

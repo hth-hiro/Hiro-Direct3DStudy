@@ -141,10 +141,10 @@
     <ClCompile Include="TutorialApp.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ResourceCompile Include="05_PhongShader.rc" />
+    <ResourceCompile Include="04_PhongShader.rc" />
   </ItemGroup>
   <ItemGroup>
-    <Image Include="05_PhongShader.ico" />
+    <Image Include="04_PhongShader.ico" />
     <Image Include="small.ico" />
   </ItemGroup>
   <ItemGroup>

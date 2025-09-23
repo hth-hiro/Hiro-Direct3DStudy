@@ -13,9 +13,9 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "03_Light", "03_Light\03_Lig
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "99_FBXtest", "99_FBXtest\99_FBXtest.vcxproj", "{FCA13A0F-D059-42DF-BAF0-8771AC88F587}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "04_Texture", "04_Texture\04_Texture.vcxproj", "{A43509F3-6826-4023-B9C0-E247FAD16792}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "03_Texture", "03_Texture\03_Texture.vcxproj", "{A43509F3-6826-4023-B9C0-E247FAD16792}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "05_PhongShader", "05_PhongShader\05_PhongShader.vcxproj", "{D8F9A411-5C06-4C38-A2DA-46BE86AE901C}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "04_PhongShader", "04_PhongShader\04_PhongShader.vcxproj", "{D8F9A411-5C06-4C38-A2DA-46BE86AE901C}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
