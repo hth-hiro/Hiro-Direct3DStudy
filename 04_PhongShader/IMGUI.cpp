@@ -43,54 +43,18 @@ void IMGUI::Render()
 		//ImGui::Separator();
 
 		// Object
+		Vector3 objectPos = { objectPosX , objectPosY, objectPosZ };
+		Vector2 objectRotate = { objectYaw, objectPitch };
+		Vector4 objectAmbient = { objectAmbientR, objectAmbientG, objectAmbientB, objectAmbientA };
+		Vector4 objectDiffuse = { objectDiffuseR, objectDiffuseG, objectDiffuseB, objectDiffuseA };
+		Vector4 objectSpecular = { objectSpecularR, objectSpecularG, objectSpecularB, objectSpecularA };
+
 		ImGui::SliderFloat(u8" 크기", &objectScaleXYZ, 10.0f, 1000.0f);
-
-		float objectPos[3] = { objectPosX , objectPosY, objectPosZ };
-
-		if (ImGui::SliderFloat3(u8" 위치", objectPos, -10.0f, 10.0f))
-		{
-			objectPosX = objectPos[0];
-			objectPosY = objectPos[1];
-			objectPosZ = objectPos[2];
-		}
-
-		float objectRotate[2] = { objectYaw, objectPitch };
-
-		if (ImGui::DragFloat2(u8"Y축 회전 & X축 회전", objectRotate, 0.1f))
-		{
-			objectYaw = objectRotate[0];
-			objectPitch = objectRotate[1];
-		}
-
-		float objectAmbient[4] = { objectAmbientR, objectAmbientG, objectAmbientB, objectAmbientA };
-
-		if (ImGui::ColorEdit4(u8" Material Ambient 색상", objectAmbient))
-		{
-			objectAmbientR = objectAmbient[0];
-			objectAmbientG = objectAmbient[1];
-			objectAmbientB = objectAmbient[2];
-			objectAmbientA = objectAmbient[3];
-		}
-
-		float objectDiffuse[4] = { objectDiffuseR, objectDiffuseG, objectDiffuseB, objectDiffuseA };
-
-		if (ImGui::ColorEdit4(u8" Material Diffuse 색상", objectDiffuse))
-		{
-			objectDiffuseR = objectDiffuse[0];
-			objectDiffuseG = objectDiffuse[1];
-			objectDiffuseB = objectDiffuse[2];
-			objectDiffuseA = objectDiffuse[3];
-		}
-
-		float objectSpecular[4] = { objectSpecularR, objectSpecularG, objectSpecularB, objectSpecularA };
-
-		if (ImGui::ColorEdit4(u8" Material Specular 색상", objectSpecular))
-		{
-			objectSpecularR = objectSpecular[0];
-			objectSpecularG = objectSpecular[1];
-			objectSpecularB = objectSpecular[2];
-			objectSpecularA = objectSpecular[3];
-		}
+		ImGui::SliderFloat3(u8" 위치", &objectPos.x, -10.0f, 10.0f);
+		ImGui::DragFloat2(u8"Y축 회전 & X축 회전", &objectRotate.x, 0.1f);
+		ImGui::ColorEdit4(u8" Material Ambient 색상", &objectAmbient.x);
+		ImGui::ColorEdit4(u8" Material Diffuse 색상", &objectDiffuse.x);
+		ImGui::ColorEdit4(u8" Material Specular 색상", &objectSpecular.x);
 
 		if (ImGui::Button(u8"오브젝트 초기화"))
 		{
@@ -118,61 +82,20 @@ void IMGUI::Render()
 			objectSpecularB = 1.0f;
 			objectSpecularA = 1.0f;
 		}
-
 		ImGui::Text("");
 
 		// Light
+		Vector4 ambientColor = { ambientColorR, ambientColorG, ambientColorB, ambientColorA };
+		Vector4 diffuseColor = { diffuseColorR, diffuseColorG, diffuseColorB, diffuseColorA };
+		Vector4 specularColor = { specularColorR, specularColorG, specularColorB, specularColorA };
+		Vector3 lightDir = { lightDirX, lightDirY, lightDirZ };
+
 		ImGui::SeparatorText(u8"빛 조절");
-		//float lightPos[3] = { lightPosX, lightPosY, lightPosZ };
-
-		//if (ImGui::SliderFloat3(" LightPos", lightPos, -10.0f, 10.0f))
-		//{
-		//	lightPosX = lightPos[0];
-		//	lightPosY = lightPos[1];
-		//	lightPosZ = lightPos[2];
-		//}
-
-		float ambientColor[4] = { ambientColorR, ambientColorG, ambientColorB, ambientColorA };
-
-		if (ImGui::ColorEdit4(u8" Ambient 색상", ambientColor))
-		{
-			ambientColorR = ambientColor[0];
-			ambientColorG = ambientColor[1];
-			ambientColorB = ambientColor[2];
-			ambientColorA = ambientColor[3];
-		}
-
-		float diffuseColor[4] = { diffuseColorR, diffuseColorG, diffuseColorB, diffuseColorA };
-
-		if (ImGui::ColorEdit4(u8" Diffuse 색상", diffuseColor))
-		{
-			diffuseColorR = diffuseColor[0];
-			diffuseColorG = diffuseColor[1];
-			diffuseColorB = diffuseColor[2];
-			diffuseColorA = diffuseColor[3];
-		}
-
-		float specularColor[4] = { specularColorR, specularColorG, specularColorB, specularColorA };
-
-		if (ImGui::ColorEdit4(u8" Specular 색상", specularColor))
-		{
-			specularColorR = specularColor[0];
-			specularColorG = specularColor[1];
-			specularColorB = specularColor[2];
-			specularColorA = specularColor[3];
-		}
-
+		ImGui::ColorEdit4(u8" Ambient 색상", &ambientColor.x);
+		ImGui::ColorEdit4(u8" Diffuse 색상", &diffuseColor.x);
+		ImGui::ColorEdit4(u8" Specular 색상", &specularColor.x);
 		ImGui::SliderFloat(u8" 광택지수", &shininess, 200.0f, 20000.0f);
-
-		float lightDir[3] = { lightDirX, lightDirY, lightDirZ };
-
-		if (ImGui::SliderFloat3(u8" 방향", lightDir, -1.0f, 1.0f))
-		{
-			lightDirX = lightDir[0];
-			lightDirY = lightDir[1];
-			lightDirZ = lightDir[2];
-			lightDirZ = lightDir[2];
-		}
+		ImGui::SliderFloat3(u8" 방향", &lightDir.x, -1.0f, 1.0f);
 
 		if (ImGui::Button(u8" 빛 초기화"))
 		{
@@ -194,39 +117,14 @@ void IMGUI::Render()
 
 			shininess = 1000.0f;
 		}
-
 		ImGui::Text("");
 
+		// 카메라
+		Vector2 depth = { nearZ, farZ };
 		ImGui::SeparatorText(u8" 카메라 조절");
-
-		//float cameraPosX = m_Camera.GetPosition().x;
-		//float cameraPosY = m_Camera.GetPosition().y;
-		//float cameraPosZ = m_Camera.GetPosition().z;
-
-		//float cameraPos[3] = { cameraPosX, cameraPosY, cameraPosZ };
-
-		//// 플레이어 위치 조정은 자유롭게 조절 가능
-		//if (ImGui::DragFloat3(" CameraPos", cameraPos, 0.1f))
-		//{
-		//	cameraPosX = cameraPos[0];
-		//	cameraPosY = cameraPos[1];
-		//	cameraPosY = cameraPos[2];
-		//}
-
 		ImGui::SliderFloat(u8" 시야범위", &FOV, 0.6f, 10.0f);
-
-		float depth[2] = { nearZ, farZ };
-
-		if (ImGui::DragFloat2(u8" 렌더 최소/최대 거리", depth, 0.1f, 0.01f, 50000.0f, "%.1f"))
-		{
-			nearZ = depth[0];
-			farZ = depth[1];
-
-			if (nearZ > farZ)
-			{
-				farZ = nearZ;
-			}
-		}
+		ImGui::DragFloat2(u8" 렌더 최소/최대 거리", &depth.x, 0.1f, 0.01f, 50000.0f, "%.1f");
+		if (nearZ > farZ) farZ = nearZ;
 
 		if (ImGui::Button(u8"카메라 초기화"))
 		{
@@ -235,23 +133,15 @@ void IMGUI::Render()
 			nearZ = 0.01f;
 			farZ = 50000.0f;
 		}
-
 		ImGui::Text("");
+
+		// 스카이박스
 		ImGui::SeparatorText(u8" 배경 선택");
-
-		if (ImGui::Button(u8"실내"))
-		{
-			viewChanger = false;
-		}
-
-		ImGui::SameLine();
-		if (ImGui::Button(u8"디버그"))
-		{
-			viewChanger = true;
-		}
-
+		if (ImGui::Button(u8"실내"))		viewChanger = false; ImGui::SameLine();
+		if (ImGui::Button(u8"디버그"))	viewChanger = true;
 		ImGui::Text("");
 
+		// 디버그
 		ImGui::Separator();
 		ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / io.Framerate, io.Framerate);
 
