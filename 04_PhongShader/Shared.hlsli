@@ -12,6 +12,10 @@ cbuffer ConstantBuffer : register(b0)
     float4 vLightDir;
     float4 vOutputColor;
     
+    float4 vMaterialAmbient;
+    float4 vMaterialDiffuse;
+    float4 vMaterialSpecular;
+    
     float4 vAmbientColor;
     float4 vDiffuseColor;
     float4 vSpecularColor;
@@ -57,9 +61,9 @@ struct VS_INPUT
 struct PS_INPUT
 {
     float4 Pos : SV_POSITION;
-    float3 WorldPos : TEXCOORD1;
-    float3 Norm : TEXCOORD2;
-    float2 Tex : TEXCOORD3;
+    float3 WorldPos : TEXCOORD2;
+    float3 Norm : TEXCOORD1;
+    float2 Tex : TEXCOORD0;
 };
 
 

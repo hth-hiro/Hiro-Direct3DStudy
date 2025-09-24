@@ -41,6 +41,23 @@ public:
 	float objectPosY = 0.0f;
 	float objectPosZ = 0.0f;
 
+	// 오브젝트 머터리얼
+	float objectAmbientR = 0.1f;
+	float objectAmbientG = 0.1f;
+	float objectAmbientB = 0.1f;
+	float objectAmbientA = 0.1f;
+
+	float objectDiffuseR = 1.0f;
+	float objectDiffuseG = 1.0f;
+	float objectDiffuseB = 1.0f;
+	float objectDiffuseA = 1.0f;
+
+	float objectSpecularR = 1.0f;
+	float objectSpecularG = 1.0f;
+	float objectSpecularB = 1.0f;
+	float objectSpecularA = 1.0f;
+
+
 	// 빛
 	// 위치
 	float lightPosX = 0.0f;
@@ -51,14 +68,17 @@ public:
 	float ambientColorR = 0.1f;
 	float ambientColorG = 0.1f;
 	float ambientColorB = 0.1f;
+	float ambientColorA = 0.1f;
 
 	float diffuseColorR = 1.0f;
 	float diffuseColorG = 1.0f;
 	float diffuseColorB = 1.0f;
+	float diffuseColorA = 1.0f;
 
 	float specularColorR = 1.0f;
 	float specularColorG = 1.0f;
 	float specularColorB = 1.0f;
+	float specularColorA = 1.0f;
 
 	float shininess = 1000.0f;
 

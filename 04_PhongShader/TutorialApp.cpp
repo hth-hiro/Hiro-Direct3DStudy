@@ -31,6 +31,10 @@ struct ConstantBuffer
     Vector4 vAmbientColor;
     Vector4 vDiffuseColor;
     Vector4 vSpecularColor;
+
+    Vector4 vMaterialAmbient;
+    Vector4 vMaterialDiffuse;
+    Vector4 vMaterialSpecular;
     
     Vector4 cameraPos;
 
@@ -84,9 +88,13 @@ void TutorialApp::Update()
     m_InitialLightDirs = { m_GUI.lightDirX, m_GUI.lightDirY, m_GUI.lightDirZ, 0.0f };
     m_LightDirsEvaluated = m_InitialLightDirs;
 
-    m_AmbientColor = { m_GUI.ambientColorR, m_GUI.ambientColorG, m_GUI.ambientColorB, 1 };  // 추후 알파값 넣을 예정
-    m_DiffuseColor = { m_GUI.diffuseColorR, m_GUI.diffuseColorG, m_GUI.diffuseColorB, 1 };
-    m_SpecularColor = { m_GUI.specularColorR, m_GUI.specularColorG, m_GUI.specularColorB, 1};
+    m_AmbientColor = { m_GUI.ambientColorR, m_GUI.ambientColorG, m_GUI.ambientColorB, m_GUI.ambientColorA };  // 추후 알파값 넣을 예정
+    m_DiffuseColor = { m_GUI.diffuseColorR, m_GUI.diffuseColorG, m_GUI.diffuseColorB, m_GUI.diffuseColorA };
+    m_SpecularColor = { m_GUI.specularColorR, m_GUI.specularColorG, m_GUI.specularColorB, m_GUI.specularColorA };
+
+    m_MaterialAmbient = { m_GUI.objectAmbientR, m_GUI.objectAmbientG, m_GUI.objectAmbientB, m_GUI.objectAmbientA };
+    m_MaterialDiffuse = { m_GUI.objectDiffuseR, m_GUI.objectDiffuseG, m_GUI.objectDiffuseB, m_GUI.objectDiffuseA };
+    m_MaterialSpecular = { m_GUI.objectSpecularR, m_GUI.objectSpecularG, m_GUI.objectSpecularB, m_GUI.objectSpecularA };
 
     m_cameraPos = { m_Camera.GetPosition().x, m_Camera.GetPosition().y, m_Camera.GetPosition().z, 1 };
     m_shininess = { m_GUI.shininess };
@@ -189,6 +197,9 @@ void TutorialApp::Render()
     cbObj.vAmbientColor = m_AmbientColor;
     cbObj.vDiffuseColor = m_DiffuseColor;
     cbObj.vSpecularColor = m_SpecularColor;
+    cbObj.vMaterialAmbient = m_MaterialAmbient;
+    cbObj.vMaterialDiffuse = m_MaterialDiffuse;
+    cbObj.vMaterialSpecular = m_MaterialSpecular;
     cbObj.vOutputColor = XMFLOAT4(1, 1, 1, 1);
     cbObj.cameraPos = m_cameraPos;
     cbObj.vShininess = m_shininess;

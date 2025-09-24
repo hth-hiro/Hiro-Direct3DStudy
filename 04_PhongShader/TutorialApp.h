@@ -67,11 +67,15 @@ public:
 	// 라이트 관련
 	// 씬 안에서 라이트는 여러개 존재할 수 있으며, 이를 묶어서 처리할 수도 있음
 
-	XMFLOAT4 m_AmbientColor = {0.1f, 0.1f, 0.1f, 1.0f};
+	XMFLOAT4 m_AmbientColor = { 0.1f, 0.1f, 0.1f, 1.0f };
 	XMFLOAT4 m_DiffuseColor = { 1.0f, 1.0f, 1.0f, 1.0f };
 	XMFLOAT4 m_SpecularColor = { 1.0f, 1.0f, 1.0f, 1.0f };
 	XMFLOAT4 m_InitialLightDirs = { 1.0f, -1.0f, 1.0f, 0.0f };
 	XMFLOAT4 m_LightDirsEvaluated = {};
+
+	XMFLOAT4 m_MaterialAmbient = {};
+	XMFLOAT4 m_MaterialDiffuse = {};
+	XMFLOAT4 m_MaterialSpecular = {};
 
 	Vector4 m_cameraPos;
 	Vector4 m_shininess;

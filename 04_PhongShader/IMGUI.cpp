@@ -62,6 +62,36 @@ void IMGUI::Render()
 			objectPitch = objectRotate[1];
 		}
 
+		float objectAmbient[4] = { objectAmbientR, objectAmbientG, objectAmbientB, objectAmbientA };
+
+		if (ImGui::ColorEdit4(u8" Material Ambient 색상", objectAmbient))
+		{
+			objectAmbientR = objectAmbient[0];
+			objectAmbientG = objectAmbient[1];
+			objectAmbientB = objectAmbient[2];
+			objectAmbientA = objectAmbient[3];
+		}
+
+		float objectDiffuse[4] = { objectDiffuseR, objectDiffuseG, objectDiffuseB, objectDiffuseA };
+
+		if (ImGui::ColorEdit4(u8" Material Diffuse 색상", objectDiffuse))
+		{
+			objectDiffuseR = objectDiffuse[0];
+			objectDiffuseG = objectDiffuse[1];
+			objectDiffuseB = objectDiffuse[2];
+			objectDiffuseA = objectDiffuse[3];
+		}
+
+		float objectSpecular[4] = { objectSpecularR, objectSpecularG, objectSpecularB, objectSpecularA };
+
+		if (ImGui::ColorEdit4(u8" Material Specular 색상", objectSpecular))
+		{
+			objectSpecularR = objectSpecular[0];
+			objectSpecularG = objectSpecular[1];
+			objectSpecularB = objectSpecular[2];
+			objectSpecularA = objectSpecular[3];
+		}
+
 		if (ImGui::Button(u8"오브젝트 초기화"))
 		{
 			objectScaleXYZ = 200.0f;
@@ -72,6 +102,21 @@ void IMGUI::Render()
 
 			objectYaw = 0.0f;
 			objectPitch = 0.0f;
+
+			objectAmbientR = 0.1f;
+			objectAmbientG = 0.1f;
+			objectAmbientB = 0.1f;
+			objectAmbientA = 0.1f;
+
+			objectDiffuseR = 1.0f;
+			objectDiffuseG = 1.0f;
+			objectDiffuseB = 1.0f;
+			objectDiffuseA = 1.0f;
+
+			objectSpecularR = 1.0f;
+			objectSpecularG = 1.0f;
+			objectSpecularB = 1.0f;
+			objectSpecularA = 1.0f;
 		}
 
 		ImGui::Text("");
@@ -87,31 +132,34 @@ void IMGUI::Render()
 		//	lightPosZ = lightPos[2];
 		//}
 
-		float ambientColor[3] = { ambientColorR, ambientColorG, ambientColorB };
+		float ambientColor[4] = { ambientColorR, ambientColorG, ambientColorB, ambientColorA };
 
-		if (ImGui::ColorEdit3(u8" Ambient 색상", ambientColor))
+		if (ImGui::ColorEdit4(u8" Ambient 색상", ambientColor))
 		{
 			ambientColorR = ambientColor[0];
 			ambientColorG = ambientColor[1];
 			ambientColorB = ambientColor[2];
+			ambientColorA = ambientColor[3];
 		}
 
-		float diffuseColor[3] = { diffuseColorR, diffuseColorG, diffuseColorB };
+		float diffuseColor[4] = { diffuseColorR, diffuseColorG, diffuseColorB, diffuseColorA };
 
-		if (ImGui::ColorEdit3(u8" Diffuse 색상", diffuseColor))
+		if (ImGui::ColorEdit4(u8" Diffuse 색상", diffuseColor))
 		{
 			diffuseColorR = diffuseColor[0];
 			diffuseColorG = diffuseColor[1];
 			diffuseColorB = diffuseColor[2];
+			diffuseColorA = diffuseColor[3];
 		}
 
-		float specularColor[3] = { specularColorR, specularColorG, specularColorB };
+		float specularColor[4] = { specularColorR, specularColorG, specularColorB, specularColorA };
 
-		if (ImGui::ColorEdit3(u8" Specular 색상", specularColor))
+		if (ImGui::ColorEdit4(u8" Specular 색상", specularColor))
 		{
 			specularColorR = specularColor[0];
-			specularColorG = specularColor[2];
-			specularColorB = specularColor[1];
+			specularColorG = specularColor[1];
+			specularColorB = specularColor[2];
+			specularColorA = specularColor[3];
 		}
 
 		ImGui::SliderFloat(u8" 광택지수", &shininess, 200.0f, 20000.0f);
