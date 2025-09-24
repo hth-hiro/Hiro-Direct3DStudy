@@ -245,7 +245,7 @@ void IMGUI::Render()
 		}
 
 		ImGui::SameLine();
-		if (ImGui::Button(u8"실외"))
+		if (ImGui::Button(u8"디버그"))
 		{
 			viewChanger = true;
 		}
