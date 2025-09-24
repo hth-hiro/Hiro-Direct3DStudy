@@ -8,6 +8,9 @@ PS_INPUT main(VS_INPUT input)
     // HLSL에서는 열 우선 행렬이다.
     PS_INPUT output = (PS_INPUT) 0;
     output.Pos = mul(input.Pos, World);
+    
+    output.WorldPos = output.Pos;
+    
     output.Pos = mul(output.Pos, View);
     output.Pos = mul(output.Pos, Projection);
 

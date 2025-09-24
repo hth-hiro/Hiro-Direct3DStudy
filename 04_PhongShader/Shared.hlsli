@@ -8,14 +8,17 @@ cbuffer ConstantBuffer : register(b0)
     matrix World;
     matrix View;
     matrix Projection;
+    
     float4 vLightDir;
     float4 vOutputColor;
     
-    float4 vDiffuseColor;
     float4 vAmbientColor;
+    float4 vDiffuseColor;
     float4 vSpecularColor;
     
-    float3 cameraPos;
+    float4 cameraPos;
+    
+    float4 vShininess;
 }
 
 cbuffer SkyboxCB : register(b1)
@@ -54,8 +57,9 @@ struct VS_INPUT
 struct PS_INPUT
 {
     float4 Pos : SV_POSITION;
-    float3 Norm : TEXCOORD0;
-    float2 Tex : TEXCOORD1;
+    float3 WorldPos : TEXCOORD1;
+    float3 Norm : TEXCOORD2;
+    float2 Tex : TEXCOORD3;
 };
 
 

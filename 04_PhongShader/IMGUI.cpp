@@ -43,6 +43,8 @@ void IMGUI::Render()
 		//ImGui::Separator();
 
 		// Object
+		ImGui::SliderFloat(u8" 크기", &objectScaleXYZ, 10.0f, 1000.0f);
+
 		float objectPos[3] = { objectPosX , objectPosY, objectPosZ };
 
 		if (ImGui::SliderFloat3(u8" 위치", objectPos, -10.0f, 10.0f))
@@ -62,11 +64,13 @@ void IMGUI::Render()
 
 		if (ImGui::Button(u8"오브젝트 초기화"))
 		{
+			objectScaleXYZ = 200.0f;
+
 			objectPosX = 0.0f;
 			objectPosY = 0.0f;
 			objectPosZ = 0.0f;
 
-			objectYaw = 45.0f;
+			objectYaw = 0.0f;
 			objectPitch = 0.0f;
 		}
 
@@ -83,14 +87,34 @@ void IMGUI::Render()
 		//	lightPosZ = lightPos[2];
 		//}
 
-		float lightColor[3] = { lightColorR, lightColorG, lightColorB };
+		float ambientColor[3] = { ambientColorR, ambientColorG, ambientColorB };
 
-		if (ImGui::ColorEdit3(u8" 색상", lightColor))
+		if (ImGui::ColorEdit3(u8" Ambient 색상", ambientColor))
 		{
-			lightColorR = lightColor[0];
-			lightColorG = lightColor[1];
-			lightColorB = lightColor[2];
+			ambientColorR = ambientColor[0];
+			ambientColorG = ambientColor[1];
+			ambientColorB = ambientColor[2];
 		}
+
+		float diffuseColor[3] = { diffuseColorR, diffuseColorG, diffuseColorB };
+
+		if (ImGui::ColorEdit3(u8" Diffuse 색상", diffuseColor))
+		{
+			diffuseColorR = diffuseColor[0];
+			diffuseColorG = diffuseColor[1];
+			diffuseColorB = diffuseColor[2];
+		}
+
+		float specularColor[3] = { specularColorR, specularColorG, specularColorB };
+
+		if (ImGui::ColorEdit3(u8" Specular 색상", specularColor))
+		{
+			specularColorR = specularColor[0];
+			specularColorG = specularColor[2];
+			specularColorB = specularColor[1];
+		}
+
+		ImGui::SliderFloat(u8" 광택지수", &shininess, 200.0f, 20000.0f);
 
 		float lightDir[3] = { lightDirX, lightDirY, lightDirZ };
 
@@ -104,17 +128,23 @@ void IMGUI::Render()
 
 		if (ImGui::Button(u8" 빛 초기화"))
 		{
-			//lightPosX = 0.0f;
-			//lightPosY = 0.0f;
-			//lightPosZ = 0.0f
+			ambientColorR = 0.1f;
+			ambientColorG = 0.1f;
+			ambientColorB = 0.1f;
 
-			lightColorR = 1.0f;
-			lightColorG = 1.0f;
-			lightColorB = 1.0f;
+			diffuseColorR = 1.0f;
+			diffuseColorG = 1.0f;
+			diffuseColorB = 1.0f;
 
-			lightDirX = -0.577f;
-			lightDirY = 0.577f;
-			lightDirZ = -0.577f;
+			specularColorR = 1.0f;
+			specularColorG = 1.0f;
+			specularColorB = 1.0f;
+
+			lightDirX = 0.0f;
+			lightDirY = 0.0;
+			lightDirZ = 1.0;
+
+			shininess = 1000.0f;
 		}
 
 		ImGui::Text("");
@@ -139,7 +169,7 @@ void IMGUI::Render()
 
 		float depth[2] = { nearZ, farZ };
 
-		if (ImGui::DragFloat2(u8" 렌더 최소/최대 거리", depth, 0.1f, 0.01f, 1000.0f, "%.1f"))
+		if (ImGui::DragFloat2(u8" 렌더 최소/최대 거리", depth, 0.1f, 0.01f, 50000.0f, "%.1f"))
 		{
 			nearZ = depth[0];
 			farZ = depth[1];
@@ -155,7 +185,7 @@ void IMGUI::Render()
 			FOV = 1.0f;
 
 			nearZ = 0.01f;
-			farZ = 100.0f;
+			farZ = 50000.0f;
 		}
 
 		ImGui::Text("");

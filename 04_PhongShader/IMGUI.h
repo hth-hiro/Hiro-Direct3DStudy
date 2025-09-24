@@ -25,18 +25,21 @@ public:
 	float FOV = 1.0f;
 
 	float nearZ = 0.01f;
-	float farZ = 100.0f;
+	float farZ = 50000.0f;
 
 	// 오브젝트
+	// 크기
+	float objectScaleXYZ = 200.0f;
+
+	// 회전
+	float objectYaw = 0.0f;
+	float objectPitch = 0.0f;
+	float objectRoll = 0.0f;
+
 	// 위치
 	float objectPosX = 0.0f;
 	float objectPosY = 0.0f;
 	float objectPosZ = 0.0f;
-
-	// 회전
-	float objectYaw = 45.0f;
-	float objectPitch = 0.0f;
-	float objectRoll = 0.0f;
 
 	// 빛
 	// 위치
@@ -45,14 +48,24 @@ public:
 	float lightPosZ = 0.0f;
 
 	// 색상
-	float lightColorR = 1.0f;
-	float lightColorG = 1.0f;
-	float lightColorB = 1.0f;
+	float ambientColorR = 0.1f;
+	float ambientColorG = 0.1f;
+	float ambientColorB = 0.1f;
+
+	float diffuseColorR = 1.0f;
+	float diffuseColorG = 1.0f;
+	float diffuseColorB = 1.0f;
+
+	float specularColorR = 1.0f;
+	float specularColorG = 1.0f;
+	float specularColorB = 1.0f;
+
+	float shininess = 1000.0f;
 
 	// 방향
-	float lightDirX = -0.577f;
-	float lightDirY = 0.577f;
-	float lightDirZ = -0.577f;
+	float lightDirX = 0.0f;
+	float lightDirY = 0.0f;
+	float lightDirZ = 1.0f;
 
 	bool viewChanger = false;
 

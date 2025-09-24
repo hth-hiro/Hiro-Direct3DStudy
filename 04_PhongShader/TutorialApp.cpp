@@ -26,9 +26,15 @@ struct ConstantBuffer
     Matrix mProjection;
 
     Vector4 vLightDir;
-    Vector4 vLightColor;
     Vector4 vOutputColor;
-    Vector3 cameraPos;
+
+    Vector4 vAmbientColor;
+    Vector4 vDiffuseColor;
+    Vector4 vSpecularColor;
+    
+    Vector4 cameraPos;
+
+    Vector4 vShininess;
 };
 
 struct Skybox
@@ -78,8 +84,12 @@ void TutorialApp::Update()
     m_InitialLightDirs = { m_GUI.lightDirX, m_GUI.lightDirY, m_GUI.lightDirZ, 0.0f };
     m_LightDirsEvaluated = m_InitialLightDirs;
 
-    m_LightColor = { m_GUI.lightColorR, m_GUI.lightColorG, m_GUI.lightColorB, 1 };
+    m_AmbientColor = { m_GUI.ambientColorR, m_GUI.ambientColorG, m_GUI.ambientColorB, 1 };  // 추후 알파값 넣을 예정
+    m_DiffuseColor = { m_GUI.diffuseColorR, m_GUI.diffuseColorG, m_GUI.diffuseColorB, 1 };
+    m_SpecularColor = { m_GUI.specularColorR, m_GUI.specularColorG, m_GUI.specularColorB, 1};
 
+    m_cameraPos = { m_Camera.GetPosition().x, m_Camera.GetPosition().y, m_Camera.GetPosition().z, 1 };
+    m_shininess = { m_GUI.shininess };
     //XMMATRIX mRotate = XMMatrixRotationY(m_Angle);
     //XMVECTOR vLightDir = XMLoadFloat4(&m_InitialLightDirs);
     //vLightDir = XMVector3Transform(vLightDir, mRotate);
@@ -100,10 +110,15 @@ void TutorialApp::Update()
         finalFarZ = farZ;
     }
 
+    // 스케일 변환
+    float scaleValue = m_GUI.objectScaleXYZ;
+
+    XMMATRIX Scale = XMMatrixScaling(scaleValue, scaleValue, scaleValue);
+
     // 회전각 변환
     XMMATRIX Rotate = XMMatrixRotationX(m_GUI.objectPitch / 180 * XM_PI) * XMMatrixRotationY(m_GUI.objectYaw / 180 * XM_PI)/* * XMMatrixRotationZ()*/;
 
-    m_World = Rotate * XMMatrixTranslation(m_GUI.objectPosX, m_GUI.objectPosY, m_GUI.objectPosZ);
+    m_World = Scale * Rotate * XMMatrixTranslation(m_GUI.objectPosX * scaleValue / 2.0f , m_GUI.objectPosY * scaleValue / 2.0f, m_GUI.objectPosZ * scaleValue / 2.0f);
 
     m_Projection = XMMatrixPerspectiveFovLH(XM_PIDIV2 / m_GUI.FOV, m_ClientWidth / (FLOAT)m_ClientHeight, nearZ, finalFarZ);
 
@@ -171,9 +186,12 @@ void TutorialApp::Render()
     cbObj.mView = XMMatrixTranspose(m_View);
     cbObj.mProjection = XMMatrixTranspose(m_Projection);
     cbObj.vLightDir = m_LightDirsEvaluated;
-    cbObj.vLightColor = m_LightColor;
+    cbObj.vAmbientColor = m_AmbientColor;
+    cbObj.vDiffuseColor = m_DiffuseColor;
+    cbObj.vSpecularColor = m_SpecularColor;
     cbObj.vOutputColor = XMFLOAT4(1, 1, 1, 1);
-    cbObj.cameraPos = m_Camera.GetPosition();
+    cbObj.cameraPos = m_cameraPos;
+    cbObj.vShininess = m_shininess;
 
     m_pDeviceContext->VSSetConstantBuffers(0, 1, &m_pConstantBuffer);
     m_pDeviceContext->PSSetConstantBuffers(0, 1, &m_pConstantBuffer);
