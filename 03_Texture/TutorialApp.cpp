@@ -26,7 +26,7 @@ struct ConstantBuffer
     Matrix mProjection;
 
     Vector4 vLightDir;
-    Vector4 vLightColor;
+    Vector4 vDiffuseColor;
     Vector4 vOutputColor;
 
     Vector3 cameraPos;
@@ -80,7 +80,7 @@ void TutorialApp::Update()
     m_InitialLightDirs = { m_GUI.lightDirX, m_GUI.lightDirY, m_GUI.lightDirZ, 0.0f };
     m_LightDirsEvaluated = m_InitialLightDirs;
 
-    m_LightColor = { m_GUI.lightColorR, m_GUI.lightColorG, m_GUI.lightColorB, 1 };
+    m_DiffuseColor = { m_GUI.lightColorR, m_GUI.lightColorG, m_GUI.lightColorB, 1 };
 
     //XMMATRIX mRotate = XMMatrixRotationY(m_Angle);
     //XMVECTOR vLightDir = XMLoadFloat4(&m_InitialLightDirs);
@@ -173,7 +173,7 @@ void TutorialApp::Render()
     cbObj.mView = XMMatrixTranspose(m_View);
     cbObj.mProjection = XMMatrixTranspose(m_Projection);
     cbObj.vLightDir = m_LightDirsEvaluated;
-    cbObj.vLightColor = m_LightColor;
+    cbObj.vDiffuseColor = m_DiffuseColor;
     cbObj.vOutputColor = XMFLOAT4(1, 1, 1, 1);
     cbObj.cameraPos = m_Camera.GetPosition();
 

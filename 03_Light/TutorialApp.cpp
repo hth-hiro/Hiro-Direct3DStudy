@@ -24,7 +24,7 @@ struct ConstantBuffer
     Matrix mProjection;
 
     Vector4 vLightDir;
-    Vector4 vLightColor;
+    Vector4 vDiffuseColor;
     Vector4 vOutputColor;
 };
 
@@ -62,7 +62,7 @@ void TutorialApp::Update()
     m_InitialLightDirs = { m_GUI.lightDirX, m_GUI.lightDirY, m_GUI.lightDirZ, 0.0f };
     m_LightDirsEvaluated = m_InitialLightDirs;
 
-    m_LightColor = { m_GUI.lightColorR, m_GUI.lightColorG, m_GUI.lightColorB, 1 };
+    m_DiffuseColor = { m_GUI.lightColorR, m_GUI.lightColorG, m_GUI.lightColorB, 1 };
 
     //XMMATRIX mRotate = XMMatrixRotationY(m_Angle);
     //XMVECTOR vLightDir = XMLoadFloat4(&m_InitialLightDirs);
@@ -137,7 +137,7 @@ void TutorialApp::Render()
     cb.mView = XMMatrixTranspose(m_View);
     cb.mProjection = XMMatrixTranspose(m_Projection);
     cb.vLightDir = m_LightDirsEvaluated;
-    cb.vLightColor = m_LightColor;
+    cb.vDiffuseColor = m_DiffuseColor;
     cb.vOutputColor = XMFLOAT4(1, 1, 1, 1); // Parent Obj
     m_pDeviceContext->UpdateSubresource(m_pConstantBuffer, 0, nullptr, &cb, 0, 0);
 

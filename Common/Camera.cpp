@@ -16,7 +16,7 @@ void Camera::Reset()
 {
     m_World = Matrix::Identity;
     m_Rotation = Vector3(0.0f, 0.0f, 0.0f);
-    m_Position = Vector3(0.0f, 0.0f, -10.0f);
+    m_Position = Vector3(0.0f, 0.0f, -1500.0f);
 }
 
 void Camera::Update(float deltaTime)
