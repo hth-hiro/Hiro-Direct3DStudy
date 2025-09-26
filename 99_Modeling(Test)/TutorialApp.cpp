@@ -35,7 +35,7 @@ struct ConstantBuffer
     Vector4 vMaterialAmbient;
     Vector4 vMaterialDiffuse;
     Vector4 vMaterialSpecular;
-    
+
     Vector4 cameraPos;
 
     Vector4 vShininess;
@@ -127,14 +127,14 @@ void TutorialApp::Update()
     }
 
     // 스케일 변환
-    float scaleValue = m_ImGuiManager.objectScaleXYZ;
+    float scaleValue = m_ImGuiManager.GetObjectScale();
 
     XMMATRIX Scale = XMMatrixScaling(scaleValue, scaleValue, scaleValue);
 
     // 회전각 변환
     XMMATRIX Rotate = XMMatrixRotationX(m_ImGuiManager.objectRotate.y / 180 * XM_PI) * XMMatrixRotationY(m_ImGuiManager.objectRotate.x / 180 * XM_PI)/* * XMMatrixRotationZ()*/;
 
-    m_World = Scale * Rotate * XMMatrixTranslation(m_ImGuiManager.objectTransform.x * scaleValue / 2.0f , m_ImGuiManager.objectTransform.y * scaleValue / 2.0f, m_ImGuiManager.objectTransform.z * scaleValue / 2.0f);
+    m_World = Scale * Rotate * XMMatrixTranslation(m_ImGuiManager.objectTransform.x * scaleValue / 2.0f, m_ImGuiManager.objectTransform.y * scaleValue / 2.0f, m_ImGuiManager.objectTransform.z * scaleValue / 2.0f);
 
     m_Projection = XMMatrixPerspectiveFovLH(XM_PIDIV2 / m_ImGuiManager.FOV, m_ClientWidth / (FLOAT)m_ClientHeight, nearZ, finalFarZ);
 
@@ -335,8 +335,8 @@ void TutorialApp::UninitD3D()
 
 bool TutorialApp::InitImGUI()
 {
-    m_ImGuiManager.Initialize(this->m_pDevice, this->m_pDeviceContext);
-
+    m_ImGuiManager.Initialize();
+    m_ImGuiManager.BeginFrame(this->m_pDevice, this->m_pDeviceContext);
     return true;
 }
 

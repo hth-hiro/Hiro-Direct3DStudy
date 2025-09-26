@@ -108,7 +108,7 @@ public:
 	float m_Child1Angle = 0.0f;
 	float m_Child2Angle = 0.0f;
 
-	RenderGUI m_GUI;
+	RenderGUI m_ImGuiManager;
 
 	virtual bool Initialize(UINT Width, UINT Height);
 	virtual void Update();

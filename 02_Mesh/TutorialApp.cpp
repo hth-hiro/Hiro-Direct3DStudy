@@ -42,11 +42,11 @@ bool TutorialApp::Initialize(UINT Width, UINT Height)
 void TutorialApp::Update()
 {
     m_ParentObj.local = XMMatrixRotationY(XMConvertToRadians(m_ParentAngle))
-        * XMMatrixTranslation(m_GUI.m_ParentWorldX, m_GUI.m_ParentWorldY, m_GUI.m_ParentWorldZ);
+        * XMMatrixTranslation(m_ImGuiManager.m_ParentWorldX, m_ImGuiManager.m_ParentWorldY, m_ImGuiManager.m_ParentWorldZ);
     m_ChildObj1.local = XMMatrixRotationY(XMConvertToRadians(m_Child1Angle))
-        * XMMatrixTranslation(m_GUI.m_Child1LocalX, m_GUI.m_Child1LocalY, m_GUI.m_Child1LocalZ);
+        * XMMatrixTranslation(m_ImGuiManager.m_Child1LocalX, m_ImGuiManager.m_Child1LocalY, m_ImGuiManager.m_Child1LocalZ);
     m_ChildObj2.local = XMMatrixRotationY(XMConvertToRadians(m_Child2Angle))
-        * XMMatrixTranslation(m_GUI.m_Child2LocalX, m_GUI.m_Child2LocalY, m_GUI.m_Child2LocalZ);
+        * XMMatrixTranslation(m_ImGuiManager.m_Child2LocalX, m_ImGuiManager.m_Child2LocalY, m_ImGuiManager.m_Child2LocalZ);
 
     //m_World = XMMatrixRotationY(XMConvertToRadians(m_Angle));
     
@@ -55,12 +55,12 @@ void TutorialApp::Update()
     m_Child1Angle += 0.001f;
     m_Child2Angle += 0.001f;
 
-    float PosX = m_GUI.playerPosX;
-    float PosY = m_GUI.playerPosY;
-    float PosZ = m_GUI.playerPosZ;
+    float PosX = m_ImGuiManager.playerPosX;
+    float PosY = m_ImGuiManager.playerPosY;
+    float PosZ = m_ImGuiManager.playerPosZ;
 
-    float nearZ = m_GUI.nearZ;
-    float farZ = m_GUI.farZ;
+    float nearZ = m_ImGuiManager.nearZ;
+    float farZ = m_ImGuiManager.farZ;
 
     XMVECTOR Eye = XMVectorSet(PosX, PosY, PosZ, 0);
 
@@ -79,9 +79,9 @@ void TutorialApp::Update()
     }
 
     // 안전하게 좌표 설정
-    if (m_GUI.isFocusParent)
+    if (m_ImGuiManager.isFocusParent)
     {
-        float dz = m_GUI.m_ParentWorldZ - PosZ;
+        float dz = m_ImGuiManager.m_ParentWorldZ - PosZ;
 
         if (fabs(dz) < minZ)
         {
@@ -89,7 +89,7 @@ void TutorialApp::Update()
             else dz = -minZ;
         }
 
-        At = XMVectorSet(m_GUI.m_ParentWorldX, m_GUI.m_ParentWorldY, PosZ + dz, 0);
+        At = XMVectorSet(m_ImGuiManager.m_ParentWorldX, m_ImGuiManager.m_ParentWorldY, PosZ + dz, 0);
     }
     else
     {
@@ -111,7 +111,7 @@ void TutorialApp::Update()
     // XM_PI = 180도
     // 세로의 시야각이 180도라는 것은 Eye를 기준으로 위로 180도, 아래로 180도(-180도) 라는 의미.
     //XMMatrixPerspectiveFovLH 함수 구조상 투영행렬은 tan(FovY/2)=tan(π/2)=∞ 이므로 화면에 표시되지 않음.
-    m_Projection = XMMatrixPerspectiveFovLH(XM_PIDIV2 / m_GUI.FOV, m_ClientWidth / (FLOAT)m_ClientHeight, nearZ, finalFarZ);
+    m_Projection = XMMatrixPerspectiveFovLH(XM_PIDIV2 / m_ImGuiManager.FOV, m_ClientWidth / (FLOAT)m_ClientHeight, nearZ, finalFarZ);
 
     UpdateWorld(m_ParentObj);
 }
@@ -144,7 +144,7 @@ void TutorialApp::Render()
     RenderObject(m_pDeviceContext, m_ParentObj);
 
     // GUI는 맨 나중에 렌더하도록 한다.
-    m_GUI.Render();
+    m_ImGuiManager.Render();
 
     m_pSwapChain->Present(0, 0);
 }
@@ -250,14 +250,14 @@ void TutorialApp::UninitD3D()
 
 bool TutorialApp::InitImGUI()
 {
-    m_GUI.Initialize(this->m_pDevice, this->m_pDeviceContext);
+    m_ImGuiManager.Initialize(this->m_pDevice, this->m_pDeviceContext);
 
     return true;
 }
 
 void TutorialApp::UninitImGUI()
 {
-    m_GUI.Release();
+    m_ImGuiManager.Release();
 }
 
 bool TutorialApp::InitScene()

@@ -37,7 +37,7 @@ public:
 	Matrix m_View;
 	Matrix m_Projection;
 
-	RenderGUI m_GUI;
+	RenderGUI m_ImGuiManager;
 
 	//float m_Angle = 0.0f;
 

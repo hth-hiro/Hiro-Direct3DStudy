@@ -60,7 +60,7 @@ public:
 	Matrix m_View;
 	Matrix m_Projection;
 
-	IMGUI m_GUI;
+	IMGUI m_ImGuiManager;
 
 	//float m_Angle = 0.0f;
 

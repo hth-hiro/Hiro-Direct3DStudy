@@ -4,7 +4,7 @@
 #include <d3d11.h>
 #include <directxtk/SimpleMath.h>
 
-#include "RenderGUI.h"
+#include "ImGuiManager.h"
 
 using namespace DirectX::SimpleMath;
 using namespace DirectX;
@@ -60,28 +60,25 @@ public:
 	Matrix m_View;
 	Matrix m_Projection;
 
-	RenderGUI m_ImGuiManager;
+	ImGuiManager m_ImGuiManager;
 
 	//float m_Angle = 0.0f;
 
 	// 라이트 관련
-	// 씬 안에서 라이트는 여러개 존재할 수 있다. 이를 묶어서 처리할 수도 있음
-	//XMFLOAT4 m_LightColors[2] =
-	//{
-	//	XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f),
-	//	XMFLOAT4(0.0f, 0.0f, 0.0f, 0.0f)
-	//};
-	//XMFLOAT4 m_InitialLightDirs[2] =
-	//{
-	//	XMFLOAT4(-0.577f, 0.577f, -0.577f, 1.0f),
-	//	XMFLOAT4(0.0f, 0.0f, -1.0f, 1.0f),
-	//};
-	//XMFLOAT4 m_LightDirsEvaluated[2] = {};
+	// 씬 안에서 라이트는 여러개 존재할 수 있으며, 이를 묶어서 처리할 수도 있음
 
-	// 지금 쓰고 있는건 1개
+	XMFLOAT4 m_AmbientColor = { 0.1f, 0.1f, 0.1f, 1.0f };
 	XMFLOAT4 m_DiffuseColor = { 1.0f, 1.0f, 1.0f, 1.0f };
-	XMFLOAT4 m_InitialLightDirs = { -0.577f, 0.577f, -0.577f, 0.0f };
+	XMFLOAT4 m_SpecularColor = { 1.0f, 1.0f, 1.0f, 1.0f };
+	XMFLOAT4 m_InitialLightDirs = { 1.0f, -1.0f, 1.0f, 0.0f };
 	XMFLOAT4 m_LightDirsEvaluated = {};
+
+	XMFLOAT4 m_MaterialAmbient = {};
+	XMFLOAT4 m_MaterialDiffuse = {};
+	XMFLOAT4 m_MaterialSpecular = {};
+
+	Vector4 m_cameraPos;
+	Vector4 m_shininess;
 
 	bool Initialize(UINT Width, UINT Height) override;
 	void Update() override;

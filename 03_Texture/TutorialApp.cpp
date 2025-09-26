@@ -44,7 +44,7 @@ struct SkyBoxCB
     Matrix mProjection;
 };
 
-TutorialApp::TutorialApp(HINSTANCE hInstance) : GameApp(hInstance), m_GUI(this)
+TutorialApp::TutorialApp(HINSTANCE hInstance) : GameApp(hInstance), m_ImGuiManager(this)
 {
 
 }
@@ -77,18 +77,18 @@ void TutorialApp::Update()
     __super::Update();
 
     // Light
-    m_InitialLightDirs = { m_GUI.lightDirX, m_GUI.lightDirY, m_GUI.lightDirZ, 0.0f };
+    m_InitialLightDirs = { m_ImGuiManager.lightDirX, m_ImGuiManager.lightDirY, m_ImGuiManager.lightDirZ, 0.0f };
     m_LightDirsEvaluated = m_InitialLightDirs;
 
-    m_DiffuseColor = { m_GUI.lightColorR, m_GUI.lightColorG, m_GUI.lightColorB, 1 };
+    m_DiffuseColor = { m_ImGuiManager.lightColorR, m_ImGuiManager.lightColorG, m_ImGuiManager.lightColorB, 1 };
 
     //XMMATRIX mRotate = XMMatrixRotationY(m_Angle);
     //XMVECTOR vLightDir = XMLoadFloat4(&m_InitialLightDirs);
     //vLightDir = XMVector3Transform(vLightDir, mRotate);
     //XMStoreFloat4(&m_LightDirsEvaluated, vLightDir);
 
-    float nearZ = m_GUI.nearZ;
-    float farZ = m_GUI.farZ;
+    float nearZ = m_ImGuiManager.nearZ;
+    float farZ = m_ImGuiManager.farZ;
 
     const float minZ = 0.1f;
 
@@ -103,16 +103,16 @@ void TutorialApp::Update()
     }
 
     // 회전각 변환
-    XMMATRIX Rotate = XMMatrixRotationX(m_GUI.objectPitch / 180 * XM_PI) * XMMatrixRotationY(m_GUI.objectYaw / 180 * XM_PI)/* * XMMatrixRotationZ()*/;
+    XMMATRIX Rotate = XMMatrixRotationX(m_ImGuiManager.objectPitch / 180 * XM_PI) * XMMatrixRotationY(m_ImGuiManager.objectYaw / 180 * XM_PI)/* * XMMatrixRotationZ()*/;
 
-    m_World = Rotate * XMMatrixTranslation(m_GUI.objectPosX, m_GUI.objectPosY, m_GUI.objectPosZ);
+    m_World = Rotate * XMMatrixTranslation(m_ImGuiManager.objectPosX, m_ImGuiManager.objectPosY, m_ImGuiManager.objectPosZ);
 
-    m_Projection = XMMatrixPerspectiveFovLH(XM_PIDIV2 / m_GUI.FOV, m_ClientWidth / (FLOAT)m_ClientHeight, nearZ, finalFarZ);
+    m_Projection = XMMatrixPerspectiveFovLH(XM_PIDIV2 / m_ImGuiManager.FOV, m_ClientWidth / (FLOAT)m_ClientHeight, nearZ, finalFarZ);
 
     // 카메라 뷰에 적용
     m_Camera.GetViewMatrix(m_View);
 
-    if (m_GUI.viewChanger)
+    if (m_ImGuiManager.viewChanger)
     {
         //m_pCubeTextureRV = m_pCubeDaylightTextureRV;
         m_pCubeTextureRV = m_pCubeHanakoTextureRV;
@@ -187,7 +187,7 @@ void TutorialApp::Render()
     m_pDeviceContext->DrawIndexed(m_nIndices, 0, 0);
 
     // 4. GUI 렌더
-    m_GUI.Render();
+    m_ImGuiManager.Render();
 
     // 5. Present
     m_pSwapChain->Present(0, 0);
@@ -300,14 +300,14 @@ void TutorialApp::UninitD3D()
 
 bool TutorialApp::InitImGUI()
 {
-    m_GUI.Initialize(this->m_pDevice, this->m_pDeviceContext);
+    m_ImGuiManager.Initialize(this->m_pDevice, this->m_pDeviceContext);
 
     return true;
 }
 
 void TutorialApp::UninitImGUI()
 {
-    m_GUI.Release();
+    m_ImGuiManager.Release();
 }
 
 bool TutorialApp::InitScene()

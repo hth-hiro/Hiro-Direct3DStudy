@@ -27,6 +27,12 @@
     <ClInclude Include="99_Modeling(Test).h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
+    <ClInclude Include="TutorialApp.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="ImGuiManager.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Image Include="small.ico">
@@ -43,6 +49,12 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="99_Modeling(Test).cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="TutorialApp.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="ImGuiManager.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
   </ItemGroup>

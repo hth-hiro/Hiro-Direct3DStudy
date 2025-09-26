@@ -129,8 +129,10 @@
   <ItemGroup>
     <ClInclude Include="99_Modeling(Test).h" />
     <ClInclude Include="framework.h" />
+    <ClInclude Include="ImGuiManager.h" />
     <ClInclude Include="Resource.h" />
     <ClInclude Include="targetver.h" />
+    <ClInclude Include="TutorialApp.h" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="99_Modeling(Test).ico" />
@@ -146,6 +148,8 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="99_Modeling(Test).cpp" />
+    <ClCompile Include="ImGuiManager.cpp" />
+    <ClCompile Include="TutorialApp.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

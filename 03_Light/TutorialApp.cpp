@@ -28,7 +28,7 @@ struct ConstantBuffer
     Vector4 vOutputColor;
 };
 
-TutorialApp::TutorialApp(HINSTANCE hInstance) : GameApp(hInstance), m_GUI(this)
+TutorialApp::TutorialApp(HINSTANCE hInstance) : GameApp(hInstance), m_ImGuiManager(this)
 {
 
 }
@@ -59,22 +59,22 @@ bool TutorialApp::Initialize(UINT Width, UINT Height)
 void TutorialApp::Update()
 {
     // Light
-    m_InitialLightDirs = { m_GUI.lightDirX, m_GUI.lightDirY, m_GUI.lightDirZ, 0.0f };
+    m_InitialLightDirs = { m_ImGuiManager.lightDirX, m_ImGuiManager.lightDirY, m_ImGuiManager.lightDirZ, 0.0f };
     m_LightDirsEvaluated = m_InitialLightDirs;
 
-    m_DiffuseColor = { m_GUI.lightColorR, m_GUI.lightColorG, m_GUI.lightColorB, 1 };
+    m_DiffuseColor = { m_ImGuiManager.lightColorR, m_ImGuiManager.lightColorG, m_ImGuiManager.lightColorB, 1 };
 
     //XMMATRIX mRotate = XMMatrixRotationY(m_Angle);
     //XMVECTOR vLightDir = XMLoadFloat4(&m_InitialLightDirs);
     //vLightDir = XMVector3Transform(vLightDir, mRotate);
     //XMStoreFloat4(&m_LightDirsEvaluated, vLightDir);
 
-    float PosX = m_GUI.playerPosX;
-    float PosY = m_GUI.playerPosY;
-    float PosZ = m_GUI.playerPosZ;
+    float PosX = m_ImGuiManager.playerPosX;
+    float PosY = m_ImGuiManager.playerPosY;
+    float PosZ = m_ImGuiManager.playerPosZ;
 
-    float nearZ = m_GUI.nearZ;
-    float farZ = m_GUI.farZ;
+    float nearZ = m_ImGuiManager.nearZ;
+    float farZ = m_ImGuiManager.farZ;
 
     XMVECTOR Eye = XMVectorSet(PosX, PosY, PosZ, 0);
 
@@ -93,9 +93,9 @@ void TutorialApp::Update()
     }
 
     // 안전하게 좌표 설정
-    if (m_GUI.isFocusParent)
+    if (m_ImGuiManager.isFocusParent)
     {
-        float dz = m_GUI.objectPosZ - PosZ;
+        float dz = m_ImGuiManager.objectPosZ - PosZ;
 
         if (fabs(dz) < minZ)
         {
@@ -103,7 +103,7 @@ void TutorialApp::Update()
             else dz = -minZ;
         }
 
-        At = XMVectorSet(m_GUI.objectPosX, m_GUI.objectPosY, PosZ + dz, 0);
+        At = XMVectorSet(m_ImGuiManager.objectPosX, m_ImGuiManager.objectPosY, PosZ + dz, 0);
     }
     else
     {
@@ -113,13 +113,13 @@ void TutorialApp::Update()
     XMVECTOR Up = XMVectorSet(0, 1, 0, 0);
 
     // 회전각 변환
-    XMMATRIX Rotate = XMMatrixRotationX(m_GUI.objectPitch / 180 * XM_PI) * XMMatrixRotationY(m_GUI.objectYaw / 180 * XM_PI)/* * XMMatrixRotationZ()*/;
+    XMMATRIX Rotate = XMMatrixRotationX(m_ImGuiManager.objectPitch / 180 * XM_PI) * XMMatrixRotationY(m_ImGuiManager.objectYaw / 180 * XM_PI)/* * XMMatrixRotationZ()*/;
 
-    m_World = Rotate * XMMatrixTranslation(m_GUI.objectPosX, m_GUI.objectPosY, m_GUI.objectPosZ);
+    m_World = Rotate * XMMatrixTranslation(m_ImGuiManager.objectPosX, m_ImGuiManager.objectPosY, m_ImGuiManager.objectPosZ);
     //m_Angle += 0.0001f;
 
     m_View = XMMatrixLookAtLH(Eye, At, Up);
-    m_Projection = XMMatrixPerspectiveFovLH(XM_PIDIV2 / m_GUI.FOV, m_ClientWidth / (FLOAT)m_ClientHeight, nearZ, finalFarZ);
+    m_Projection = XMMatrixPerspectiveFovLH(XM_PIDIV2 / m_ImGuiManager.FOV, m_ClientWidth / (FLOAT)m_ClientHeight, nearZ, finalFarZ);
 }
 
 void TutorialApp::Render()
@@ -167,7 +167,7 @@ void TutorialApp::Render()
     //m_pDeviceContext->DrawIndexed(m_nIndices, 0, 0);
 
     // GUI는 맨 나중에 렌더하도록 한다.
-    m_GUI.Render();
+    m_ImGuiManager.Render();
 
     m_pSwapChain->Present(0, 0);
 }
@@ -271,14 +271,14 @@ void TutorialApp::UninitD3D()
 
 bool TutorialApp::InitImGUI()
 {
-    m_GUI.Initialize(this->m_pDevice, this->m_pDeviceContext);
+    m_ImGuiManager.Initialize(this->m_pDevice, this->m_pDeviceContext);
 
     return true;
 }
 
 void TutorialApp::UninitImGUI()
 {
-    m_GUI.Release();
+    m_ImGuiManager.Release();
 }
 
 bool TutorialApp::InitScene()
