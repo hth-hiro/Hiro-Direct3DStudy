@@ -88,14 +88,6 @@ void TutorialApp::Update()
     m_InitialLightDirs = { m_ImGuiManager.lightDir.x, m_ImGuiManager.lightDir.y, m_ImGuiManager.lightDir.z, 0.0f };
     m_LightDirsEvaluated = m_InitialLightDirs;
 
-    //m_AmbientColor = { m_GUI.ambientColorR, m_GUI.ambientColorG, m_GUI.ambientColorB, m_GUI.ambientColorA };
-    //m_DiffuseColor = { m_GUI.diffuseColorR, m_GUI.diffuseColorG, m_GUI.diffuseColorB, m_GUI.diffuseColorA };
-    //m_SpecularColor = { m_GUI.specularColorR, m_GUI.specularColorG, m_GUI.specularColorB, m_GUI.specularColorA };
-
-    //m_MaterialAmbient = { m_GUI.objectAmbientR, m_GUI.objectAmbientG, m_GUI.objectAmbientB, m_GUI.objectAmbientA };
-    //m_MaterialDiffuse = { m_GUI.objectDiffuseR, m_GUI.objectDiffuseG, m_GUI.objectDiffuseB, m_GUI.objectDiffuseA };
-    //m_MaterialSpecular = { m_GUI.objectSpecularR, m_GUI.objectSpecularG, m_GUI.objectSpecularB, m_GUI.objectSpecularA };
-
     m_AmbientColor = { m_ImGuiManager.objectAmbient.x, m_ImGuiManager.objectAmbient.y, m_ImGuiManager.objectAmbient.z, m_ImGuiManager.objectAmbient.w };
     m_DiffuseColor = { m_ImGuiManager.objectDiffuse.x, m_ImGuiManager.objectDiffuse.y, m_ImGuiManager.objectDiffuse.z, m_ImGuiManager.objectDiffuse.w };
     m_SpecularColor = { m_ImGuiManager.objectSpecular.x, m_ImGuiManager.objectSpecular.y, m_ImGuiManager.objectSpecular.z, m_ImGuiManager.objectSpecular.w };
