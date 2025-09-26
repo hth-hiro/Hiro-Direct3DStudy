@@ -85,16 +85,24 @@ void TutorialApp::Update()
     __super::Update();
 
     // Light
-    m_InitialLightDirs = { m_GUI.lightDirX, m_GUI.lightDirY, m_GUI.lightDirZ, 0.0f };
+    m_InitialLightDirs = { m_GUI.lightDir.x, m_GUI.lightDir.y, m_GUI.lightDir.z, 0.0f };
     m_LightDirsEvaluated = m_InitialLightDirs;
 
-    m_AmbientColor = { m_GUI.ambientColorR, m_GUI.ambientColorG, m_GUI.ambientColorB, m_GUI.ambientColorA };  // 추후 알파값 넣을 예정
-    m_DiffuseColor = { m_GUI.diffuseColorR, m_GUI.diffuseColorG, m_GUI.diffuseColorB, m_GUI.diffuseColorA };
-    m_SpecularColor = { m_GUI.specularColorR, m_GUI.specularColorG, m_GUI.specularColorB, m_GUI.specularColorA };
+    //m_AmbientColor = { m_GUI.ambientColorR, m_GUI.ambientColorG, m_GUI.ambientColorB, m_GUI.ambientColorA };
+    //m_DiffuseColor = { m_GUI.diffuseColorR, m_GUI.diffuseColorG, m_GUI.diffuseColorB, m_GUI.diffuseColorA };
+    //m_SpecularColor = { m_GUI.specularColorR, m_GUI.specularColorG, m_GUI.specularColorB, m_GUI.specularColorA };
 
-    m_MaterialAmbient = { m_GUI.objectAmbientR, m_GUI.objectAmbientG, m_GUI.objectAmbientB, m_GUI.objectAmbientA };
-    m_MaterialDiffuse = { m_GUI.objectDiffuseR, m_GUI.objectDiffuseG, m_GUI.objectDiffuseB, m_GUI.objectDiffuseA };
-    m_MaterialSpecular = { m_GUI.objectSpecularR, m_GUI.objectSpecularG, m_GUI.objectSpecularB, m_GUI.objectSpecularA };
+    //m_MaterialAmbient = { m_GUI.objectAmbientR, m_GUI.objectAmbientG, m_GUI.objectAmbientB, m_GUI.objectAmbientA };
+    //m_MaterialDiffuse = { m_GUI.objectDiffuseR, m_GUI.objectDiffuseG, m_GUI.objectDiffuseB, m_GUI.objectDiffuseA };
+    //m_MaterialSpecular = { m_GUI.objectSpecularR, m_GUI.objectSpecularG, m_GUI.objectSpecularB, m_GUI.objectSpecularA };
+
+    m_AmbientColor = { m_GUI.objectAmbient.x, m_GUI.objectAmbient.y, m_GUI.objectAmbient.z, m_GUI.objectAmbient.w };
+    m_DiffuseColor = { m_GUI.objectDiffuse.x, m_GUI.objectDiffuse.y, m_GUI.objectDiffuse.z, m_GUI.objectDiffuse.w };
+    m_SpecularColor = { m_GUI.objectSpecular.x, m_GUI.objectSpecular.y, m_GUI.objectSpecular.z, m_GUI.objectSpecular.w };
+
+    m_MaterialAmbient = { m_GUI.ambientColor.x, m_GUI.ambientColor.y, m_GUI.ambientColor.z, m_GUI.ambientColor.w };
+    m_MaterialDiffuse = { m_GUI.diffuseColor.x, m_GUI.diffuseColor.y, m_GUI.diffuseColor.z, m_GUI.diffuseColor.w };
+    m_MaterialSpecular = { m_GUI.specularColor.x, m_GUI.specularColor.y, m_GUI.specularColor.z, m_GUI.specularColor.w };
 
     m_cameraPos = { m_Camera.GetPosition().x, m_Camera.GetPosition().y, m_Camera.GetPosition().z, 1 };
     m_shininess = { m_GUI.shininess };
@@ -103,8 +111,8 @@ void TutorialApp::Update()
     //vLightDir = XMVector3Transform(vLightDir, mRotate);
     //XMStoreFloat4(&m_LightDirsEvaluated, vLightDir);
 
-    float nearZ = m_GUI.nearZ;
-    float farZ = m_GUI.farZ;
+    float nearZ = m_GUI.depth.x;
+    float farZ = m_GUI.depth.y;
 
     const float minZ = 0.1f;
 
@@ -124,9 +132,9 @@ void TutorialApp::Update()
     XMMATRIX Scale = XMMatrixScaling(scaleValue, scaleValue, scaleValue);
 
     // 회전각 변환
-    XMMATRIX Rotate = XMMatrixRotationX(m_GUI.objectPitch / 180 * XM_PI) * XMMatrixRotationY(m_GUI.objectYaw / 180 * XM_PI)/* * XMMatrixRotationZ()*/;
+    XMMATRIX Rotate = XMMatrixRotationX(m_GUI.objectRotate.y / 180 * XM_PI) * XMMatrixRotationY(m_GUI.objectRotate.x / 180 * XM_PI)/* * XMMatrixRotationZ()*/;
 
-    m_World = Scale * Rotate * XMMatrixTranslation(m_GUI.objectPosX * scaleValue / 2.0f , m_GUI.objectPosY * scaleValue / 2.0f, m_GUI.objectPosZ * scaleValue / 2.0f);
+    m_World = Scale * Rotate * XMMatrixTranslation(m_GUI.objectTransform.x * scaleValue / 2.0f , m_GUI.objectTransform.y * scaleValue / 2.0f, m_GUI.objectTransform.z * scaleValue / 2.0f);
 
     m_Projection = XMMatrixPerspectiveFovLH(XM_PIDIV2 / m_GUI.FOV, m_ClientWidth / (FLOAT)m_ClientHeight, nearZ, finalFarZ);
 

@@ -57,6 +57,12 @@ public:
 	float objectSpecularB = 1.0f;
 	float objectSpecularA = 1.0f;
 
+public:
+	Vector3 objectTransform = { objectPosX , objectPosY, objectPosZ };
+	Vector2 objectRotate = { objectYaw, objectPitch };
+	Vector4 objectAmbient = { objectAmbientR, objectAmbientG, objectAmbientB, objectAmbientA };
+	Vector4 objectDiffuse = { objectDiffuseR, objectDiffuseG, objectDiffuseB, objectDiffuseA };
+	Vector4 objectSpecular = { objectSpecularR, objectSpecularG, objectSpecularB, objectSpecularA };
 
 	// ºû
 	// À§Ä¡
@@ -87,11 +93,36 @@ public:
 	float lightDirY = 0.0f;
 	float lightDirZ = 1.0f;
 
+	Vector4 ambientColor = { ambientColorR, ambientColorG, ambientColorB, ambientColorA };
+	Vector4 diffuseColor = { diffuseColorR, diffuseColorG, diffuseColorB, diffuseColorA };
+	Vector4 specularColor = { specularColorR, specularColorG, specularColorB, specularColorA };
+	Vector3 lightDir = { lightDirX, lightDirY, lightDirZ };
+
 	bool viewChanger = false;
 
 	bool m_ControllerWindowOpen = true;
 
+	Vector2 depth = { nearZ, farZ };
+
 private:
 	GameApp* m_app;
-};
 
+	void ObjectReset()
+	{
+		objectScaleXYZ = 200.0f;
+		objectTransform = { objectPosX , objectPosY, objectPosZ };
+		objectRotate = { 0.0f, 0.0f };
+		objectAmbient = { objectAmbientR, objectAmbientG, objectAmbientB, objectAmbientA };
+		objectDiffuse = { objectDiffuseR, objectDiffuseG, objectDiffuseB, objectDiffuseA };
+		objectSpecular = { objectSpecularR, objectSpecularG, objectSpecularB, objectSpecularA };
+	}
+
+	void LightReset()
+	{
+		ambientColor = { ambientColorR, ambientColorG, ambientColorB, ambientColorA };
+		diffuseColor = { diffuseColorR, diffuseColorG, diffuseColorB, diffuseColorA };
+		specularColor = { specularColorR, specularColorG, specularColorB, specularColorA };
+		lightDir = { lightDirX, lightDirY, lightDirZ };
+		shininess = 1000.0f;
+	}
+};

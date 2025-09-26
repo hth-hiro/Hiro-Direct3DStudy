@@ -43,53 +43,17 @@ void IMGUI::Render()
 		//ImGui::Separator();
 
 		// Object
-		Vector3 objectPos = { objectPosX , objectPosY, objectPosZ };
-		Vector2 objectRotate = { objectYaw, objectPitch };
-		Vector4 objectAmbient = { objectAmbientR, objectAmbientG, objectAmbientB, objectAmbientA };
-		Vector4 objectDiffuse = { objectDiffuseR, objectDiffuseG, objectDiffuseB, objectDiffuseA };
-		Vector4 objectSpecular = { objectSpecularR, objectSpecularG, objectSpecularB, objectSpecularA };
-
 		ImGui::SliderFloat(u8" 크기", &objectScaleXYZ, 10.0f, 1000.0f);
-		ImGui::SliderFloat3(u8" 위치", &objectPos.x, -10.0f, 10.0f);
+		ImGui::SliderFloat3(u8" 위치", &objectTransform.x, -10.0f, 10.0f);
 		ImGui::DragFloat2(u8"Y축 회전 & X축 회전", &objectRotate.x, 0.1f);
 		ImGui::ColorEdit4(u8" Material Ambient 색상", &objectAmbient.x);
 		ImGui::ColorEdit4(u8" Material Diffuse 색상", &objectDiffuse.x);
 		ImGui::ColorEdit4(u8" Material Specular 색상", &objectSpecular.x);
 
-		if (ImGui::Button(u8"오브젝트 초기화"))
-		{
-			objectScaleXYZ = 200.0f;
-
-			objectPosX = 0.0f;
-			objectPosY = 0.0f;
-			objectPosZ = 0.0f;
-
-			objectYaw = 0.0f;
-			objectPitch = 0.0f;
-
-			objectAmbientR = 0.1f;
-			objectAmbientG = 0.1f;
-			objectAmbientB = 0.1f;
-			objectAmbientA = 0.1f;
-
-			objectDiffuseR = 1.0f;
-			objectDiffuseG = 1.0f;
-			objectDiffuseB = 1.0f;
-			objectDiffuseA = 1.0f;
-
-			objectSpecularR = 1.0f;
-			objectSpecularG = 1.0f;
-			objectSpecularB = 1.0f;
-			objectSpecularA = 1.0f;
-		}
+		if (ImGui::Button(u8"오브젝트 초기화")) ObjectReset();
 		ImGui::Text("");
 
 		// Light
-		Vector4 ambientColor = { ambientColorR, ambientColorG, ambientColorB, ambientColorA };
-		Vector4 diffuseColor = { diffuseColorR, diffuseColorG, diffuseColorB, diffuseColorA };
-		Vector4 specularColor = { specularColorR, specularColorG, specularColorB, specularColorA };
-		Vector3 lightDir = { lightDirX, lightDirY, lightDirZ };
-
 		ImGui::SeparatorText(u8"빛 조절");
 		ImGui::ColorEdit4(u8" Ambient 색상", &ambientColor.x);
 		ImGui::ColorEdit4(u8" Diffuse 색상", &diffuseColor.x);
@@ -99,28 +63,11 @@ void IMGUI::Render()
 
 		if (ImGui::Button(u8" 빛 초기화"))
 		{
-			ambientColorR = 0.1f;
-			ambientColorG = 0.1f;
-			ambientColorB = 0.1f;
-
-			diffuseColorR = 1.0f;
-			diffuseColorG = 1.0f;
-			diffuseColorB = 1.0f;
-
-			specularColorR = 1.0f;
-			specularColorG = 1.0f;
-			specularColorB = 1.0f;
-
-			lightDirX = 0.0f;
-			lightDirY = 0.0;
-			lightDirZ = 1.0;
-
-			shininess = 1000.0f;
+			LightReset();
 		}
 		ImGui::Text("");
 
 		// 카메라
-		Vector2 depth = { nearZ, farZ };
 		ImGui::SeparatorText(u8" 카메라 조절");
 		ImGui::SliderFloat(u8" 시야범위", &FOV, 0.6f, 10.0f);
 		ImGui::DragFloat2(u8" 렌더 최소/최대 거리", &depth.x, 0.1f, 0.01f, 50000.0f, "%.1f");
