@@ -1,6 +1,12 @@
-#include "IMGUI.h"
+#include "ImGuiManager.h"
 
-void IMGUI::Initialize(ID3D11Device* _Device, ID3D11DeviceContext* _DeviceContext)
+void ImGuiManager::Initialize()
+{
+	ObjectReset();
+	LightReset();
+}
+
+void ImGuiManager::BeginFrame(ID3D11Device* _Device, ID3D11DeviceContext* _DeviceContext)
 {
 	IMGUI_CHECKVERSION();
 	ImGui::CreateContext();
@@ -20,7 +26,14 @@ void IMGUI::Initialize(ID3D11Device* _Device, ID3D11DeviceContext* _DeviceContex
 	io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;
 }
 
-void IMGUI::Render()
+void ImGuiManager::EndFrame()
+{
+	ImGui_ImplDX11_Shutdown();
+	ImGui_ImplWin32_Shutdown();
+	ImGui::DestroyContext();
+}
+
+void ImGuiManager::Render()
 {
 	ImGuiIO& io = ImGui::GetIO(); (void)io;
 
@@ -97,11 +110,4 @@ void IMGUI::Render()
 
 	ImGui::Render();
 	ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
-}
-
-void IMGUI::Release()
-{
-	ImGui_ImplDX11_Shutdown();
-	ImGui_ImplWin32_Shutdown();
-	ImGui::DestroyContext();
 }

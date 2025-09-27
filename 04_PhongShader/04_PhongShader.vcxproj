@@ -130,14 +130,14 @@
   <ItemGroup>
     <ClInclude Include="04_PhongShader.h" />
     <ClInclude Include="framework.h" />
-    <ClInclude Include="IMGUI.h" />
+    <ClInclude Include="ImGuiManager.h" />
     <ClInclude Include="Resource.h" />
     <ClInclude Include="targetver.h" />
     <ClInclude Include="TutorialApp.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="04_PhongShader.cpp" />
-    <ClCompile Include="IMGUI.cpp" />
+    <ClCompile Include="ImGuiManager.cpp" />
     <ClCompile Include="TutorialApp.cpp" />
   </ItemGroup>
   <ItemGroup>

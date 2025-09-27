@@ -4,7 +4,7 @@
 #include <d3d11.h>
 #include <directxtk/SimpleMath.h>
 
-#include "IMGUI.h"
+#include "ImGuiManager.h"
 
 using namespace DirectX::SimpleMath;
 using namespace DirectX;
@@ -60,7 +60,7 @@ public:
 	Matrix m_View;
 	Matrix m_Projection;
 
-	IMGUI m_ImGuiManager;
+	ImGuiManager m_ImGuiManager;
 
 	//float m_Angle = 0.0f;
 

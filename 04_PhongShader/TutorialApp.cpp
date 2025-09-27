@@ -127,7 +127,7 @@ void TutorialApp::Update()
     }
 
     // 스케일 변환
-    float scaleValue = m_ImGuiManager.objectScaleXYZ;
+    float scaleValue = m_ImGuiManager.GetObjectScale();
 
     XMMATRIX Scale = XMMatrixScaling(scaleValue, scaleValue, scaleValue);
 
@@ -335,7 +335,8 @@ void TutorialApp::UninitD3D()
 
 bool TutorialApp::InitImGUI()
 {
-    m_ImGuiManager.Initialize(this->m_pDevice, this->m_pDeviceContext);
+    m_ImGuiManager.Initialize();
+    m_ImGuiManager.BeginFrame(this->m_pDevice, this->m_pDeviceContext);
 
     return true;
 }
