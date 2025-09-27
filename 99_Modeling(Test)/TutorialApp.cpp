@@ -437,7 +437,7 @@ bool TutorialApp::InitScene()
     /*--------Vertex Shader--------*/
     ID3DBlob* vertexShaderBuffer = nullptr;
     //CompileShaderFromFile(L"BasicVertexShader.hlsl", "main", "vs_4_0", &vertexShaderBuffer);
-    CompileShaderFromFile(L"BasicVertexShader.hlsl", "main", "vs_4_0", &vertexShaderBuffer);
+    CompileShaderFromFile(L"Shader/BasicVertexShader.hlsl", "main", "vs_4_0", &vertexShaderBuffer);
 
     HR_T(m_pDevice->CreateVertexShader(vertexShaderBuffer->GetBufferPointer(),
         vertexShaderBuffer->GetBufferSize(), NULL, &m_pVertexShader));
@@ -459,7 +459,7 @@ bool TutorialApp::InitScene()
 
     /*--------Pixel Shader Stage--------*/
     ID3DBlob* pixelShaderBuffer = nullptr;
-    CompileShaderFromFile(L"BasicPixelShader.hlsl", "main", "ps_4_0", &pixelShaderBuffer);
+    CompileShaderFromFile(L"Shader/BasicPixelShader.hlsl", "main", "ps_4_0", &pixelShaderBuffer);
 
     HR_T(m_pDevice->CreatePixelShader(pixelShaderBuffer->GetBufferPointer(),
         pixelShaderBuffer->GetBufferSize(), NULL, &m_pPixelShader));
@@ -518,7 +518,7 @@ bool TutorialApp::InitScene()
     HR_T(m_pDevice->CreateBuffer(&skyVBDesc, &skyIBData, &m_pSkyboxIndexBuffer));
 
     ID3DBlob* vsBlobSkybox = nullptr;
-    CompileShaderFromFile(L"SkyboxVertexShader.hlsl", "VS_Skybox", "vs_4_0", &vsBlobSkybox);
+    CompileShaderFromFile(L"Shader/SkyboxVertexShader.hlsl", "VS_Skybox", "vs_4_0", &vsBlobSkybox);
 
     HR_T(m_pDevice->CreateVertexShader(vsBlobSkybox->GetBufferPointer(),
         vsBlobSkybox->GetBufferSize(), NULL, &m_pSkyboxVertexShader));
@@ -534,7 +534,7 @@ bool TutorialApp::InitScene()
     SAFE_RELEASE(vsBlobSkybox);
 
     ID3DBlob* psBlobSkybox = nullptr;
-    CompileShaderFromFile(L"SkyboxPixelShader.hlsl", "PS_Skybox", "ps_4_0", &psBlobSkybox);
+    CompileShaderFromFile(L"Shader/SkyboxPixelShader.hlsl", "PS_Skybox", "ps_4_0", &psBlobSkybox);
     HR_T(m_pDevice->CreatePixelShader(psBlobSkybox->GetBufferPointer(),
         psBlobSkybox->GetBufferSize(), NULL, &m_pSkyboxPixelShader));
 
