@@ -1,4 +1,5 @@
 #include "TutorialApp.h"
+#include "Model.h"
 #include "../Common/Helper.h"
 #include <dxgi1_3.h>
 #include <d3dcompiler.h>
@@ -9,14 +10,6 @@
 #pragma comment(lib, "d3d11.lib")
 #pragma comment(lib, "dxgi.lib")
 #pragma comment(lib, "d3dcompiler.lib") // 셰이더 컴파일 시 필요
-
-// 버텍스 구조체는 이제 정점, 노멀, 텍스처로 구성된다.
-struct Vertex
-{
-    Vector3 Pos;
-    Vector3 Normal;     // 정점에 대한 라이팅 정보
-    Vector2 Tex;        // 정점에 대한 텍스처 정보
-};
 
 // 상수 버퍼를 생성한다. 근데 라이트를 곁들인.
 struct ConstantBuffer
