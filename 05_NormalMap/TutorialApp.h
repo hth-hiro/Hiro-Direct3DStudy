@@ -37,7 +37,7 @@ public:
 	ID3D11SamplerState* m_pSamplerLinear = nullptr;			// 샘플러 스테이트
 	ID3D11ShaderResourceView* m_pTextureRV = nullptr;		// 텍스처 파일
 	ID3D11ShaderResourceView* m_pNormalMapRV = nullptr;		// 노멀맵 SRV
-
+	ID3D11ShaderResourceView* m_pSpecularMapRV = nullptr;	// 스펙큘러맵 SRV
 
 	// 스카이박스용
 	ID3D11VertexShader* m_pSkyboxVertexShader = nullptr;// 스카이 박스용 정점 셰이더.

@@ -212,6 +212,7 @@ void TutorialApp::Render()
 
     m_pDeviceContext->PSSetShaderResources(0, 1, &m_pTextureRV);
     m_pDeviceContext->PSSetShaderResources(2, 1, &m_pNormalMapRV);
+    m_pDeviceContext->PSSetShaderResources(3, 1, &m_pSpecularMapRV);
     m_pDeviceContext->PSSetSamplers(0, 1, &m_pSamplerLinear);
 
     m_pDeviceContext->DrawIndexed(m_nIndices, 0, 0);
@@ -492,9 +493,11 @@ bool TutorialApp::InitScene()
     //HR_T(CreateDDSTextureFromFile(m_pDevice, L"../Resource/seafloor.dds", nullptr, &m_pTextureRV));
     HR_T(CreateWICTextureFromFile(m_pDevice, L"../Resource/Bricks059_1K-JPG_Color.jpg", nullptr, &m_pTextureRV));
 
-    // 노멀맵을 렌더한다.
+    // 노멀맵을 가져온다.
     HR_T(CreateWICTextureFromFile(m_pDevice, L"../Resource/Bricks059_1K-JPG_NormalDX.jpg", nullptr, &m_pNormalMapRV));
 
+    // 스펙큘러맵을 가져온다.
+    HR_T(CreateWICTextureFromFile(m_pDevice, L"../Resource/Bricks059_Specular.png", nullptr, &m_pSpecularMapRV));
 
     // 스카이박스 전용 버퍼 생성
     // Create Vertex Buffer

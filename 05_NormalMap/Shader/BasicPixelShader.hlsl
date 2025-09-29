@@ -15,6 +15,8 @@ float4 main(PS_INPUT input) : SV_Target
     float3x3 TBN = { input.Tangent, input.Bitangent, input.Norm };
     
     float3 worldNormal = normalize(mul(VTS.xyz, TBN));
+    
+    float4 specularTex = specularMap.Sample(samLinear, input.Tex);
 
     float4 finalColor = { 0, 0, 0, 0 };
     
@@ -34,7 +36,7 @@ float4 main(PS_INPUT input) : SV_Target
     //float4 specular = vSpecularColor.rgba * pow(saturate(dot(reflectVector, viewVector)), (float)vShininess);
 
     // 블린 퐁 계산
-    float4 specular = vSpecularColor.rgba * vMaterialSpecular.rgba * pow(saturate(dot(normalVector, harfVector)), (float) vShininess); // Specular는 shininess에 따라 빛의 모여듬 정도가 달라짐(커지면 작고 날카로움)
+    float4 specular = specularTex * vSpecularColor.rgba * vMaterialSpecular.rgba * pow(saturate(dot(normalVector, harfVector)), (float) vShininess); // Specular는 shininess에 따라 빛의 모여듬 정도가 달라짐(커지면 작고 날카로움)
     
     // 빛의 계산은 ambient + diffuse + specular 로 구성
     finalColor = saturate(ambient + diffuse + specular);                       // 빛의 세기는 1을 넘기지 말아야 함.
