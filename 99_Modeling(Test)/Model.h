@@ -20,6 +20,7 @@ struct Vertex
     Vector3 Pos;
     Vector3 Normal;
     Vector2 Tex; 
+    Vector3 Tangent;
 };
 
 struct Model
