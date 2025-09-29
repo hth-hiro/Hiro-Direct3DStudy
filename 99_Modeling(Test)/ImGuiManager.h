@@ -14,7 +14,8 @@ using namespace DirectX::SimpleMath;
 class ImGuiManager
 {
 public:
-	ImGuiManager(GameApp* app) : m_app(app) {}
+	ImGuiManager() = default;
+	//ImGuiManager(GameApp* app) : m_app(app) {}
 
 	void Initialize();
 	void BeginFrame(ID3D11Device* _Device, ID3D11DeviceContext* _DeviceContext);

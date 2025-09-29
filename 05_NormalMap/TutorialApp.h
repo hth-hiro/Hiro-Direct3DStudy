@@ -3,7 +3,6 @@
 #include "../Common/GameApp.h"
 #include <d3d11.h>
 #include <directxtk/SimpleMath.h>
-
 #include "ImGuiManager.h"
 
 using namespace DirectX::SimpleMath;

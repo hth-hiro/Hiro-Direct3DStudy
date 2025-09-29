@@ -45,7 +45,7 @@ struct SkyBoxCB
     Matrix mProjection;
 };
 
-TutorialApp::TutorialApp(HINSTANCE hInstance) : GameApp(hInstance), m_ImGuiManager(this)
+TutorialApp::TutorialApp(HINSTANCE hInstance) : GameApp(hInstance)
 {
 
 }
@@ -377,6 +377,9 @@ bool TutorialApp::InitScene()
         19,17,16, 18,17,19,
         22,20,21, 23,20,22
     };
+
+    m_ModelManager.Initialize(m_pDevice, m_pDeviceContext);
+    m_ModelManager.LoadModel("Test", "../Resource/zeldaPosed001.fbx");
 
     Skybox skybox[] =
     {

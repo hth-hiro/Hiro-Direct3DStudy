@@ -21,10 +21,14 @@ struct Vertex
     Vector3 Normal;
     Vector2 Tex; 
     Vector3 Tangent;
+    Vector3 Bitangent;
 };
 
 struct Model
 {
     std::vector<Vertex> vertices;
     std::vector<UINT> indices;
+
+    ComPtr<ID3D11Buffer> vertexBuffer;
+    ComPtr<ID3D11Buffer> indexBuffer;
 };
