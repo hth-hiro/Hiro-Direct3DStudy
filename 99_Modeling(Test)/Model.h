@@ -31,4 +31,29 @@ struct Model
 
     ComPtr<ID3D11Buffer> vertexBuffer;
     ComPtr<ID3D11Buffer> indexBuffer;
+    ComPtr<ID3D11Buffer> constantBuffer;
+    ComPtr<ID3D11ShaderResourceView> texture;
+    ComPtr<ID3D11SamplerState> sampleLinear;
+};
+
+struct ConstantBuffer
+{
+    Matrix mWorld;
+    Matrix mView;
+    Matrix mProjection;
+
+    Vector4 vLightDir;
+    Vector4 vOutputColor;
+
+    Vector4 vAmbientColor;
+    Vector4 vDiffuseColor;
+    Vector4 vSpecularColor;
+
+    Vector4 vMaterialAmbient;
+    Vector4 vMaterialDiffuse;
+    Vector4 vMaterialSpecular;
+
+    Vector4 cameraPos;
+
+    Vector4 vShininess;
 };

@@ -17,6 +17,10 @@ public:
 	bool LoadModel(const std::string& name, const std::string& filepath);
 	Model* GetModel(const std::string& name);
 
+	//void Update();
+	void RenderModel(Model* model, const ConstantBuffer& cb);
+	void RenderModel(const std::string& name, const ConstantBuffer& cb);
+
 	void Release();
 
 private:
@@ -24,5 +28,10 @@ private:
 	ID3D11DeviceContext* m_Context;
 	std::unordered_map<std::string, std::unique_ptr<Model>> m_Models;
 
+	ID3D11VertexShader* m_pVertexShader = nullptr;		// ¡§¡° ºŒ¿Ã¥ı.
+	ID3D11PixelShader* m_pPixelShader = nullptr;		// «»ºø ºŒ¿Ã¥ı.	
+	ID3D11InputLayout* m_pInputLayout = nullptr;		// ¿‘∑¬ ∑π¿Ãæ∆øÙ.
+
 	bool CreateBuffers(Model* model);
+	void LoadTextureFormFile(const std::wstring& fullPath, ID3D11Device* device, ComPtr<ID3D11ShaderResourceView>& texture);
 };
