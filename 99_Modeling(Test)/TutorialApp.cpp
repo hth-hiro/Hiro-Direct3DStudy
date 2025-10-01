@@ -1,5 +1,5 @@
 #include "TutorialApp.h"
-#include "Model.h"
+#include "Mesh.h"
 #include "../Common/Helper.h"
 #include <dxgi1_3.h>
 #include <d3dcompiler.h>
@@ -12,6 +12,27 @@
 #pragma comment(lib, "d3dcompiler.lib") // 셰이더 컴파일 시 필요
 
 // 상수 버퍼를 생성한다. 근데 라이트를 곁들인.
+struct ConstantBuffer
+{
+    Matrix mWorld;
+    Matrix mView;
+    Matrix mProjection;
+
+    Vector4 vLightDir;
+    Vector4 vOutputColor;
+
+    Vector4 vAmbientColor;
+    Vector4 vDiffuseColor;
+    Vector4 vSpecularColor;
+
+    Vector4 vMaterialAmbient;
+    Vector4 vMaterialDiffuse;
+    Vector4 vMaterialSpecular;
+
+    Vector4 cameraPos;
+
+    Vector4 vShininess;
+};
 
 struct Skybox
 {
@@ -126,12 +147,10 @@ void TutorialApp::Render()
 
     // 2. 스카이박스 렌더
     m_pDeviceContext->OMSetDepthStencilState(m_pSkyboxDepthStencilState, 0);
-
     m_pDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-    m_pDeviceContext->IASetVertexBuffers(0, 1, &m_pSkyboxVertexBuffer, &m_SkyboxVertexBufferStride, &m_SkyboxVertexBufferOffset);
+    m_pDeviceContext->IASetVertexBuffers(99, 1, &m_pSkyboxVertexBuffer, &m_SkyboxVertexBufferStride, &m_SkyboxVertexBufferOffset);
     m_pDeviceContext->IASetIndexBuffer(m_pSkyboxIndexBuffer, DXGI_FORMAT_R16_UINT, 0);
     m_pDeviceContext->IASetInputLayout(m_pSkyboxInputLayout);
-
     m_pDeviceContext->VSSetShader(m_pSkyboxVertexShader, nullptr, 0);
     m_pDeviceContext->PSSetShader(m_pSkyboxPixelShader, nullptr, 0);
 
@@ -141,12 +160,12 @@ void TutorialApp::Render()
     cbSky.mView = XMMatrixTranspose(m_Camera.GetViewMatrixNoTranslation(m_View));
     cbSky.mProjection = XMMatrixTranspose(m_Projection);
 
-    m_pDeviceContext->VSSetConstantBuffers(1, 1, &m_pSkyboxConstantBuffer);
-    m_pDeviceContext->PSSetConstantBuffers(1, 1, &m_pConstantBuffer);
+    m_pDeviceContext->VSSetConstantBuffers(99, 1, &m_pSkyboxConstantBuffer);
+    m_pDeviceContext->PSSetConstantBuffers(99, 1, &m_pConstantBuffer);
     m_pDeviceContext->UpdateSubresource(m_pSkyboxConstantBuffer, 0, nullptr, &cbSky, 0, 0);
 
-    m_pDeviceContext->PSSetShaderResources(1, 1, &m_pCubeTextureRV);
-    m_pDeviceContext->PSSetSamplers(1, 1, &m_pSamplerLinear);
+    m_pDeviceContext->PSSetShaderResources(99, 1, &m_pCubeTextureRV);
+    m_pDeviceContext->PSSetSamplers(99, 1, &m_pSamplerLinear);
 
     m_pDeviceContext->DrawIndexed(m_nSkyboxIndices, 0, 0);
 
@@ -154,6 +173,7 @@ void TutorialApp::Render()
     m_pDeviceContext->OMSetDepthStencilState(nullptr, 0);
 
     // 3. 일반 오브젝트 렌더
+
     m_pDeviceContext->IASetVertexBuffers(0, 1, &m_pVertexBuffer, &m_VertexBufferStride, &m_VertexBufferOffset);
     m_pDeviceContext->IASetIndexBuffer(m_pIndexBuffer, DXGI_FORMAT_R16_UINT, 0);
     m_pDeviceContext->IASetInputLayout(m_pInputLayout);
@@ -185,7 +205,7 @@ void TutorialApp::Render()
 
     m_pDeviceContext->DrawIndexed(m_nIndices, 0, 0);
 
-    m_ModelManager.RenderModel("Test", cbObj);
+    m_ModelLoader.Draw(m_pDeviceContext);
 
     // 4. GUI 렌더
     m_ImGuiManager.Render();
@@ -359,8 +379,10 @@ bool TutorialApp::InitScene()
         22,20,21, 23,20,22
     };
 
-    m_ModelManager.Initialize(m_pDevice, m_pDeviceContext);
-    m_ModelManager.LoadModel("Test", "../Resource/zeldaPosed001.fbx");
+    //m_ModelManager.Initialize(m_pDevice, m_pDeviceContext);
+    //m_ModelManager.Load("Test", "../Resource/zeldaPosed001.fbx");
+
+    m_ModelLoader.Load(m_pDevice, m_pDeviceContext, "..\\Resource\\zeldaPosed001.fbx");
 
     Skybox skybox[] =
     {
@@ -557,4 +579,6 @@ void TutorialApp::UninitScene()
     SAFE_RELEASE(m_pSkyboxVertexShader);
     SAFE_RELEASE(m_pSkyboxPixelShader);
     SAFE_RELEASE(m_pConstantBuffer);
+
+    m_ModelLoader.Close();
 }

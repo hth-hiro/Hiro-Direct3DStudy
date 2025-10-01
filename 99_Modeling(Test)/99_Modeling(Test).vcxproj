@@ -130,10 +130,11 @@
     <ClInclude Include="99_Modeling(Test).h" />
     <ClInclude Include="framework.h" />
     <ClInclude Include="ImGuiManager.h" />
-    <ClInclude Include="Model.h" />
-    <ClInclude Include="ModelManager.h" />
+    <ClInclude Include="Mesh.h" />
+    <ClInclude Include="ModelLoader.h" />
     <ClInclude Include="Resource.h" />
     <ClInclude Include="targetver.h" />
+    <ClInclude Include="TextureLoader.h" />
     <ClInclude Include="TutorialApp.h" />
   </ItemGroup>
   <ItemGroup>
@@ -151,7 +152,8 @@
   <ItemGroup>
     <ClCompile Include="99_Modeling(Test).cpp" />
     <ClCompile Include="ImGuiManager.cpp" />
-    <ClCompile Include="ModelManager.cpp" />
+    <ClCompile Include="ModelLoader.cpp" />
+    <ClCompile Include="TextureLoader.cpp" />
     <ClCompile Include="TutorialApp.cpp" />
   </ItemGroup>
   <ItemGroup>

@@ -3,9 +3,9 @@
 #include "../Common/GameApp.h"
 #include <d3d11.h>
 #include <directxtk/SimpleMath.h>
-#include "Model.h"
+#include "Mesh.h"
 #include "ImGuiManager.h"
-#include "ModelManager.h"
+#include "ModelLoader.h"
 
 using namespace DirectX::SimpleMath;
 using namespace DirectX;
@@ -63,7 +63,7 @@ public:
 
 	// Manager
 	ImGuiManager m_ImGuiManager;
-	ModelManager m_ModelManager;
+	ModelLoader m_ModelLoader;
 
 	//float m_Angle = 0.0f;
 
