@@ -209,8 +209,8 @@ void TutorialApp::Render()
     m_pDeviceContext->PSSetSamplers(0, 1, &m_pSamplerLinear);
 
     // 특정 모델마다 다르게 설정한다면, 렌더에서 새로 모델 드로우 할때마다 설정을 바꿔주면 됨
-
-
+    // 렌더링 전에 상태 적용
+    m_pDeviceContext->RSSetState(m_pRasterStateNoCull);
     m_ModelLoader.Draw(m_pDeviceContext);
 
     // 4. GUI 렌더
@@ -334,14 +334,20 @@ bool TutorialApp::InitD3D()
     rasterDesc.FrontCounterClockwise = false;    // 정면이 시계방향인지 여부
     rasterDesc.DepthClipEnable = true;           // Z 클리핑 활성화
 
+    // 뒷면 컬링(기본값)
+    rasterDesc.CullMode = D3D11_CULL_BACK;
+    m_pRasterStateBackCull = nullptr;
+    m_pDevice->CreateRasterizerState(&rasterDesc, &m_pRasterStateBackCull);
+
     // 뒷면 컬링 없음
-    rasterDesc.CullMode = D3D11_CULL_NONE;       // 뒷면 컬링 (기본값) = D3D11_CULL_BACK	
+    rasterDesc.CullMode = D3D11_CULL_NONE;
+    m_pRasterStateNoCull = nullptr;
+    HR_T(m_pDevice->CreateRasterizerState(&rasterDesc, &m_pRasterStateNoCull));
 
-    ID3D11RasterizerState* pRasterState = nullptr;
-    HR_T(m_pDevice->CreateRasterizerState(&rasterDesc, &pRasterState));
-
-    // 렌더링 전에 상태 적용
-    m_pDeviceContext->RSSetState(pRasterState);
+    // 앞면 컬링
+    rasterDesc.CullMode = D3D11_CULL_FRONT;
+    m_pRasterStateFrontCull = nullptr;
+    m_pDevice->CreateRasterizerState(&rasterDesc, &m_pRasterStateFrontCull);
 
     return true;
 }

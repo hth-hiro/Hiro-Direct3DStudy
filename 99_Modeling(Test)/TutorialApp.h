@@ -42,6 +42,10 @@ public:
 
 	ID3D11BlendState* m_pBlendState = nullptr;
 
+	ID3D11RasterizerState* m_pRasterStateNoCull = nullptr;
+	ID3D11RasterizerState* m_pRasterStateBackCull = nullptr;
+	ID3D11RasterizerState* m_pRasterStateFrontCull = nullptr;
+
 	// 스카이박스용
 	ID3D11VertexShader* m_pSkyboxVertexShader = nullptr;// 스카이 박스용 정점 셰이더.
 	ID3D11PixelShader* m_pSkyboxPixelShader = nullptr;	// 스카이박스용 픽셀 셰이더
