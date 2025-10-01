@@ -381,9 +381,9 @@ bool TutorialApp::InitScene()
     HRESULT hr = 0;
     ID3D10Blob* errorMessage = nullptr;
 
-    m_ModelLoader.Load(m_pDevice, m_pDeviceContext, "../Resource/Character.fbx");
+    //m_ModelLoader.Load(m_pDevice, m_pDeviceContext, "../Resource/Character.fbx");
     //m_ModelLoader.Load(m_pDevice, m_pDeviceContext, "../Resource/zeldaPosed001.fbx");
-    //m_ModelLoader.Load(m_pDevice, m_pDeviceContext, "../Resource/Appearance Miku/Appearance Miku.fbx");
+    m_ModelLoader.Load(m_pDevice, m_pDeviceContext, "../Resource/Appearance Miku/Appearance Miku.fbx");
 
     Skybox skybox[] =
     {

@@ -56,6 +56,9 @@ bool ModelLoader::Load(std::string filePath)
 
 void ModelLoader::Draw(ID3D11DeviceContext* devcon) {
 	for (size_t i = 0; i < meshes_.size(); ++i) {
+
+		//if (i >= 8 && i <= 9) continue;
+
 		meshes_[i].Draw(devcon);
 	}
 }
