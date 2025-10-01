@@ -23,6 +23,8 @@ cbuffer ConstantBuffer : register(b0)
     float4 cameraPos;
     
     float4 vShininess;
+    
+    float4 UseLighting;
 }
 
 cbuffer SkyboxCB : register(b1)
@@ -59,7 +61,7 @@ struct VS_INPUT
     float3 Norm : NORMAL;
     float2 Tex : TEXCOORD0;
     float3 Tangent : TANGENT;
-    float3 Bitangent : BINORMAL;
+    float3 Bitangent : BITANGENT;
 };
 
 struct PS_INPUT
