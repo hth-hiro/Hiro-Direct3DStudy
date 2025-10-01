@@ -55,6 +55,8 @@ TutorialApp::~TutorialApp()
     UninitD3D();
     UninitImGUI();
     UninitScene();
+
+    CheckDXGIDebug();
 }
 
 bool TutorialApp::Initialize(UINT Width, UINT Height)
@@ -141,6 +143,12 @@ void TutorialApp::Render()
 {
     // 1. Clear
     float color[4] = { 0.0f, 0.7f, 0.7f, 1.0f };
+
+    float blendFactor[4] = { 0.f, 0.f, 0.f, 0.f }; // 일반적으로 0,0,0,0
+    UINT sampleMask = 0xffffffff; // 모든 샘플 사용
+
+    m_pDeviceContext->OMSetBlendState(m_pBlendState, blendFactor, sampleMask);
+
     m_pDeviceContext->OMSetRenderTargets(1, &m_pRenderTargetView, m_pDepthStencilView);
     m_pDeviceContext->ClearRenderTargetView(m_pRenderTargetView, color);
     m_pDeviceContext->ClearDepthStencilView(m_pDepthStencilView, D3D11_CLEAR_DEPTH, 1.0f, 0);
@@ -159,7 +167,7 @@ void TutorialApp::Render()
     // 스카이박스 상수버퍼
     // 카메라 위치 중심
     SkyBoxCB cbSky;
-    cbSky.mView = XMMatrixTranspose(m_Camera.GetViewMatrixNoTranslation(m_View));
+    cbSky.mView = XMMatrixTranspose(XMMatrixScaling(2, 2, 2) *  m_Camera.GetViewMatrixNoTranslation(m_View));
     cbSky.mProjection = XMMatrixTranspose(m_Projection);
 
     m_pDeviceContext->VSSetConstantBuffers(1, 1, &m_pSkyboxConstantBuffer);
@@ -175,8 +183,6 @@ void TutorialApp::Render()
     m_pDeviceContext->OMSetDepthStencilState(nullptr, 0);
 
     // 3. 일반 오브젝트 렌더
-    //m_pDeviceContext->IASetVertexBuffers(0, 1, &m_pVertexBuffer, &m_VertexBufferStride, &m_VertexBufferOffset);
-    //m_pDeviceContext->IASetIndexBuffer(m_pIndexBuffer, DXGI_FORMAT_R16_UINT, 0);
     m_pDeviceContext->IASetInputLayout(m_pInputLayout);
 
     m_pDeviceContext->VSSetShader(m_pVertexShader, nullptr, 0);
@@ -200,13 +206,10 @@ void TutorialApp::Render()
     m_pDeviceContext->VSSetConstantBuffers(0, 1, &m_pConstantBuffer);
     m_pDeviceContext->PSSetConstantBuffers(0, 1, &m_pConstantBuffer);
     m_pDeviceContext->UpdateSubresource(m_pConstantBuffer, 0, nullptr, &cbObj, 0, 0);
-
-    //m_pDeviceContext->PSSetShaderResources(0, 1, &m_pTextureRV);
-    //m_pDeviceContext->PSSetShaderResources(2, 1, &m_pNormalMapRV);
-    //m_pDeviceContext->PSSetShaderResources(3, 1, &m_pSpecularMapRV);
     m_pDeviceContext->PSSetSamplers(0, 1, &m_pSamplerLinear);
 
-    //m_pDeviceContext->DrawIndexed(m_nIndices, 0, 0);
+    // 특정 모델마다 다르게 설정한다면, 렌더에서 새로 모델 드로우 할때마다 설정을 바꿔주면 됨
+
 
     m_ModelLoader.Draw(m_pDeviceContext);
 
@@ -237,7 +240,7 @@ bool TutorialApp::InitD3D()
     swapDesc.SwapEffect = DXGI_SWAP_EFFECT_DISCARD;
     swapDesc.Flags = 0;
 
-    hr = D3D11CreateDeviceAndSwapChain(NULL, D3D_DRIVER_TYPE_HARDWARE, NULL, 0, NULL, NULL,
+    hr = D3D11CreateDeviceAndSwapChain(NULL, D3D_DRIVER_TYPE_HARDWARE, NULL, D3D11_CREATE_DEVICE_DEBUG, NULL, NULL,
         D3D11_SDK_VERSION, &swapDesc, &m_pSwapChain, &m_pDevice, NULL, &m_pDeviceContext);
     if (FAILED(hr))
     {
@@ -268,7 +271,7 @@ bool TutorialApp::InitD3D()
     depthDesc.Height = m_ClientHeight;
     depthDesc.MipLevels = 1;
     depthDesc.ArraySize = 1;
-    depthDesc.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
+    depthDesc.Format = DXGI_FORMAT_D32_FLOAT;
     depthDesc.SampleDesc.Count = 1;
     depthDesc.Usage = D3D11_USAGE_DEFAULT;
     depthDesc.BindFlags = D3D11_BIND_DEPTH_STENCIL;
@@ -277,7 +280,7 @@ bool TutorialApp::InitD3D()
     m_pDevice->CreateTexture2D(&depthDesc, nullptr, &depthStencilBuffer);
 
     D3D11_DEPTH_STENCIL_VIEW_DESC dsvDesc = {};
-    dsvDesc.Format = depthDesc.Format;
+    dsvDesc.Format = DXGI_FORMAT_D32_FLOAT;
     dsvDesc.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
 
     m_pDevice->CreateDepthStencilView(depthStencilBuffer, &dsvDesc, &m_pDepthStencilView);
@@ -311,6 +314,35 @@ bool TutorialApp::InitD3D()
     m_pDeviceContext->RSSetViewports(1, &viewport);
     m_pDeviceContext->OMSetRenderTargets(1, &m_pRenderTargetView, m_pDepthStencilView);
 
+    D3D11_BLEND_DESC blendDesc = {};
+    blendDesc.AlphaToCoverageEnable = FALSE; // 멀티샘플링과 함께 알파 투명도 사용 시 TRUE
+    blendDesc.IndependentBlendEnable = FALSE; // 여러 렌더타깃에 각각 다른 블렌딩 적용 여부
+
+    blendDesc.RenderTarget[0].BlendEnable = TRUE;                 // 블렌딩 활성화
+    blendDesc.RenderTarget[0].SrcBlend = D3D11_BLEND_SRC_ALPHA;   // 원본 색상 비율
+    blendDesc.RenderTarget[0].DestBlend = D3D11_BLEND_INV_SRC_ALPHA; // 대상 색상 비율
+    blendDesc.RenderTarget[0].BlendOp = D3D11_BLEND_OP_ADD;       // 합산 방식
+    blendDesc.RenderTarget[0].SrcBlendAlpha = D3D11_BLEND_ONE;   // 알파 블렌딩 원본
+    blendDesc.RenderTarget[0].DestBlendAlpha = D3D11_BLEND_ZERO; // 알파 블렌딩 대상
+    blendDesc.RenderTarget[0].BlendOpAlpha = D3D11_BLEND_OP_ADD;
+    blendDesc.RenderTarget[0].RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;
+
+    HR_T(m_pDevice->CreateBlendState(&blendDesc, &m_pBlendState));
+
+    D3D11_RASTERIZER_DESC rasterDesc = {};
+    rasterDesc.FillMode = D3D11_FILL_SOLID;       // 실선으로 채움, D3D11_FILL_WIREFRAME 가능
+    rasterDesc.FrontCounterClockwise = false;    // 정면이 시계방향인지 여부
+    rasterDesc.DepthClipEnable = true;           // Z 클리핑 활성화
+
+    // 뒷면 컬링 없음
+    rasterDesc.CullMode = D3D11_CULL_NONE;       // 뒷면 컬링 (기본값) = D3D11_CULL_BACK	
+
+    ID3D11RasterizerState* pRasterState = nullptr;
+    HR_T(m_pDevice->CreateRasterizerState(&rasterDesc, &pRasterState));
+
+    // 렌더링 전에 상태 적용
+    m_pDeviceContext->RSSetState(pRasterState);
+
     return true;
 }
 
@@ -320,6 +352,7 @@ void TutorialApp::UninitD3D()
     SAFE_RELEASE(m_pDeviceContext);
     SAFE_RELEASE(m_pSwapChain);
     SAFE_RELEASE(m_pDevice);
+    SAFE_RELEASE(m_pBlendState);
 }
 
 bool TutorialApp::InitImGUI()
@@ -339,53 +372,8 @@ bool TutorialApp::InitScene()
     HRESULT hr = 0;
     ID3D10Blob* errorMessage = nullptr;
 
-    //Vertex vertices[] =
-    //{
-    //    { Vector3(-1.0f, 1.0f, -1.0f),	Vector3(0.0f, 1.0f, 0.0f),   Vector2(1.0f, 0.0f), Vector3(1.0f, 0.0f, 0.0f), Vector3(0.0f, 0.0f, -1.0f) },   // Normal Y +	 
-    //    { Vector3(1.0f, 1.0f, -1.0f),	Vector3(0.0f, 1.0f, 0.0f),   Vector2(0.0f, 0.0f), Vector3(1.0f, 0.0f, 0.0f), Vector3(0.0f, 0.0f, -1.0f) },
-    //    { Vector3(1.0f, 1.0f, 1.0f),	Vector3(0.0f, 1.0f, 0.0f),   Vector2(0.0f, 1.0f), Vector3(1.0f, 0.0f, 0.0f), Vector3(0.0f, 0.0f, -1.0f) },
-    //    { Vector3(-1.0f, 1.0f, 1.0f),	Vector3(0.0f, 1.0f, 0.0f),   Vector2(1.0f, 1.0f), Vector3(1.0f, 0.0f, 0.0f), Vector3(0.0f, 0.0f, -1.0f) },
-
-    //    { Vector3(-1.0f, -1.0f, -1.0f), Vector3(0.0f, -1.0f, 0.0f),  Vector2(0.0f, 0.0f), Vector3(1.0f, 0.0f, 0.0f), Vector3(0.0f, 0.0f, 1.0f) },   // Normal Y -		
-    //    { Vector3(1.0f, -1.0f, -1.0f),	Vector3(0.0f, -1.0f, 0.0f),  Vector2(1.0f, 0.0f), Vector3(1.0f, 0.0f, 0.0f), Vector3(0.0f, 0.0f, 1.0f) },
-    //    { Vector3(1.0f, -1.0f, 1.0f),	Vector3(0.0f, -1.0f, 0.0f),  Vector2(1.0f, 1.0f), Vector3(1.0f, 0.0f, 0.0f), Vector3(0.0f, 0.0f, 1.0f) },
-    //    { Vector3(-1.0f, -1.0f, 1.0f),	Vector3(0.0f, -1.0f, 0.0f),  Vector2(0.0f, 1.0f), Vector3(1.0f, 0.0f, 0.0f), Vector3(0.0f, 0.0f, 1.0f) },
-
-    //    { Vector3(-1.0f, -1.0f, 1.0f),	Vector3(-1.0f, 0.0f, 0.0f),  Vector2(0.0f, 1.0f), Vector3(0.0f, 0.0f, -1.0f), Vector3(0.0f, -1.0f, 0.0f) },   //	Normal X -
-    //    { Vector3(-1.0f, -1.0f, -1.0f), Vector3(-1.0f, 0.0f, 0.0f),  Vector2(1.0f, 1.0f), Vector3(0.0f, 0.0f, -1.0f), Vector3(0.0f, -1.0f, 0.0f) },
-    //    { Vector3(-1.0f, 1.0f, -1.0f),	Vector3(-1.0f, 0.0f, 0.0f),  Vector2(1.0f, 0.0f), Vector3(0.0f, 0.0f, -1.0f), Vector3(0.0f, -1.0f, 0.0f) },
-    //    { Vector3(-1.0f, 1.0f, 1.0f),	Vector3(-1.0f, 0.0f, 0.0f),  Vector2(0.0f, 0.0f), Vector3(0.0f, 0.0f, -1.0f), Vector3(0.0f, -1.0f, 0.0f) },
-
-    //    { Vector3(1.0f, -1.0f, 1.0f),	Vector3(1.0f, 0.0f, 0.0f),   Vector2(1.0f, 1.0f), Vector3(0.0f, 0.0f, 1.0f), Vector3(0.0f, -1.0f, 0.0f) },   // Normal X +
-    //    { Vector3(1.0f, -1.0f, -1.0f),	Vector3(1.0f, 0.0f, 0.0f),   Vector2(0.0f, 1.0f), Vector3(0.0f, 0.0f, 1.0f), Vector3(0.0f, -1.0f, 0.0f) },
-    //    { Vector3(1.0f, 1.0f, -1.0f),	Vector3(1.0f, 0.0f, 0.0f),   Vector2(0.0f, 0.0f), Vector3(0.0f, 0.0f, 1.0f), Vector3(0.0f, -1.0f, 0.0f) },
-    //    { Vector3(1.0f, 1.0f, 1.0f),	Vector3(1.0f, 0.0f, 0.0f),   Vector2(1.0f, 0.0f), Vector3(0.0f, 0.0f, 1.0f), Vector3(0.0f, -1.0f, 0.0f) },
-
-    //    { Vector3(-1.0f, -1.0f, -1.0f), Vector3(0.0f, 0.0f, -1.0f),  Vector2(0.0f, 1.0f), Vector3(1.0f, 0.0f, 0.0f), Vector3(0.0f, -1.0f, 0.0f) },   // Normal Z -
-    //    { Vector3(1.0f, -1.0f, -1.0f),	Vector3(0.0f, 0.0f, -1.0f),  Vector2(1.0f, 1.0f), Vector3(1.0f, 0.0f, 0.0f), Vector3(0.0f, -1.0f, 0.0f) },
-    //    { Vector3(1.0f, 1.0f, -1.0f),	Vector3(0.0f, 0.0f, -1.0f),  Vector2(1.0f, 0.0f), Vector3(1.0f, 0.0f, 0.0f), Vector3(0.0f, -1.0f, 0.0f) },
-    //    { Vector3(-1.0f, 1.0f, -1.0f),	Vector3(0.0f, 0.0f, -1.0f),  Vector2(0.0f, 0.0f), Vector3(1.0f, 0.0f, 0.0f), Vector3(0.0f, -1.0f, 0.0f) },
-
-    //    { Vector3(-1.0f, -1.0f, 1.0f),	Vector3(0.0f, 0.0f, 1.0f),   Vector2(1.0f, 1.0f), Vector3(-1.0f, 0.0f, 0.0f), Vector3(0.0f, -1.0f, 0.0f) },   // Normal Z +
-    //    { Vector3(1.0f, -1.0f, 1.0f),	Vector3(0.0f, 0.0f, 1.0f),   Vector2(0.0f, 1.0f), Vector3(-1.0f, 0.0f, 0.0f), Vector3(0.0f, -1.0f, 0.0f) },
-    //    { Vector3(1.0f, 1.0f, 1.0f),	Vector3(0.0f, 0.0f, 1.0f),   Vector2(0.0f, 0.0f), Vector3(-1.0f, 0.0f, 0.0f), Vector3(0.0f, -1.0f, 0.0f) },
-    //    { Vector3(-1.0f, 1.0f, 1.0f),	Vector3(0.0f, 0.0f, 1.0f),   Vector2(1.0f, 0.0f), Vector3(-1.0f, 0.0f, 0.0f), Vector3(0.0f, -1.0f, 0.0f) },
-    //};
-
-    //WORD indices[] =
-    //{
-    //    3,1,0, 2,1,3,
-    //    6,4,5, 7,4,6,
-    //    11,9,8, 10,9,11,
-    //    14,12,13, 15,12,14,
-    //    19,17,16, 18,17,19,
-    //    22,20,21, 23,20,22
-    //};
-
-    //m_ModelManager.Initialize(m_pDevice, m_pDeviceContext);
-    //m_ModelManager.Load("Test", "../Resource/zeldaPosed001.fbx");
-
-    m_ModelLoader.Load(m_pDevice, m_pDeviceContext, "../Resource/zeldaPosed001.fbx");
+    //m_ModelLoader.Load(m_pDevice, m_pDeviceContext, "../Resource/zeldaPosed001.fbx");
+    m_ModelLoader.Load(m_pDevice, m_pDeviceContext, "../Resource/Appearance Miku/Appearance Miku.fbx");
 
     Skybox skybox[] =
     {
@@ -412,29 +400,6 @@ bool TutorialApp::InitScene()
 
     // Create Vertex Buffer
     D3D11_BUFFER_DESC vbDesc = {};
-    //vbDesc.ByteWidth = sizeof(Vertex) * ARRAYSIZE(vertices);
-    //vbDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
-    //vbDesc.Usage = D3D11_USAGE_DEFAULT;
-    //vbDesc.CPUAccessFlags = 0;
-
-    //D3D11_SUBRESOURCE_DATA vbData = {};
-    //vbData.pSysMem = vertices;
-    //HR_T(m_pDevice->CreateBuffer(&vbDesc, &vbData, &m_pVertexBuffer));
-
-    //m_VertexBufferStride = sizeof(Vertex);
-    //m_VertexBufferOffset = 0;
-
-    // Create Index Buffer
-    //m_nIndices = ARRAYSIZE(indices);
-    //vbDesc.ByteWidth = sizeof(WORD) * m_nIndices;
-    //vbDesc.BindFlags = D3D11_BIND_INDEX_BUFFER;
-    //vbDesc.Usage = D3D11_USAGE_DEFAULT;
-    //vbDesc.CPUAccessFlags = 0;
-
-    //D3D11_SUBRESOURCE_DATA ibData = {};
-    //ibData.pSysMem = indices;
-
-    //HR_T(m_pDevice->CreateBuffer(&vbDesc, &ibData, &m_pIndexBuffer));
 
     /*--------Vertex Shader--------*/
     ID3DBlob* vertexShaderBuffer = nullptr;
@@ -448,8 +413,8 @@ bool TutorialApp::InitScene()
     D3D11_INPUT_ELEMENT_DESC layout[] =
     {
         {"POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0},
-        //{"NORMAL", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 12, D3D11_INPUT_PER_VERTEX_DATA, 0},
         {"TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 12, D3D11_INPUT_PER_VERTEX_DATA, 0},
+        //{"NORMAL", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 12, D3D11_INPUT_PER_VERTEX_DATA, 0},
         //{"TANGENT", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 32, D3D11_INPUT_PER_VERTEX_DATA, 0 },
         //{"BINORMAL", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 44, D3D11_INPUT_PER_VERTEX_DATA, 0}
         

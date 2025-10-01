@@ -41,23 +41,23 @@ public:
 
 	bool viewChanger = false;
 
-	Vector2 depth = { 0.01f, 50000.0f };
+	Vector2 depth = { 1.0f, 1000.0f };
 
 private:
 	void EndFrame();
 
 	Camera m_Camera;
 
-	float nearZ = 0.01f;
-	float farZ = 50000.0f;
+	float nearZ = 1.0f;
+	float farZ = 1000.0f;
 
-	float objectScaleXYZ = 200.0f;
+	float objectScaleXYZ = 10.0f;
 
 	GameApp* m_app;
 
 	void ObjectReset()
 	{
-		objectScaleXYZ = 200.0f;
+		objectScaleXYZ = 10.0f;
 		objectTransform = { 0.0f , 0.0f, 0.0f };
 		objectRotate = { 0.0f, 0.0f };
 

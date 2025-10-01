@@ -102,7 +102,7 @@ void SAFE_DELETE(T* p)
 
 LPCWSTR GetComErrorString(HRESULT hr);
 
-
+void CheckDXGIDebug();
 
 
 

@@ -40,6 +40,8 @@ public:
 	ID3D11ShaderResourceView* m_pNormalMapRV = nullptr;		// 텍스처 파일
 	ID3D11ShaderResourceView* m_pSpecularMapRV = nullptr;		// 텍스처 파일
 
+	ID3D11BlendState* m_pBlendState = nullptr;
+
 	// 스카이박스용
 	ID3D11VertexShader* m_pSkyboxVertexShader = nullptr;// 스카이 박스용 정점 셰이더.
 	ID3D11PixelShader* m_pSkyboxPixelShader = nullptr;	// 스카이박스용 픽셀 셰이더

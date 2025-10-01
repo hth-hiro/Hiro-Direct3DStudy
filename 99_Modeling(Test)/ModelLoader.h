@@ -20,9 +20,11 @@ public:
 	ModelLoader();
 	~ModelLoader();
 
-	bool Load(HWND hwnd, ID3D11Device* dev, ID3D11DeviceContext* devcon, std::string filename);
-	bool Load(ID3D11Device* dev, ID3D11DeviceContext* devcon, std::string filename);
+	bool Load(ID3D11Device* dev, ID3D11DeviceContext* devcon, std::string filePath);
+	bool Load(std::string filePath);
 	void Draw(ID3D11DeviceContext* devcon);
+
+	
 
 	void Close();
 private:

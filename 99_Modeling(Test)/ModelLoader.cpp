@@ -1,5 +1,12 @@
 #include "ModelLoader.h"
 
+unsigned int importFlags = aiProcess_Triangulate |    // vertex 삼각형 으로 출력
+aiProcess_GenNormals |        // Normal 정보 생성  
+aiProcess_GenUVCoords |      // 텍스처 좌표 생성
+aiProcess_CalcTangentSpace |  // 탄젠트 벡터 생성
+aiProcess_ConvertToLeftHanded;  // DX용 왼손좌표계 변환
+//aiProcess_PreTransformVertices   // 노드의 변환행렬을 적용한 버텍스 생성한다.  *StaticMesh로 처리할때만
+
 ModelLoader::ModelLoader() :
 	dev_(nullptr),
 	devcon_(nullptr),
@@ -10,51 +17,43 @@ ModelLoader::ModelLoader() :
 	// empty
 }
 
-
 ModelLoader::~ModelLoader() {
 	// empty
 }
 
-bool ModelLoader::Load(HWND hwnd, ID3D11Device* dev, ID3D11DeviceContext* devcon, std::string filename) {
+bool ModelLoader::Load(ID3D11Device* dev, ID3D11DeviceContext* devcon, std::string filePath)
+{
 	Assimp::Importer importer;
 
-	const aiScene* pScene = importer.ReadFile(filename,
-		aiProcess_Triangulate |
-		aiProcess_ConvertToLeftHanded);
+	const aiScene* pScene = importer.ReadFile(filePath, importFlags);
 
 	if (pScene == nullptr)
 		return false;
 
-	this->directory_ = filename.substr(0, filename.find_last_of("/\\"));
+	this->directory_ = filePath.substr(0, filePath.find_last_of("/\\"));
 
 	this->dev_ = dev;
 	this->devcon_ = devcon;
-	this->hwnd_ = hwnd;
 
 	processNode(pScene->mRootNode, pScene);
 
 	return true;
 }
 
-bool ModelLoader::Load(ID3D11Device* dev, ID3D11DeviceContext* devcon, std::string filename)
+bool ModelLoader::Load(std::string filePath)
 {
 	Assimp::Importer importer;
 
-	const aiScene* pScene = importer.ReadFile(filename,
+	const aiScene* pScene = importer.ReadFile(filePath,
 		aiProcess_Triangulate |
 		aiProcess_ConvertToLeftHanded);
 
 	if (pScene == nullptr)
 		return false;
 
-	this->directory_ = filename.substr(0, filename.find_last_of("/\\"));
-
-	this->dev_ = dev;
-	this->devcon_ = devcon;
+	this->directory_ = filePath.substr(0, filePath.find_last_of("/\\"));
 
 	processNode(pScene->mRootNode, pScene);
-
-	return true;
 }
 
 void ModelLoader::Draw(ID3D11DeviceContext* devcon) {

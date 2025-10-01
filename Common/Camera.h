@@ -46,7 +46,7 @@ private:
 	Matrix m_World;
 	Vector3 m_InputVector;
 
-	float m_MoveSpeed = 2000.0f;
+	float m_MoveSpeed = 200.0f;
 	float m_RotationSpeed = 0.004f;	// rad per sec, 회전 감도
 
 	int prevScroll = 0; // 이전 프레임 휠 값 저장

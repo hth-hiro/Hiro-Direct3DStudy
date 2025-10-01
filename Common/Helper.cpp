@@ -4,6 +4,8 @@
 #include <d3dcompiler.h>
 #include <Directxtk/DDSTextureLoader.h>
 #include <Directxtk/WICTextureLoader.h>
+#include <dxgidebug.h>
+#include <dxgi1_3.h>    // DXGIGetDebugInterface1
 
 
 
@@ -12,6 +14,22 @@ LPCWSTR GetComErrorString(HRESULT hr)
 	_com_error err(hr);
 	LPCWSTR errMsg = err.ErrorMessage();
 	return errMsg;
+}
+
+void CheckDXGIDebug()
+{
+	IDXGIDebug1* pDebug = nullptr;
+
+	if (SUCCEEDED(DXGIGetDebugInterface1(0, IID_PPV_ARGS(&pDebug))))
+	{
+		// 현재 살아있는 DXGI/D3D 객체 출력
+		pDebug->ReportLiveObjects(
+			DXGI_DEBUG_ALL,                 // 모든 DXGI/D3D 컴포넌트
+			DXGI_DEBUG_RLO_ALL              // 전체 리포트 옵션
+		);
+
+		pDebug->Release();
+	}
 }
 
 HRESULT CompileShaderFromFile(const WCHAR* szFileName, LPCSTR szEntryPoint, LPCSTR szShaderModel, ID3DBlob** ppBlobOut)

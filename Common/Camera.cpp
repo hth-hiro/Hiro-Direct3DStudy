@@ -16,7 +16,7 @@ void Camera::Reset()
 {
     m_World = Matrix::Identity;
     m_Rotation = Vector3(0.0f, 0.0f, 0.0f);
-    m_Position = Vector3(0.0f, 0.0f, -1500.0f);
+    m_Position = Vector3(0.0f, 150.0f, -100.0f);
 }
 
 void Camera::Update(float deltaTime)
@@ -83,18 +83,6 @@ void Camera::GetViewMatrix(Matrix& out)
 	////m_Angle += 0.0001f;
 
 	//m_View = XMMatrixLookAtLH(Eye, At, Up);
-
-
-
-
-
-
-
-
-
-
-
-
 
     Vector3 eye = m_World.Translation();
     Vector3 target = m_World.Translation() + GetForward();
@@ -196,17 +184,17 @@ void Camera::OnInputProcess(const Keyboard::State& KeyState, const Keyboard::Key
 		AddInputVector(right);
 	}
 
-	if (KeyTracker.IsKeyPressed(Keyboard::Keys::Escape) && isFPSMode)
-	{
-		InputSystem::Instance->m_Mouse->SetMode(Mouse::MODE_ABSOLUTE);
-		isFPSMode = false;
-	}
+	//if (KeyTracker.IsKeyPressed(Keyboard::Keys::Escape) && isFPSMode)
+	//{
+	//	InputSystem::Instance->m_Mouse->SetMode(Mouse::MODE_ABSOLUTE);
+	//	isFPSMode = false;
+	//}
 
-	if (KeyTracker.IsKeyPressed(Keyboard::Keys::Escape) && !isFPSMode)
-	{
-		InputSystem::Instance->m_Mouse->SetMode(Mouse::MODE_RELATIVE);
-		isFPSMode = true;
-	}
+	//if (KeyTracker.IsKeyPressed(Keyboard::Keys::Escape) && !isFPSMode)
+	//{
+	//	InputSystem::Instance->m_Mouse->SetMode(Mouse::MODE_RELATIVE);
+	//	isFPSMode = true;
+	//}
 
 	if (MouseState.positionMode == Mouse::MODE_RELATIVE)
 	{
@@ -230,11 +218,11 @@ void Camera::OnInputProcess(const Keyboard::State& KeyState, const Keyboard::Key
 		AddInputVector(Vector3(0.0f, 1.0f, 0.0f));
 	}
 
-	//InputSystem::Instance->m_Mouse->SetMode(MouseState.rightButton ? Mouse::MODE_RELATIVE : Mouse::MODE_ABSOLUTE);
-	//if (MouseState.positionMode == Mouse::MODE_RELATIVE)
-	//{
-	//	Vector3 delta = Vector3(float(MouseState.x), float(MouseState.y), 0.f) * m_RotationSpeed;
-	//	AddPitch(delta.y);
-	//	AddYaw(delta.x);
-	//}
+	InputSystem::Instance->m_Mouse->SetMode(MouseState.rightButton ? Mouse::MODE_RELATIVE : Mouse::MODE_ABSOLUTE);
+	if (MouseState.positionMode == Mouse::MODE_RELATIVE)
+	{
+		Vector3 delta = Vector3(float(MouseState.x), float(MouseState.y), 0.f) * m_RotationSpeed;
+		AddPitch(delta.y);
+		AddYaw(delta.x);
+	}
 }
