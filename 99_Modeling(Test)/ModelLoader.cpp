@@ -44,9 +44,7 @@ bool ModelLoader::Load(std::string filePath)
 {
 	Assimp::Importer importer;
 
-	const aiScene* pScene = importer.ReadFile(filePath,
-		aiProcess_Triangulate |
-		aiProcess_ConvertToLeftHanded);
+	const aiScene* pScene = importer.ReadFile(filePath, importFlags);
 
 	if (pScene == nullptr)
 		return false;
@@ -64,24 +62,49 @@ void ModelLoader::Draw(ID3D11DeviceContext* devcon) {
 
 Mesh ModelLoader::processMesh(aiMesh* mesh, const aiScene* scene) {
 	// Data to fill
-	std::vector<VERTEX> vertices;
+	std::vector<Vertex> vertices;
 	std::vector<UINT> indices;
 	std::vector<Texture> textures;
 
 	// Walk through each of the mesh's vertices
 	for (UINT i = 0; i < mesh->mNumVertices; i++) {
-		VERTEX vertex;
+		Vertex vertex;
 
-		vertex.X = mesh->mVertices[i].x;
-		vertex.Y = mesh->mVertices[i].y;
-		vertex.Z = mesh->mVertices[i].z;
+		vertex.Pos.x = mesh->mVertices[i].x;
+		vertex.Pos.y = mesh->mVertices[i].y;
+		vertex.Pos.z = mesh->mVertices[i].z;
 
-		if (mesh->mTextureCoords[0]) {
-			vertex.texcoord.x = (float)mesh->mTextureCoords[0][i].x;
-			vertex.texcoord.y = (float)mesh->mTextureCoords[0][i].y;
+		if (mesh->HasNormals())
+		{
+			vertex.Normal.x = mesh->mNormals[i].x;
+			vertex.Normal.y = mesh->mNormals[i].y;
+			vertex.Normal.z = mesh->mNormals[i].z;
 		}
 		else {
-			vertex.texcoord = { 0.0f, 0.0f };
+			vertex.Normal = {};
+		}
+
+		if (mesh->mTextureCoords[0]) {
+			vertex.Tex.x = (float)mesh->mTextureCoords[0][i].x;
+			vertex.Tex.y = (float)mesh->mTextureCoords[0][i].y;
+		}
+		else {
+			vertex.Tex = { 0.0f, 0.0f };
+		}
+
+		if (mesh->HasTangentsAndBitangents())
+		{
+			vertex.Tangent.x = mesh->mTangents[i].x;
+			vertex.Tangent.y = mesh->mTangents[i].y;
+			vertex.Tangent.z = mesh->mTangents[i].z;
+
+			vertex.Bitangent.x = mesh->mBitangents[i].x;
+			vertex.Bitangent.y = mesh->mBitangents[i].y;
+			vertex.Bitangent.z = mesh->mBitangents[i].z;
+		}
+		else {
+			vertex.Tangent = { 0.0f, 0.0f, 0.0f };
+			vertex.Bitangent = { 0.0f, 0.0f, 0.0f };
 		}
 
 		vertices.push_back(vertex);

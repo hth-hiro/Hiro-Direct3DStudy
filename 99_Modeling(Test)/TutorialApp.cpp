@@ -32,6 +32,8 @@ struct ConstantBuffer
     Vector4 cameraPos;
 
     Vector4 vShininess;
+
+    Vector4 UseLighting; // 1 = 빛 계산, 0 = 무시
 };
 
 struct Skybox
@@ -123,7 +125,7 @@ void TutorialApp::Update()
 
     m_World = Scale * Rotate * XMMatrixTranslation(m_ImGuiManager.objectTransform.x * scaleValue / 2.0f, m_ImGuiManager.objectTransform.y * scaleValue / 2.0f, m_ImGuiManager.objectTransform.z * scaleValue / 2.0f);
 
-    m_Projection = XMMatrixPerspectiveFovLH(XM_PIDIV2 / m_ImGuiManager.FOV, m_ClientWidth / (FLOAT)m_ClientHeight, nearZ, finalFarZ);
+    m_Projection = XMMatrixPerspectiveFovLH(XM_PIDIV4 / m_ImGuiManager.FOV, m_ClientWidth / (FLOAT)m_ClientHeight, nearZ, finalFarZ);
 
     // 카메라 뷰에 적용
     m_Camera.GetViewMatrix(m_View);
@@ -167,7 +169,7 @@ void TutorialApp::Render()
     // 스카이박스 상수버퍼
     // 카메라 위치 중심
     SkyBoxCB cbSky;
-    cbSky.mView = XMMatrixTranspose(XMMatrixScaling(2, 2, 2) *  m_Camera.GetViewMatrixNoTranslation(m_View));
+    cbSky.mView = XMMatrixTranspose(XMMatrixScaling(10, 10, 10) *  m_Camera.GetViewMatrixNoTranslation(m_View));
     cbSky.mProjection = XMMatrixTranspose(m_Projection);
 
     m_pDeviceContext->VSSetConstantBuffers(1, 1, &m_pSkyboxConstantBuffer);
@@ -202,6 +204,7 @@ void TutorialApp::Render()
     cbObj.vOutputColor = XMFLOAT4(1, 1, 1, 1);
     cbObj.cameraPos = m_cameraPos;
     cbObj.vShininess = m_shininess;
+    cbObj.UseLighting = m_ImGuiManager.useLighting ? Vector4(1,0,0,0) : Vector4(0,0,0,0);
 
     m_pDeviceContext->VSSetConstantBuffers(0, 1, &m_pConstantBuffer);
     m_pDeviceContext->PSSetConstantBuffers(0, 1, &m_pConstantBuffer);
@@ -378,8 +381,9 @@ bool TutorialApp::InitScene()
     HRESULT hr = 0;
     ID3D10Blob* errorMessage = nullptr;
 
+    m_ModelLoader.Load(m_pDevice, m_pDeviceContext, "../Resource/Character.fbx");
     //m_ModelLoader.Load(m_pDevice, m_pDeviceContext, "../Resource/zeldaPosed001.fbx");
-    m_ModelLoader.Load(m_pDevice, m_pDeviceContext, "../Resource/Appearance Miku/Appearance Miku.fbx");
+    //m_ModelLoader.Load(m_pDevice, m_pDeviceContext, "../Resource/Appearance Miku/Appearance Miku.fbx");
 
     Skybox skybox[] =
     {
@@ -419,11 +423,10 @@ bool TutorialApp::InitScene()
     D3D11_INPUT_ELEMENT_DESC layout[] =
     {
         {"POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0},
-        {"TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 12, D3D11_INPUT_PER_VERTEX_DATA, 0},
-        //{"NORMAL", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 12, D3D11_INPUT_PER_VERTEX_DATA, 0},
-        //{"TANGENT", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 32, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-        //{"BINORMAL", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 44, D3D11_INPUT_PER_VERTEX_DATA, 0}
-        
+        {"NORMAL", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 12, D3D11_INPUT_PER_VERTEX_DATA, 0},
+        {"TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 24, D3D11_INPUT_PER_VERTEX_DATA, 0},
+        {"TANGENT", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 32, D3D11_INPUT_PER_VERTEX_DATA, 0},
+        {"BITANGENT", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 44, D3D11_INPUT_PER_VERTEX_DATA, 0},
     };
 
     HR_T(m_pDevice->CreateInputLayout(layout, ARRAYSIZE(layout), vertexShaderBuffer->GetBufferPointer(),

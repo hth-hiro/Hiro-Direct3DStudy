@@ -37,22 +37,10 @@ struct Vertex
 };
 
 // Test
-struct VERTEX {
-    FLOAT X, Y, Z;
-    XMFLOAT2 texcoord;
-};
-
-struct Model
-{
-    std::vector<Vertex> vertices;
-    std::vector<UINT> indices;
-
-    ComPtr<ID3D11Buffer> vertexBuffer;
-    ComPtr<ID3D11Buffer> indexBuffer;
-    ComPtr<ID3D11Buffer> constantBuffer;
-    ComPtr<ID3D11ShaderResourceView> texture;
-    ComPtr<ID3D11SamplerState> sampleLinear;
-};
+//struct VERTEX {
+//    FLOAT X, Y, Z;
+//    XMFLOAT2 texcoord;
+//};
 
 struct Texture {
     std::string type;
@@ -66,12 +54,12 @@ struct Texture {
 
 class Mesh {
 public:
-    std::vector<VERTEX> vertices_;
+    std::vector<Vertex> vertices_;
     std::vector<UINT> indices_;
     std::vector<Texture> textures_;
     ID3D11Device* dev_;
 
-    Mesh(ID3D11Device* dev, const std::vector<VERTEX>& vertices, const std::vector<UINT>& indices, const std::vector<Texture>& textures) :
+    Mesh(ID3D11Device* dev, const std::vector<Vertex>& vertices, const std::vector<UINT>& indices, const std::vector<Texture>& textures) :
         vertices_(vertices),
         indices_(indices),
         textures_(textures),
@@ -82,7 +70,7 @@ public:
     }
 
     void Draw(ID3D11DeviceContext* devcon) {
-        UINT stride = sizeof(VERTEX);
+        UINT stride = sizeof(Vertex);
         UINT offset = 0;
 
         devcon->IASetVertexBuffers(0, 1, &VertexBuffer_, &stride, &offset);
@@ -108,7 +96,7 @@ private:
 
         D3D11_BUFFER_DESC vbd;
         vbd.Usage = D3D11_USAGE_IMMUTABLE;
-        vbd.ByteWidth = static_cast<UINT>(sizeof(VERTEX) * vertices_.size());
+        vbd.ByteWidth = static_cast<UINT>(sizeof(Vertex) * vertices_.size());
         vbd.BindFlags = D3D11_BIND_VERTEX_BUFFER;
         vbd.CPUAccessFlags = 0;
         vbd.MiscFlags = 0;

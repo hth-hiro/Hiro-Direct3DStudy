@@ -41,7 +41,9 @@ public:
 
 	bool viewChanger = false;
 
-	Vector2 depth = { 1.0f, 1000.0f };
+	Vector2 depth = { 1.0f, 10000.0f };
+
+	bool useLighting = true;
 
 private:
 	void EndFrame();

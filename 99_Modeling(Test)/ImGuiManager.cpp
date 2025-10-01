@@ -74,6 +74,8 @@ void ImGuiManager::Render()
 		ImGui::SliderFloat(u8" 광택지수", &shininess, 200.0f, 20000.0f);
 		ImGui::SliderFloat3(u8" 방향", &lightDir.x, -1.0f, 1.0f);
 
+		ImGui::Checkbox("Use Lighting", &useLighting);
+
 		if (ImGui::Button(u8" 빛 초기화"))
 		{
 			LightReset();
@@ -82,16 +84,16 @@ void ImGuiManager::Render()
 
 		// 카메라
 		ImGui::SeparatorText(u8" 카메라 조절");
-		ImGui::SliderFloat(u8" 시야범위", &FOV, 0.6f, 10.0f);
-		ImGui::DragFloat2(u8" 렌더 최소/최대 거리", &depth.x, 0.1f, 0.01f, 50000.0f, "%.1f");
+		ImGui::SliderFloat(u8" 시야범위", &FOV, 0.6f, 100.0f);
+		ImGui::DragFloat2(u8" 렌더 최소/최대 거리", &depth.x, 0.1f, 1.0f, 10000.0f, "%.1f");
 		if (nearZ > farZ) farZ = nearZ;
 
 		if (ImGui::Button(u8"카메라 초기화"))
 		{
 			FOV = 1.0f;
 
-			nearZ = 0.01f;
-			farZ = 50000.0f;
+			nearZ = 1.0f;
+			farZ = 10000.0f;
 		}
 		ImGui::Text("");
 
