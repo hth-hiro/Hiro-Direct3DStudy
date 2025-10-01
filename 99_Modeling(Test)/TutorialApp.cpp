@@ -147,10 +147,12 @@ void TutorialApp::Render()
 
     // 2. 스카이박스 렌더
     m_pDeviceContext->OMSetDepthStencilState(m_pSkyboxDepthStencilState, 0);
+
     m_pDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-    m_pDeviceContext->IASetVertexBuffers(99, 1, &m_pSkyboxVertexBuffer, &m_SkyboxVertexBufferStride, &m_SkyboxVertexBufferOffset);
+    m_pDeviceContext->IASetVertexBuffers(0, 1, &m_pSkyboxVertexBuffer, &m_SkyboxVertexBufferStride, &m_SkyboxVertexBufferOffset);
     m_pDeviceContext->IASetIndexBuffer(m_pSkyboxIndexBuffer, DXGI_FORMAT_R16_UINT, 0);
     m_pDeviceContext->IASetInputLayout(m_pSkyboxInputLayout);
+
     m_pDeviceContext->VSSetShader(m_pSkyboxVertexShader, nullptr, 0);
     m_pDeviceContext->PSSetShader(m_pSkyboxPixelShader, nullptr, 0);
 
@@ -160,12 +162,12 @@ void TutorialApp::Render()
     cbSky.mView = XMMatrixTranspose(m_Camera.GetViewMatrixNoTranslation(m_View));
     cbSky.mProjection = XMMatrixTranspose(m_Projection);
 
-    m_pDeviceContext->VSSetConstantBuffers(99, 1, &m_pSkyboxConstantBuffer);
-    m_pDeviceContext->PSSetConstantBuffers(99, 1, &m_pConstantBuffer);
+    m_pDeviceContext->VSSetConstantBuffers(1, 1, &m_pSkyboxConstantBuffer);
+    m_pDeviceContext->PSSetConstantBuffers(1, 1, &m_pConstantBuffer);
     m_pDeviceContext->UpdateSubresource(m_pSkyboxConstantBuffer, 0, nullptr, &cbSky, 0, 0);
 
-    m_pDeviceContext->PSSetShaderResources(99, 1, &m_pCubeTextureRV);
-    m_pDeviceContext->PSSetSamplers(99, 1, &m_pSamplerLinear);
+    m_pDeviceContext->PSSetShaderResources(1, 1, &m_pCubeTextureRV);
+    m_pDeviceContext->PSSetSamplers(1, 1, &m_pSamplerLinear);
 
     m_pDeviceContext->DrawIndexed(m_nSkyboxIndices, 0, 0);
 
@@ -173,9 +175,8 @@ void TutorialApp::Render()
     m_pDeviceContext->OMSetDepthStencilState(nullptr, 0);
 
     // 3. 일반 오브젝트 렌더
-
-    m_pDeviceContext->IASetVertexBuffers(0, 1, &m_pVertexBuffer, &m_VertexBufferStride, &m_VertexBufferOffset);
-    m_pDeviceContext->IASetIndexBuffer(m_pIndexBuffer, DXGI_FORMAT_R16_UINT, 0);
+    //m_pDeviceContext->IASetVertexBuffers(0, 1, &m_pVertexBuffer, &m_VertexBufferStride, &m_VertexBufferOffset);
+    //m_pDeviceContext->IASetIndexBuffer(m_pIndexBuffer, DXGI_FORMAT_R16_UINT, 0);
     m_pDeviceContext->IASetInputLayout(m_pInputLayout);
 
     m_pDeviceContext->VSSetShader(m_pVertexShader, nullptr, 0);
@@ -200,10 +201,12 @@ void TutorialApp::Render()
     m_pDeviceContext->PSSetConstantBuffers(0, 1, &m_pConstantBuffer);
     m_pDeviceContext->UpdateSubresource(m_pConstantBuffer, 0, nullptr, &cbObj, 0, 0);
 
-    m_pDeviceContext->PSSetShaderResources(0, 1, &m_pTextureRV);
+    //m_pDeviceContext->PSSetShaderResources(0, 1, &m_pTextureRV);
+    //m_pDeviceContext->PSSetShaderResources(2, 1, &m_pNormalMapRV);
+    //m_pDeviceContext->PSSetShaderResources(3, 1, &m_pSpecularMapRV);
     m_pDeviceContext->PSSetSamplers(0, 1, &m_pSamplerLinear);
 
-    m_pDeviceContext->DrawIndexed(m_nIndices, 0, 0);
+    //m_pDeviceContext->DrawIndexed(m_nIndices, 0, 0);
 
     m_ModelLoader.Draw(m_pDeviceContext);
 
@@ -336,53 +339,53 @@ bool TutorialApp::InitScene()
     HRESULT hr = 0;
     ID3D10Blob* errorMessage = nullptr;
 
-    Vertex vertices[] =
-    {
-        { Vector3(-1.0f, 1.0f, -1.0f),	Vector3(0.0f, 1.0f, 0.0f),   Vector2(1.0f, 0.0f), Vector3(1.0f, 0.0f, 0.0f), Vector3(0.0f, 0.0f, -1.0f) },   // Normal Y +	 
-        { Vector3(1.0f, 1.0f, -1.0f),	Vector3(0.0f, 1.0f, 0.0f),   Vector2(0.0f, 0.0f), Vector3(1.0f, 0.0f, 0.0f), Vector3(0.0f, 0.0f, -1.0f) },
-        { Vector3(1.0f, 1.0f, 1.0f),	Vector3(0.0f, 1.0f, 0.0f),   Vector2(0.0f, 1.0f), Vector3(1.0f, 0.0f, 0.0f), Vector3(0.0f, 0.0f, -1.0f) },
-        { Vector3(-1.0f, 1.0f, 1.0f),	Vector3(0.0f, 1.0f, 0.0f),   Vector2(1.0f, 1.0f), Vector3(1.0f, 0.0f, 0.0f), Vector3(0.0f, 0.0f, -1.0f) },
+    //Vertex vertices[] =
+    //{
+    //    { Vector3(-1.0f, 1.0f, -1.0f),	Vector3(0.0f, 1.0f, 0.0f),   Vector2(1.0f, 0.0f), Vector3(1.0f, 0.0f, 0.0f), Vector3(0.0f, 0.0f, -1.0f) },   // Normal Y +	 
+    //    { Vector3(1.0f, 1.0f, -1.0f),	Vector3(0.0f, 1.0f, 0.0f),   Vector2(0.0f, 0.0f), Vector3(1.0f, 0.0f, 0.0f), Vector3(0.0f, 0.0f, -1.0f) },
+    //    { Vector3(1.0f, 1.0f, 1.0f),	Vector3(0.0f, 1.0f, 0.0f),   Vector2(0.0f, 1.0f), Vector3(1.0f, 0.0f, 0.0f), Vector3(0.0f, 0.0f, -1.0f) },
+    //    { Vector3(-1.0f, 1.0f, 1.0f),	Vector3(0.0f, 1.0f, 0.0f),   Vector2(1.0f, 1.0f), Vector3(1.0f, 0.0f, 0.0f), Vector3(0.0f, 0.0f, -1.0f) },
 
-        { Vector3(-1.0f, -1.0f, -1.0f), Vector3(0.0f, -1.0f, 0.0f),  Vector2(0.0f, 0.0f), Vector3(1.0f, 0.0f, 0.0f), Vector3(0.0f, 0.0f, 1.0f) },   // Normal Y -		
-        { Vector3(1.0f, -1.0f, -1.0f),	Vector3(0.0f, -1.0f, 0.0f),  Vector2(1.0f, 0.0f), Vector3(1.0f, 0.0f, 0.0f), Vector3(0.0f, 0.0f, 1.0f) },
-        { Vector3(1.0f, -1.0f, 1.0f),	Vector3(0.0f, -1.0f, 0.0f),  Vector2(1.0f, 1.0f), Vector3(1.0f, 0.0f, 0.0f), Vector3(0.0f, 0.0f, 1.0f) },
-        { Vector3(-1.0f, -1.0f, 1.0f),	Vector3(0.0f, -1.0f, 0.0f),  Vector2(0.0f, 1.0f), Vector3(1.0f, 0.0f, 0.0f), Vector3(0.0f, 0.0f, 1.0f) },
+    //    { Vector3(-1.0f, -1.0f, -1.0f), Vector3(0.0f, -1.0f, 0.0f),  Vector2(0.0f, 0.0f), Vector3(1.0f, 0.0f, 0.0f), Vector3(0.0f, 0.0f, 1.0f) },   // Normal Y -		
+    //    { Vector3(1.0f, -1.0f, -1.0f),	Vector3(0.0f, -1.0f, 0.0f),  Vector2(1.0f, 0.0f), Vector3(1.0f, 0.0f, 0.0f), Vector3(0.0f, 0.0f, 1.0f) },
+    //    { Vector3(1.0f, -1.0f, 1.0f),	Vector3(0.0f, -1.0f, 0.0f),  Vector2(1.0f, 1.0f), Vector3(1.0f, 0.0f, 0.0f), Vector3(0.0f, 0.0f, 1.0f) },
+    //    { Vector3(-1.0f, -1.0f, 1.0f),	Vector3(0.0f, -1.0f, 0.0f),  Vector2(0.0f, 1.0f), Vector3(1.0f, 0.0f, 0.0f), Vector3(0.0f, 0.0f, 1.0f) },
 
-        { Vector3(-1.0f, -1.0f, 1.0f),	Vector3(-1.0f, 0.0f, 0.0f),  Vector2(0.0f, 1.0f), Vector3(0.0f, 0.0f, -1.0f), Vector3(0.0f, -1.0f, 0.0f) },   //	Normal X -
-        { Vector3(-1.0f, -1.0f, -1.0f), Vector3(-1.0f, 0.0f, 0.0f),  Vector2(1.0f, 1.0f), Vector3(0.0f, 0.0f, -1.0f), Vector3(0.0f, -1.0f, 0.0f) },
-        { Vector3(-1.0f, 1.0f, -1.0f),	Vector3(-1.0f, 0.0f, 0.0f),  Vector2(1.0f, 0.0f), Vector3(0.0f, 0.0f, -1.0f), Vector3(0.0f, -1.0f, 0.0f) },
-        { Vector3(-1.0f, 1.0f, 1.0f),	Vector3(-1.0f, 0.0f, 0.0f),  Vector2(0.0f, 0.0f), Vector3(0.0f, 0.0f, -1.0f), Vector3(0.0f, -1.0f, 0.0f) },
+    //    { Vector3(-1.0f, -1.0f, 1.0f),	Vector3(-1.0f, 0.0f, 0.0f),  Vector2(0.0f, 1.0f), Vector3(0.0f, 0.0f, -1.0f), Vector3(0.0f, -1.0f, 0.0f) },   //	Normal X -
+    //    { Vector3(-1.0f, -1.0f, -1.0f), Vector3(-1.0f, 0.0f, 0.0f),  Vector2(1.0f, 1.0f), Vector3(0.0f, 0.0f, -1.0f), Vector3(0.0f, -1.0f, 0.0f) },
+    //    { Vector3(-1.0f, 1.0f, -1.0f),	Vector3(-1.0f, 0.0f, 0.0f),  Vector2(1.0f, 0.0f), Vector3(0.0f, 0.0f, -1.0f), Vector3(0.0f, -1.0f, 0.0f) },
+    //    { Vector3(-1.0f, 1.0f, 1.0f),	Vector3(-1.0f, 0.0f, 0.0f),  Vector2(0.0f, 0.0f), Vector3(0.0f, 0.0f, -1.0f), Vector3(0.0f, -1.0f, 0.0f) },
 
-        { Vector3(1.0f, -1.0f, 1.0f),	Vector3(1.0f, 0.0f, 0.0f),   Vector2(1.0f, 1.0f), Vector3(0.0f, 0.0f, 1.0f), Vector3(0.0f, -1.0f, 0.0f) },   // Normal X +
-        { Vector3(1.0f, -1.0f, -1.0f),	Vector3(1.0f, 0.0f, 0.0f),   Vector2(0.0f, 1.0f), Vector3(0.0f, 0.0f, 1.0f), Vector3(0.0f, -1.0f, 0.0f) },
-        { Vector3(1.0f, 1.0f, -1.0f),	Vector3(1.0f, 0.0f, 0.0f),   Vector2(0.0f, 0.0f), Vector3(0.0f, 0.0f, 1.0f), Vector3(0.0f, -1.0f, 0.0f) },
-        { Vector3(1.0f, 1.0f, 1.0f),	Vector3(1.0f, 0.0f, 0.0f),   Vector2(1.0f, 0.0f), Vector3(0.0f, 0.0f, 1.0f), Vector3(0.0f, -1.0f, 0.0f) },
+    //    { Vector3(1.0f, -1.0f, 1.0f),	Vector3(1.0f, 0.0f, 0.0f),   Vector2(1.0f, 1.0f), Vector3(0.0f, 0.0f, 1.0f), Vector3(0.0f, -1.0f, 0.0f) },   // Normal X +
+    //    { Vector3(1.0f, -1.0f, -1.0f),	Vector3(1.0f, 0.0f, 0.0f),   Vector2(0.0f, 1.0f), Vector3(0.0f, 0.0f, 1.0f), Vector3(0.0f, -1.0f, 0.0f) },
+    //    { Vector3(1.0f, 1.0f, -1.0f),	Vector3(1.0f, 0.0f, 0.0f),   Vector2(0.0f, 0.0f), Vector3(0.0f, 0.0f, 1.0f), Vector3(0.0f, -1.0f, 0.0f) },
+    //    { Vector3(1.0f, 1.0f, 1.0f),	Vector3(1.0f, 0.0f, 0.0f),   Vector2(1.0f, 0.0f), Vector3(0.0f, 0.0f, 1.0f), Vector3(0.0f, -1.0f, 0.0f) },
 
-        { Vector3(-1.0f, -1.0f, -1.0f), Vector3(0.0f, 0.0f, -1.0f),  Vector2(0.0f, 1.0f), Vector3(1.0f, 0.0f, 0.0f), Vector3(0.0f, -1.0f, 0.0f) },   // Normal Z -
-        { Vector3(1.0f, -1.0f, -1.0f),	Vector3(0.0f, 0.0f, -1.0f),  Vector2(1.0f, 1.0f), Vector3(1.0f, 0.0f, 0.0f), Vector3(0.0f, -1.0f, 0.0f) },
-        { Vector3(1.0f, 1.0f, -1.0f),	Vector3(0.0f, 0.0f, -1.0f),  Vector2(1.0f, 0.0f), Vector3(1.0f, 0.0f, 0.0f), Vector3(0.0f, -1.0f, 0.0f) },
-        { Vector3(-1.0f, 1.0f, -1.0f),	Vector3(0.0f, 0.0f, -1.0f),  Vector2(0.0f, 0.0f), Vector3(1.0f, 0.0f, 0.0f), Vector3(0.0f, -1.0f, 0.0f) },
+    //    { Vector3(-1.0f, -1.0f, -1.0f), Vector3(0.0f, 0.0f, -1.0f),  Vector2(0.0f, 1.0f), Vector3(1.0f, 0.0f, 0.0f), Vector3(0.0f, -1.0f, 0.0f) },   // Normal Z -
+    //    { Vector3(1.0f, -1.0f, -1.0f),	Vector3(0.0f, 0.0f, -1.0f),  Vector2(1.0f, 1.0f), Vector3(1.0f, 0.0f, 0.0f), Vector3(0.0f, -1.0f, 0.0f) },
+    //    { Vector3(1.0f, 1.0f, -1.0f),	Vector3(0.0f, 0.0f, -1.0f),  Vector2(1.0f, 0.0f), Vector3(1.0f, 0.0f, 0.0f), Vector3(0.0f, -1.0f, 0.0f) },
+    //    { Vector3(-1.0f, 1.0f, -1.0f),	Vector3(0.0f, 0.0f, -1.0f),  Vector2(0.0f, 0.0f), Vector3(1.0f, 0.0f, 0.0f), Vector3(0.0f, -1.0f, 0.0f) },
 
-        { Vector3(-1.0f, -1.0f, 1.0f),	Vector3(0.0f, 0.0f, 1.0f),   Vector2(1.0f, 1.0f), Vector3(-1.0f, 0.0f, 0.0f), Vector3(0.0f, -1.0f, 0.0f) },   // Normal Z +
-        { Vector3(1.0f, -1.0f, 1.0f),	Vector3(0.0f, 0.0f, 1.0f),   Vector2(0.0f, 1.0f), Vector3(-1.0f, 0.0f, 0.0f), Vector3(0.0f, -1.0f, 0.0f) },
-        { Vector3(1.0f, 1.0f, 1.0f),	Vector3(0.0f, 0.0f, 1.0f),   Vector2(0.0f, 0.0f), Vector3(-1.0f, 0.0f, 0.0f), Vector3(0.0f, -1.0f, 0.0f) },
-        { Vector3(-1.0f, 1.0f, 1.0f),	Vector3(0.0f, 0.0f, 1.0f),   Vector2(1.0f, 0.0f), Vector3(-1.0f, 0.0f, 0.0f), Vector3(0.0f, -1.0f, 0.0f) },
-    };
+    //    { Vector3(-1.0f, -1.0f, 1.0f),	Vector3(0.0f, 0.0f, 1.0f),   Vector2(1.0f, 1.0f), Vector3(-1.0f, 0.0f, 0.0f), Vector3(0.0f, -1.0f, 0.0f) },   // Normal Z +
+    //    { Vector3(1.0f, -1.0f, 1.0f),	Vector3(0.0f, 0.0f, 1.0f),   Vector2(0.0f, 1.0f), Vector3(-1.0f, 0.0f, 0.0f), Vector3(0.0f, -1.0f, 0.0f) },
+    //    { Vector3(1.0f, 1.0f, 1.0f),	Vector3(0.0f, 0.0f, 1.0f),   Vector2(0.0f, 0.0f), Vector3(-1.0f, 0.0f, 0.0f), Vector3(0.0f, -1.0f, 0.0f) },
+    //    { Vector3(-1.0f, 1.0f, 1.0f),	Vector3(0.0f, 0.0f, 1.0f),   Vector2(1.0f, 0.0f), Vector3(-1.0f, 0.0f, 0.0f), Vector3(0.0f, -1.0f, 0.0f) },
+    //};
 
-    WORD indices[] =
-    {
-        3,1,0, 2,1,3,
-        6,4,5, 7,4,6,
-        11,9,8, 10,9,11,
-        14,12,13, 15,12,14,
-        19,17,16, 18,17,19,
-        22,20,21, 23,20,22
-    };
+    //WORD indices[] =
+    //{
+    //    3,1,0, 2,1,3,
+    //    6,4,5, 7,4,6,
+    //    11,9,8, 10,9,11,
+    //    14,12,13, 15,12,14,
+    //    19,17,16, 18,17,19,
+    //    22,20,21, 23,20,22
+    //};
 
     //m_ModelManager.Initialize(m_pDevice, m_pDeviceContext);
     //m_ModelManager.Load("Test", "../Resource/zeldaPosed001.fbx");
 
-    m_ModelLoader.Load(m_pDevice, m_pDeviceContext, "..\\Resource\\zeldaPosed001.fbx");
+    m_ModelLoader.Load(m_pDevice, m_pDeviceContext, "../Resource/zeldaPosed001.fbx");
 
     Skybox skybox[] =
     {
@@ -409,29 +412,29 @@ bool TutorialApp::InitScene()
 
     // Create Vertex Buffer
     D3D11_BUFFER_DESC vbDesc = {};
-    vbDesc.ByteWidth = sizeof(Vertex) * ARRAYSIZE(vertices);
-    vbDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
-    vbDesc.Usage = D3D11_USAGE_DEFAULT;
-    vbDesc.CPUAccessFlags = 0;
+    //vbDesc.ByteWidth = sizeof(Vertex) * ARRAYSIZE(vertices);
+    //vbDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
+    //vbDesc.Usage = D3D11_USAGE_DEFAULT;
+    //vbDesc.CPUAccessFlags = 0;
 
-    D3D11_SUBRESOURCE_DATA vbData = {};
-    vbData.pSysMem = vertices;
-    HR_T(m_pDevice->CreateBuffer(&vbDesc, &vbData, &m_pVertexBuffer));
+    //D3D11_SUBRESOURCE_DATA vbData = {};
+    //vbData.pSysMem = vertices;
+    //HR_T(m_pDevice->CreateBuffer(&vbDesc, &vbData, &m_pVertexBuffer));
 
-    m_VertexBufferStride = sizeof(Vertex);
-    m_VertexBufferOffset = 0;
+    //m_VertexBufferStride = sizeof(Vertex);
+    //m_VertexBufferOffset = 0;
 
     // Create Index Buffer
-    m_nIndices = ARRAYSIZE(indices);
-    vbDesc.ByteWidth = sizeof(WORD) * m_nIndices;
-    vbDesc.BindFlags = D3D11_BIND_INDEX_BUFFER;
-    vbDesc.Usage = D3D11_USAGE_DEFAULT;
-    vbDesc.CPUAccessFlags = 0;
+    //m_nIndices = ARRAYSIZE(indices);
+    //vbDesc.ByteWidth = sizeof(WORD) * m_nIndices;
+    //vbDesc.BindFlags = D3D11_BIND_INDEX_BUFFER;
+    //vbDesc.Usage = D3D11_USAGE_DEFAULT;
+    //vbDesc.CPUAccessFlags = 0;
 
-    D3D11_SUBRESOURCE_DATA ibData = {};
-    ibData.pSysMem = indices;
+    //D3D11_SUBRESOURCE_DATA ibData = {};
+    //ibData.pSysMem = indices;
 
-    HR_T(m_pDevice->CreateBuffer(&vbDesc, &ibData, &m_pIndexBuffer));
+    //HR_T(m_pDevice->CreateBuffer(&vbDesc, &ibData, &m_pIndexBuffer));
 
     /*--------Vertex Shader--------*/
     ID3DBlob* vertexShaderBuffer = nullptr;
@@ -445,10 +448,10 @@ bool TutorialApp::InitScene()
     D3D11_INPUT_ELEMENT_DESC layout[] =
     {
         {"POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0},
-        {"NORMAL", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 12, D3D11_INPUT_PER_VERTEX_DATA, 0},
-        {"TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 24, D3D11_INPUT_PER_VERTEX_DATA, 0},
-        {"TANGENT", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 32, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-        {"BINORMAL", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 44, D3D11_INPUT_PER_VERTEX_DATA, 0}
+        //{"NORMAL", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 12, D3D11_INPUT_PER_VERTEX_DATA, 0},
+        {"TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 12, D3D11_INPUT_PER_VERTEX_DATA, 0},
+        //{"TANGENT", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 32, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+        //{"BINORMAL", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 44, D3D11_INPUT_PER_VERTEX_DATA, 0}
         
     };
 
@@ -486,8 +489,15 @@ bool TutorialApp::InitScene()
     HR_T(m_pDevice->CreateSamplerState(&sampDesc, &m_pSamplerLinear));
 
     // 여기에 텍스처 렌더, CreateDDSTextureFromFile 사용
-    HR_T(CreateDDSTextureFromFile(m_pDevice, L"../Resource/seafloor.dds", nullptr, &m_pTextureRV));
+    //HR_T(CreateDDSTextureFromFile(m_pDevice, L"../Resource/seafloor.dds", nullptr, &m_pTextureRV));
 
+    //HR_T(CreateWICTextureFromFile(m_pDevice, L"../Resource/Bricks059_1K-JPG_Color.jpg", nullptr, &m_pTextureRV));
+
+    // 노멀맵을 가져온다.
+    //HR_T(CreateWICTextureFromFile(m_pDevice, L"../Resource/Bricks059_1K-JPG_NormalDX.jpg", nullptr, &m_pNormalMapRV));
+
+    // 스펙큘러맵을 가져온다.
+    //HR_T(CreateWICTextureFromFile(m_pDevice, L"../Resource/Bricks059_Specular.png", nullptr, &m_pSpecularMapRV));
 
 
     // 스카이박스 전용 버퍼 생성
