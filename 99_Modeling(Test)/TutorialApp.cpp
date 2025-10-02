@@ -186,7 +186,6 @@ void TutorialApp::Render()
 
     // 3. 일반 오브젝트 렌더
     m_pDeviceContext->IASetInputLayout(m_pInputLayout);
-
     m_pDeviceContext->VSSetShader(m_pVertexShader, nullptr, 0);
     m_pDeviceContext->PSSetShader(m_pPixelShader, nullptr, 0);
 

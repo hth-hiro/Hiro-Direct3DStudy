@@ -72,7 +72,7 @@ void ImGuiManager::Render()
 		ImGui::ColorEdit4(u8" Diffuse 색상", &diffuseColor.x);
 		ImGui::ColorEdit4(u8" Specular 색상", &specularColor.x);
 		ImGui::SliderFloat(u8" 광택지수", &shininess, 200.0f, 20000.0f);
-		ImGui::SliderFloat3(u8" 방향", &lightDir.x, -1.0f, 1.0f);
+		ImGui::SliderFloat3(u8" 방향", &lightDir.x, -1.0f, 1.0f, "%.1f");
 
 		ImGui::Checkbox("Use Lighting", &useLighting);
 
