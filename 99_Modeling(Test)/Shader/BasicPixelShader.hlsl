@@ -11,19 +11,19 @@ float4 main(PS_INPUT input) : SV_Target
     float4 surface = txDiffuse.Sample(samLinear, input.Tex);
 
     float3 normalVector = normalize(input.Norm);                                // ³ë¸Ö º¤ÅÍ (N)                 
-    float3 lightVector = normalize(-vLightDir.xyz);                             // ºûÀÇ ¹æÇâ (L)
+    float3 lightVector = normalize(vLightDir.xyz);                             // ºûÀÇ ¹æÇâ (L)
     float3 reflectVector = normalize(reflect(lightVector, normalVector));       // ¹Ý»ç º¤ÅÍ (R)
     float3 viewVector = normalize(cameraPos.xyz - input.WorldPos);              // ºä º¤ÅÍ (V)
-    float3 harfVector = normalize(lightVector + viewVector);                    // ÇÏÇÁ º¤ÅÍ (H)
+    float3 harfVector = normalize(-lightVector + viewVector);                    // ÇÏÇÁ º¤ÅÍ (H)
     
     float4 ambient = vAmbientColor.rgba * surface.rgba * vMaterialAmbient.rgba;
-    float4 diffuse = vDiffuseColor.rgba * surface.rgba * vMaterialDiffuse.rgba * saturate(dot(normalVector, lightVector));
+    float4 diffuse = vDiffuseColor.rgba * surface.rgba * vMaterialDiffuse.rgba * saturate(dot(normalVector, -lightVector));
     
     // ºí¸° Æþ °è»ê
-    float4 specular = vSpecularColor.rgba * vMaterialSpecular.rgba * pow(saturate(dot(normalVector, harfVector)), (float) vShininess);
+    //float4 specular = vSpecularColor.rgba * vMaterialSpecular.rgba * pow(saturate(dot(normalVector, harfVector)), (float) vShininess);
     
     // Æþ °è»ê
-    //float4 specular = vSpecularColor.rgba * pow(saturate(dot(reflectVector, viewVector)), (float)vShininess);
+    float4 specular = vSpecularColor.rgba * pow(saturate(dot(reflectVector, viewVector)), (float)vShininess);
 
     if (UseLighting.x > 0.5f)
     {
