@@ -1,4 +1,5 @@
 #include "ModelLoader.h"
+#include "../Common/Helper.h"
 
 unsigned int importFlags = aiProcess_Triangulate |    // vertex 삼각형 으로 출력
 aiProcess_GenNormals |        // Normal 정보 생성  
@@ -58,6 +59,8 @@ void ModelLoader::Draw(ID3D11DeviceContext* devcon) {
 	for (size_t i = 0; i < meshes_.size(); ++i) {
 
 		//if (i >= 8 && i <= 9) continue;
+		//if (!(i == 11)) continue;
+		//if (!(i == 12)) continue;
 
 		meshes_[i].Draw(devcon);
 	}

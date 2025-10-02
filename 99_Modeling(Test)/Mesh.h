@@ -36,12 +36,6 @@ struct Vertex
     Vector3 Bitangent;
 };
 
-// Test
-//struct VERTEX {
-//    FLOAT X, Y, Z;
-//    XMFLOAT2 texcoord;
-//};
-
 struct Texture {
     std::string type;
     std::string path;
