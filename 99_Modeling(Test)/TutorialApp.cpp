@@ -534,8 +534,6 @@ bool TutorialApp::InitScene()
     HR_T(CreateDDSTextureFromFile(m_pDevice, L"../Resource/Daylight.dds", nullptr, &m_pCubeDaylightTextureRV));
     HR_T(CreateDDSTextureFromFile(m_pDevice, L"../Resource/Hanako.dds", nullptr, &m_pCubeHanakoTextureRV));
 
-
-
     // 투영 변환(절두체를 이해하면 된다.)
     // 그려지는 범위 NearZ, FarZ값으로 설정
     m_Projection = XMMatrixPerspectiveFovLH(XM_PIDIV2, m_ClientWidth / (FLOAT)m_ClientHeight, 0.01f, 100.0f);
@@ -554,14 +552,15 @@ bool TutorialApp::InitScene()
 
 void TutorialApp::UninitScene()
 {
-    SAFE_RELEASE(m_pVertexBuffer);
-    SAFE_RELEASE(m_pIndexBuffer);
     SAFE_RELEASE(m_pInputLayout);
     SAFE_RELEASE(m_pVertexShader);
     SAFE_RELEASE(m_pPixelShader);
     SAFE_RELEASE(m_pSkyboxVertexShader);
     SAFE_RELEASE(m_pSkyboxPixelShader);
     SAFE_RELEASE(m_pConstantBuffer);
+    SAFE_RELEASE(m_pRasterStateNoCull);
+    SAFE_RELEASE(m_pRasterStateBackCull);
+    SAFE_RELEASE(m_pRasterStateFrontCull);
 
     m_ModelLoader.Close();
 }

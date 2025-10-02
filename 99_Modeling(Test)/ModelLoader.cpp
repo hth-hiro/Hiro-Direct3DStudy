@@ -14,12 +14,12 @@ ModelLoader::ModelLoader() :
 	meshes_(),
 	directory_(),
 	textures_loaded_(),
-	hwnd_(nullptr) {
-	// empty
+	hwnd_(nullptr)
+{
 }
 
-ModelLoader::~ModelLoader() {
-	// empty
+ModelLoader::~ModelLoader()
+{
 }
 
 bool ModelLoader::Load(ID3D11Device* dev, ID3D11DeviceContext* devcon, std::string filePath)
@@ -56,8 +56,10 @@ bool ModelLoader::Load(std::string filePath)
 }
 
 void ModelLoader::Draw(ID3D11DeviceContext* devcon) {
-	for (size_t i = 0; i < meshes_.size(); ++i) {
-
+	for (size_t i = 0; i < meshes_.size(); ++i)
+	{
+		// 특정 부분만 렌더를 할 수 있게 가능하다.
+	
 		//if (i >= 8 && i <= 9) continue;
 		//if (!(i == 11)) continue;
 		//if (!(i == 12)) continue;
@@ -66,14 +68,15 @@ void ModelLoader::Draw(ID3D11DeviceContext* devcon) {
 	}
 }
 
-Mesh ModelLoader::processMesh(aiMesh* mesh, const aiScene* scene) {
-	// Data to fill
+Mesh ModelLoader::processMesh(aiMesh* mesh, const aiScene* scene)
+{
 	std::vector<Vertex> vertices;
 	std::vector<UINT> indices;
 	std::vector<Texture> textures;
 
-	// Walk through each of the mesh's vertices
-	for (UINT i = 0; i < mesh->mNumVertices; i++) {
+	// 서로 다른 메시의 버텍스에 대해 루프를 돌린다.
+	for (UINT i = 0; i < mesh->mNumVertices; i++)
+	{
 		Vertex vertex;
 
 		vertex.Pos.x = mesh->mVertices[i].x;
@@ -90,7 +93,8 @@ Mesh ModelLoader::processMesh(aiMesh* mesh, const aiScene* scene) {
 			vertex.Normal = {};
 		}
 
-		if (mesh->mTextureCoords[0]) {
+		if (mesh->mTextureCoords[0]) 
+		{
 			vertex.Tex.x = (float)mesh->mTextureCoords[0][i].x;
 			vertex.Tex.y = (float)mesh->mTextureCoords[0][i].y;
 		}
@@ -116,14 +120,16 @@ Mesh ModelLoader::processMesh(aiMesh* mesh, const aiScene* scene) {
 		vertices.push_back(vertex);
 	}
 
-	for (UINT i = 0; i < mesh->mNumFaces; i++) {
+	for (UINT i = 0; i < mesh->mNumFaces; i++)
+	{
 		aiFace face = mesh->mFaces[i];
 
 		for (UINT j = 0; j < face.mNumIndices; j++)
 			indices.push_back(face.mIndices[j]);
 	}
 
-	if (mesh->mMaterialIndex >= 0) {
+	if (mesh->mMaterialIndex >= 0)
+	{
 		aiMaterial* material = scene->mMaterials[mesh->mMaterialIndex];
 
 		std::vector<Texture> diffuseMaps = this->loadMaterialTextures(material, aiTextureType_DIFFUSE, "texture_diffuse", scene);
@@ -135,27 +141,36 @@ Mesh ModelLoader::processMesh(aiMesh* mesh, const aiScene* scene) {
 
 std::vector<Texture> ModelLoader::loadMaterialTextures(aiMaterial* mat, aiTextureType type, std::string typeName, const aiScene* scene) {
 	std::vector<Texture> textures;
-	for (UINT i = 0; i < mat->GetTextureCount(type); i++) {
+	for (UINT i = 0; i < mat->GetTextureCount(type); i++)
+	{
 		aiString str;
 		mat->GetTexture(type, i, &str);
-		// Check if texture was loaded before and if so, continue to next iteration: skip loading a new texture
+		// 이전에 이미 같은 텍스처가 로드되었는지 확인, 이미 로드되었다면 새로 로드하지 않고 건너 뜀.
 		bool skip = false;
-		for (UINT j = 0; j < textures_loaded_.size(); j++) {
-			if (std::strcmp(textures_loaded_[j].path.c_str(), str.C_Str()) == 0) {
+
+		for (UINT j = 0; j < textures_loaded_.size(); j++)
+		{
+			if (std::strcmp(textures_loaded_[j].path.c_str(), str.C_Str()) == 0)
+			{
 				textures.push_back(textures_loaded_[j]);
-				skip = true; // A texture with the same filepath has already been loaded, continue to next one. (optimization)
+				skip = true; // 같은 경로를 가진 텍스처가 이미 로드되었으므로 다음 텍스처로 넘어간다. (최적화용)
 				break;
 			}
 		}
-		if (!skip) {   // If texture hasn't been loaded already, load it
-			HRESULT hr;
+
+		if (!skip) // 만약 텍스처가 아직 로드되지 않았다면 GPU에 업로드
+		{   
 			Texture texture;
 
+			// 여기서 임베디드 텍스처의 여부를 확인하고,
+			// 임베디드가 아니면 경로에서 파일을 로드한다.
 			const aiTexture* embeddedTexture = scene->GetEmbeddedTexture(str.C_Str());
-			if (embeddedTexture != nullptr) {
+			if (embeddedTexture != nullptr)
+			{
 				texture.texture = loadEmbeddedTexture(embeddedTexture);
 			}
-			else {
+			else
+			{
 				// aiString 경로 무시
 				std::string filename = directory_ + '/' + std::string(str.C_Str());
 				// Texture 폴더 경로 제거
@@ -167,14 +182,13 @@ std::vector<Texture> ModelLoader::loadMaterialTextures(aiMaterial* mat, aiTextur
 				}
 
 				std::wstring filenamews(filename.begin(), filename.end());
-				hr = TextureLoader::CreateWICTextureFromFile(dev_, devcon_, filenamews.c_str(), nullptr, &texture.texture);
-				if (FAILED(hr))
-					MessageBox(hwnd_, L"Texture couldn't be loaded", L"Error!", MB_ICONERROR | MB_OK);
+				HR_T(TextureLoader::CreateWICTextureFromFile(dev_, devcon_, filenamews.c_str(), nullptr, &texture.texture));
 			}
+
 			texture.type = typeName;
 			texture.path = str.C_Str();
 			textures.push_back(texture);
-			this->textures_loaded_.push_back(texture);  // Store it as texture loaded for entire model, to ensure we won't unnecesery load duplicate textures.
+			this->textures_loaded_.push_back(texture);  // 이 텍스처를 모델 전체에서 로드된 텍스처로 저장하여 불필요하게 중복로드되는 일을 방지한다.
 		}
 	}
 	return textures;
@@ -184,28 +198,32 @@ void ModelLoader::Close() {
 	for (auto& t : textures_loaded_)
 		t.Release();
 
-	for (size_t i = 0; i < meshes_.size(); i++) {
+	for (size_t i = 0; i < meshes_.size(); i++)
+	{
 		meshes_[i].Close();
 	}
 }
 
-void ModelLoader::processNode(aiNode* node, const aiScene* scene) {
-	for (UINT i = 0; i < node->mNumMeshes; i++) {
+void ModelLoader::processNode(aiNode* node, const aiScene* scene)
+{
+	for (UINT i = 0; i < node->mNumMeshes; i++)
+	{
 		aiMesh* mesh = scene->mMeshes[node->mMeshes[i]];
 		meshes_.push_back(this->processMesh(mesh, scene));
 	}
 
-	for (UINT i = 0; i < node->mNumChildren; i++) {
+	for (UINT i = 0; i < node->mNumChildren; i++)
+	{
 		this->processNode(node->mChildren[i], scene);
 	}
 }
 
-ID3D11ShaderResourceView* ModelLoader::loadEmbeddedTexture(const aiTexture* embeddedTexture) {
-	HRESULT hr;
+ID3D11ShaderResourceView* ModelLoader::loadEmbeddedTexture(const aiTexture* embeddedTexture)
+{
 	ID3D11ShaderResourceView* texture = nullptr;
 
 	if (embeddedTexture->mHeight != 0) {
-		// Load an uncompressed ARGB8888 embedded texture
+		// 임베디드 텍스처가 압축되지 않은 ARGB8888 형식임을 가정하고 로드
 		D3D11_TEXTURE2D_DESC desc;
 		desc.Width = embeddedTexture->mWidth;
 		desc.Height = embeddedTexture->mHeight;
@@ -225,23 +243,16 @@ ID3D11ShaderResourceView* ModelLoader::loadEmbeddedTexture(const aiTexture* embe
 		subresourceData.SysMemSlicePitch = embeddedTexture->mWidth * embeddedTexture->mHeight * 4;
 
 		ID3D11Texture2D* texture2D = nullptr;
-		hr = dev_->CreateTexture2D(&desc, &subresourceData, &texture2D);
-		if (FAILED(hr))
-			MessageBox(hwnd_, L"CreateTexture2D failed!", L"Error!", MB_ICONERROR | MB_OK);
-
-		hr = dev_->CreateShaderResourceView(texture2D, nullptr, &texture);
-		if (FAILED(hr))
-			MessageBox(hwnd_, L"CreateShaderResourceView failed!", L"Error!", MB_ICONERROR | MB_OK);
+		HR_T(dev_->CreateTexture2D(&desc, &subresourceData, &texture2D));
+		HR_T(dev_->CreateShaderResourceView(texture2D, nullptr, &texture));
 
 		return texture;
 	}
 
-	// mHeight is 0, so try to load a compressed texture of mWidth bytes
+	// 임베디드 텍스처가 압축된 형식이라면 mHeight가 0이 됨.
 	const size_t size = embeddedTexture->mWidth;
 
-	hr = TextureLoader::CreateWICTextureFromMemory(dev_, devcon_, reinterpret_cast<const unsigned char*>(embeddedTexture->pcData), size, nullptr, &texture);
-	if (FAILED(hr))
-		MessageBox(hwnd_, L"Texture couldn't be created from memory!", L"Error!", MB_ICONERROR | MB_OK);
+	HR_T(TextureLoader::CreateWICTextureFromMemory(dev_, devcon_, reinterpret_cast<const unsigned char*>(embeddedTexture->pcData), size, nullptr, &texture));
 
 	return texture;
 }
