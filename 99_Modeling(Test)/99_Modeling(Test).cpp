@@ -28,7 +28,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 
 	TutorialApp App(hInstance);
 
-	App.Initialize(1024, 768);
+	App.Initialize(1920, 1080);
 
 	App.Run();
 
