@@ -24,8 +24,6 @@ public:
 	bool Load(std::string filePath);
 	void Draw(ID3D11DeviceContext* devcon);
 
-	
-
 	void Close();
 private:
 	ID3D11Device* dev_;

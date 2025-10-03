@@ -70,7 +70,17 @@ public:
         devcon->IASetVertexBuffers(0, 1, &VertexBuffer_, &stride, &offset);
         devcon->IASetIndexBuffer(IndexBuffer_, DXGI_FORMAT_R32_UINT, 0);
 
-        devcon->PSSetShaderResources(0, 1, &textures_[0].texture);
+        for (const auto& tex : textures_)
+        {
+            if (tex.type == "texture_diffuse")
+                devcon->PSSetShaderResources(0, 1, &tex.texture);
+            else if (tex.type == "texture_normal")
+                devcon->PSSetShaderResources(2, 1, &tex.texture);
+            else if (tex.type == "texture_specular")
+                devcon->PSSetShaderResources(3, 1, &tex.texture);
+            else if (tex.type == "texture_emissive")
+                devcon->PSSetShaderResources(4, 1, &tex.texture);
+        }
 
         devcon->DrawIndexed(static_cast<UINT>(indices_.size()), 0, 0);
     }

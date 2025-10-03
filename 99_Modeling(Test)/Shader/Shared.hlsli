@@ -3,6 +3,8 @@
 //--------------------------------------------------------------------------------------
 
 //Shared.hlsli
+SamplerState samLinear : register(s0);
+
 cbuffer ConstantBuffer : register(b0)
 {
     matrix World;
@@ -26,21 +28,18 @@ cbuffer ConstantBuffer : register(b0)
     
     float4 UseLighting;
 }
+Texture2D txDiffuse : register(t0);
 
 cbuffer SkyboxCB : register(b1)
 {
     matrix SkyboxView;
     matrix SkyboxProjection;
 }
+TextureCube txCube : register(t1);
 
-// 서로 다른 텍스처와 샘플러를 사용해야 픽셀셰이더에서 서로 간섭이 없음
-Texture2D txDiffuse : register(t0);
 Texture2D normalMap : register(t2);
 Texture2D specularMap : register(t3);
-SamplerState samLinear : register(s0);
-
-TextureCube txCube : register(t1);
-SamplerState samCube : register(s1);
+Texture2D emissiveMap : register(t4);
 
 //--------------------------------------------------------------------------------------
 

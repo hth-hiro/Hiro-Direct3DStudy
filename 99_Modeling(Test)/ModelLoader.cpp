@@ -134,6 +134,15 @@ Mesh ModelLoader::processMesh(aiMesh* mesh, const aiScene* scene)
 
 		std::vector<Texture> diffuseMaps = this->loadMaterialTextures(material, aiTextureType_DIFFUSE, "texture_diffuse", scene);
 		textures.insert(textures.end(), diffuseMaps.begin(), diffuseMaps.end());
+
+		std::vector<Texture> normalMaps = this->loadMaterialTextures(material, aiTextureType_NORMALS, "texture_normal", scene);
+		textures.insert(textures.end(), normalMaps.begin(), normalMaps.end());
+
+		std::vector<Texture> specularMaps = this->loadMaterialTextures(material, aiTextureType_SPECULAR, "texture_specular", scene);
+		textures.insert(textures.end(), specularMaps.begin(), specularMaps.end());
+
+		std::vector<Texture> emissiveMaps = this->loadMaterialTextures(material, aiTextureType_EMISSIVE, "texture_emissive", scene);
+		textures.insert(textures.end(), emissiveMaps.begin(), emissiveMaps.end());
 	}
 
 	return Mesh(dev_, vertices, indices, textures);
@@ -194,7 +203,8 @@ std::vector<Texture> ModelLoader::loadMaterialTextures(aiMaterial* mat, aiTextur
 	return textures;
 }
 
-void ModelLoader::Close() {
+void ModelLoader::Close()
+{
 	for (auto& t : textures_loaded_)
 		t.Release();
 
