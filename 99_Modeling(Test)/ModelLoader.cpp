@@ -11,7 +11,6 @@ aiProcess_ConvertToLeftHanded;  // DX용 왼손좌표계 변환
 ModelLoader::ModelLoader() :
 	dev_(nullptr),
 	devcon_(nullptr),
-	meshes_(),
 	directory_(),
 	textures_loaded_(),
 	hwnd_(nullptr)
@@ -22,7 +21,26 @@ ModelLoader::~ModelLoader()
 {
 }
 
-bool ModelLoader::Load(ID3D11Device* dev, ID3D11DeviceContext* devcon, std::string filePath)
+//bool ModelLoader::Load(ID3D11Device* dev, ID3D11DeviceContext* devcon, std::string filePath)
+//{
+//	Assimp::Importer importer;
+//
+//	const aiScene* pScene = importer.ReadFile(filePath, importFlags);
+//
+//	if (pScene == nullptr)
+//		return false;
+//
+//	this->directory_ = filePath.substr(0, filePath.find_last_of("/\\"));
+//
+//	this->dev_ = dev;
+//	this->devcon_ = devcon;
+//
+//	processNode(pScene->mRootNode, pScene);
+//
+//	return true;
+//}
+
+bool ModelLoader::Load(ID3D11Device* dev, ID3D11DeviceContext* devcon, const std::string& filePath, const std::string& name)
 {
 	Assimp::Importer importer;
 
@@ -31,40 +49,62 @@ bool ModelLoader::Load(ID3D11Device* dev, ID3D11DeviceContext* devcon, std::stri
 	if (pScene == nullptr)
 		return false;
 
-	this->directory_ = filePath.substr(0, filePath.find_last_of("/\\"));
-
+	Model model;
+	model.name = name;
+	directory_ = filePath.substr(0, filePath.find_last_of("/\\"));
+	
 	this->dev_ = dev;
 	this->devcon_ = devcon;
 
-	processNode(pScene->mRootNode, pScene);
+	processNode(pScene->mRootNode, pScene, model);
 
-	return true;
+	models_.push_back(std::move(model));
+	return false;
 }
 
-bool ModelLoader::Load(std::string filePath)
+void ModelLoader::Draw(ID3D11DeviceContext* devcon, const std::string& name, int num)
 {
-	Assimp::Importer importer;
+	for (auto& model : models_)
+	{
+		if (model.name == name && name == "Miku")
+		{
+			for (size_t i = 0; i < model.meshes_.size(); ++i)
+			{
+				// 특정 부분만 렌더를 할 수 있게 가능하다.
 
-	const aiScene* pScene = importer.ReadFile(filePath, importFlags);
+				if (num == 0)
+				{
+					if (i >= 8 && i <= 9) continue;
+				}
+				else if (num == 1)
+				{
+					if (!(i == 11)) continue;
+				}
+				else if (num == 2)
+				{
+					if (!(i == 12)) continue;
+				}
 
-	if (pScene == nullptr)
-		return false;
+				model.meshes_[i].Draw(devcon);
+			}
 
-	this->directory_ = filePath.substr(0, filePath.find_last_of("/\\"));
-
-	processNode(pScene->mRootNode, pScene);
+			break;
+		}
+	}
 }
 
-void ModelLoader::Draw(ID3D11DeviceContext* devcon) {
-	for (size_t i = 0; i < meshes_.size(); ++i)
+void ModelLoader::Draw(ID3D11DeviceContext* devcon, const std::string& name)
+{
+	for (auto& model : models_)
 	{
-		// 특정 부분만 렌더를 할 수 있게 가능하다.
-	
-		//if (i >= 8 && i <= 9) continue;
-		//if (!(i == 11)) continue;
-		//if (!(i == 12)) continue;
-
-		meshes_[i].Draw(devcon);
+		if (model.name == name)
+		{
+			for (auto& mesh : model.meshes_)
+			{
+				mesh.Draw(devcon);
+			}
+			break;
+		}
 	}
 }
 
@@ -208,23 +248,27 @@ void ModelLoader::Close()
 	for (auto& t : textures_loaded_)
 		t.Release();
 
-	for (size_t i = 0; i < meshes_.size(); i++)
+	textures_loaded_.clear();
+
+	for (auto& model : models_)
 	{
-		meshes_[i].Close();
+		model.Close();
 	}
+	
+	models_.clear();
 }
 
-void ModelLoader::processNode(aiNode* node, const aiScene* scene)
+void ModelLoader::processNode(aiNode* node, const aiScene* scene, Model& model)
 {
 	for (UINT i = 0; i < node->mNumMeshes; i++)
 	{
 		aiMesh* mesh = scene->mMeshes[node->mMeshes[i]];
-		meshes_.push_back(this->processMesh(mesh, scene));
+		model.meshes_.push_back(this->processMesh(mesh, scene));
 	}
 
 	for (UINT i = 0; i < node->mNumChildren; i++)
 	{
-		this->processNode(node->mChildren[i], scene);
+		this->processNode(node->mChildren[i], scene, model);
 	}
 }
 

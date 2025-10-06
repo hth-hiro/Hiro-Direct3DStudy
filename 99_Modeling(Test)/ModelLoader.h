@@ -14,26 +14,69 @@
 
 using namespace DirectX;
 
+struct Transform
+{
+	XMFLOAT3 position = { 0,0,0 };
+	XMFLOAT3 rotation = { 0,0,0 };
+	XMFLOAT3 scale	  = { 1,1,1 };
+
+	XMMATRIX GetMatrix() const {
+		return XMMatrixScaling(scale.x, scale.y, scale.z) *
+			XMMatrixRotationRollPitchYaw(rotation.x, rotation.y, rotation.z) *
+			XMMatrixTranslation(position.x, position.y, position.z);
+	}
+};
+
+class Model
+{
+public:
+	std::vector<Mesh> meshes_;
+	std::string name;
+	Transform transform;
+
+	Model() = default;
+
+	void Draw(ID3D11DeviceContext* devcon)
+	{
+		for (auto& mesh : meshes_)
+		{
+			mesh.Draw(devcon);
+		}
+	}
+
+	void Close()
+	{
+		for (auto& mesh : meshes_)
+		{
+			mesh.Close();
+		}
+		meshes_.clear();
+	}
+};
+
 class ModelLoader
 {
 public:
 	ModelLoader();
 	~ModelLoader();
 
-	bool Load(ID3D11Device* dev, ID3D11DeviceContext* devcon, std::string filePath);
-	bool Load(std::string filePath);
-	void Draw(ID3D11DeviceContext* devcon);
+	//bool Load(ID3D11Device* dev, ID3D11DeviceContext* devcon, std::string filePath);
+
+	bool Load(ID3D11Device* dev, ID3D11DeviceContext* devcon, const std::string& filePath, const std::string& name);
+	void Draw(ID3D11DeviceContext* devcon, const std::string& name, int num);
+	void Draw(ID3D11DeviceContext* devcon, const std::string& name);
 
 	void Close();
 private:
 	ID3D11Device* dev_;
 	ID3D11DeviceContext* devcon_;
-	std::vector<Mesh> meshes_;
 	std::string directory_;
 	std::vector<Texture> textures_loaded_;
 	HWND hwnd_;
 
-	void processNode(aiNode* node, const aiScene* scene);
+	std::vector<Model> models_;
+
+	void processNode(aiNode* node, const aiScene* scene, Model& model);
 	Mesh processMesh(aiMesh* mesh, const aiScene* scene);
 	std::vector<Texture> loadMaterialTextures(aiMaterial* mat, aiTextureType type, std::string typeName, const aiScene* scene);
 	ID3D11ShaderResourceView* loadEmbeddedTexture(const aiTexture* embeddedTexture);

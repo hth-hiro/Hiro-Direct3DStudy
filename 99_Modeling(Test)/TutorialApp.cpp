@@ -213,7 +213,10 @@ void TutorialApp::Render()
     // 특정 모델마다 다르게 설정한다면, 렌더에서 새로 모델 드로우 할때마다 설정을 바꿔주면 됨
     // 렌더링 전에 상태 적용
     m_pDeviceContext->RSSetState(m_pRasterStateNoCull);
-    m_ModelLoader.Draw(m_pDeviceContext);
+
+    m_ModelLoader.Draw(m_pDeviceContext, "Miku");
+
+    m_ModelLoader.Draw(m_pDeviceContext, "Tree");
 
     // 4. GUI 렌더
     m_ImGuiManager.Render();
@@ -382,8 +385,9 @@ bool TutorialApp::InitScene()
 
     //m_ModelLoader.Load(m_pDevice, m_pDeviceContext, "../Resource/Character.fbx");
     //m_ModelLoader.Load(m_pDevice, m_pDeviceContext, "../Resource/zeldaPosed001.fbx");
-    //m_ModelLoader.Load(m_pDevice, m_pDeviceContext, "../Resource/Appearance Miku/Appearance Miku.fbx");
-    m_ModelLoader.Load(m_pDevice, m_pDeviceContext, "../Resource/Tree.fbx");
+    m_ModelLoader.Load(m_pDevice, m_pDeviceContext, "../Resource/Appearance Miku/Appearance Miku.fbx", "Miku");
+
+    m_ModelLoader.Load(m_pDevice, m_pDeviceContext, "../Resource/Tree.fbx", "Tree");
 
 
     Skybox skybox[] =
