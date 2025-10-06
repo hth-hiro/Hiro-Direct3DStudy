@@ -12,7 +12,6 @@ ModelLoader::ModelLoader() :
 	dev_(nullptr),
 	devcon_(nullptr),
 	directory_(),
-	textures_loaded_(),
 	hwnd_(nullptr)
 {
 }
@@ -108,7 +107,7 @@ void ModelLoader::Draw(ID3D11DeviceContext* devcon, const std::string& name)
 	}
 }
 
-Mesh ModelLoader::processMesh(aiMesh* mesh, const aiScene* scene)
+Mesh ModelLoader::processMesh(aiMesh* mesh, const aiScene* scene, Model& model)
 {
 	std::vector<Vertex> vertices;
 	std::vector<UINT> indices;
@@ -172,84 +171,67 @@ Mesh ModelLoader::processMesh(aiMesh* mesh, const aiScene* scene)
 	{
 		aiMaterial* material = scene->mMaterials[mesh->mMaterialIndex];
 
-		std::vector<Texture> diffuseMaps = this->loadMaterialTextures(material, aiTextureType_DIFFUSE, "texture_diffuse", scene);
+		std::vector<Texture> diffuseMaps = this->loadMaterialTextures(material, aiTextureType_DIFFUSE, "texture_diffuse", scene, model);
 		textures.insert(textures.end(), diffuseMaps.begin(), diffuseMaps.end());
 
-		std::vector<Texture> normalMaps = this->loadMaterialTextures(material, aiTextureType_NORMALS, "texture_normal", scene);
+		std::vector<Texture> normalMaps = this->loadMaterialTextures(material, aiTextureType_NORMALS, "texture_normal", scene, model);
 		textures.insert(textures.end(), normalMaps.begin(), normalMaps.end());
 
-		std::vector<Texture> specularMaps = this->loadMaterialTextures(material, aiTextureType_SPECULAR, "texture_specular", scene);
+		std::vector<Texture> specularMaps = this->loadMaterialTextures(material, aiTextureType_SPECULAR, "texture_specular", scene, model);
 		textures.insert(textures.end(), specularMaps.begin(), specularMaps.end());
 
-		std::vector<Texture> emissiveMaps = this->loadMaterialTextures(material, aiTextureType_EMISSIVE, "texture_emissive", scene);
+		std::vector<Texture> emissiveMaps = this->loadMaterialTextures(material, aiTextureType_EMISSIVE, "texture_emissive", scene, model);
 		textures.insert(textures.end(), emissiveMaps.begin(), emissiveMaps.end());
 	}
+
+	model.textures_loaded_.insert(model.textures_loaded_.end(), textures.begin(), textures.end());
 
 	return Mesh(dev_, vertices, indices, textures);
 }
 
-std::vector<Texture> ModelLoader::loadMaterialTextures(aiMaterial* mat, aiTextureType type, std::string typeName, const aiScene* scene) {
+std::vector<Texture> ModelLoader::loadMaterialTextures(aiMaterial* mat, aiTextureType type, std::string typeName, const aiScene* scene, Model& model) {
 	std::vector<Texture> textures;
 	for (UINT i = 0; i < mat->GetTextureCount(type); i++)
 	{
 		aiString str;
 		mat->GetTexture(type, i, &str);
-		// 이전에 이미 같은 텍스처가 로드되었는지 확인, 이미 로드되었다면 새로 로드하지 않고 건너 뜀.
-		bool skip = false;
+		
+		Texture texture;
 
-		for (UINT j = 0; j < textures_loaded_.size(); j++)
+		// 여기서 임베디드 텍스처의 여부를 확인하고,
+		// 임베디드가 아니면 경로에서 파일을 로드한다.
+		const aiTexture* embeddedTexture = scene->GetEmbeddedTexture(str.C_Str());
+		if (embeddedTexture != nullptr)
 		{
-			if (std::strcmp(textures_loaded_[j].path.c_str(), str.C_Str()) == 0)
+			texture.texture = loadEmbeddedTexture(embeddedTexture);
+		}
+		else
+		{
+			// aiString 경로 무시
+			std::string filename = directory_ + '/' + std::string(str.C_Str());
+			// Texture 폴더 경로 제거
+			size_t pos = filename.find("Textures\\");
+			if (pos != std::string::npos)
 			{
-				textures.push_back(textures_loaded_[j]);
-				skip = true; // 같은 경로를 가진 텍스처가 이미 로드되었으므로 다음 텍스처로 넘어간다. (최적화용)
-				break;
+				filename = filename.substr(pos + 9); // "Textures\" 길이 9
+				filename = directory_ + '/' + filename;
 			}
+
+			std::wstring filenamews(filename.begin(), filename.end());
+			HR_T(TextureLoader::CreateWICTextureFromFile(dev_, devcon_, filenamews.c_str(), nullptr, &texture.texture));
 		}
 
-		if (!skip) // 만약 텍스처가 아직 로드되지 않았다면 GPU에 업로드
-		{   
-			Texture texture;
-
-			// 여기서 임베디드 텍스처의 여부를 확인하고,
-			// 임베디드가 아니면 경로에서 파일을 로드한다.
-			const aiTexture* embeddedTexture = scene->GetEmbeddedTexture(str.C_Str());
-			if (embeddedTexture != nullptr)
-			{
-				texture.texture = loadEmbeddedTexture(embeddedTexture);
-			}
-			else
-			{
-				// aiString 경로 무시
-				std::string filename = directory_ + '/' + std::string(str.C_Str());
-				// Texture 폴더 경로 제거
-				size_t pos = filename.find("Textures\\");
-				if (pos != std::string::npos)
-				{
-					filename = filename.substr(pos + 9); // "Textures\" 길이 9
-					filename = directory_ + '/' + filename;
-				}
-
-				std::wstring filenamews(filename.begin(), filename.end());
-				HR_T(TextureLoader::CreateWICTextureFromFile(dev_, devcon_, filenamews.c_str(), nullptr, &texture.texture));
-			}
-
-			texture.type = typeName;
-			texture.path = str.C_Str();
-			textures.push_back(texture);
-			this->textures_loaded_.push_back(texture);  // 이 텍스처를 모델 전체에서 로드된 텍스처로 저장하여 불필요하게 중복로드되는 일을 방지한다.
-		}
+		texture.type = typeName;
+		texture.path = str.C_Str();
+		textures.push_back(texture);
+		//model.textures_loaded_.push_back(texture);  // 이 텍스처를 모델 전체에서 로드된 텍스처로 저장하여 불필요하게 중복로드되는 일을 방지한다.
+		
 	}
 	return textures;
 }
 
 void ModelLoader::Close()
 {
-	for (auto& t : textures_loaded_)
-		t.Release();
-
-	textures_loaded_.clear();
-
 	for (auto& model : models_)
 	{
 		model.Close();
@@ -263,7 +245,7 @@ void ModelLoader::processNode(aiNode* node, const aiScene* scene, Model& model)
 	for (UINT i = 0; i < node->mNumMeshes; i++)
 	{
 		aiMesh* mesh = scene->mMeshes[node->mMeshes[i]];
-		model.meshes_.push_back(this->processMesh(mesh, scene));
+		model.meshes_.push_back(this->processMesh(mesh, scene, model));
 	}
 
 	for (UINT i = 0; i < node->mNumChildren; i++)

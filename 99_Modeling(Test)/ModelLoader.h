@@ -14,6 +14,31 @@
 
 using namespace DirectX;
 
+// 상수 버퍼를 생성한다. 근데 라이트를 곁들인.
+struct ConstantBuffer
+{
+	Matrix mWorld;
+	Matrix mView;
+	Matrix mProjection;
+
+	Vector4 vLightDir;
+	Vector4 vOutputColor;
+
+	Vector4 vAmbientColor;
+	Vector4 vDiffuseColor;
+	Vector4 vSpecularColor;
+
+	Vector4 vMaterialAmbient;
+	Vector4 vMaterialDiffuse;
+	Vector4 vMaterialSpecular;
+
+	Vector4 cameraPos;
+
+	Vector4 vShininess;
+
+	Vector4 UseLighting; // 1 = 빛 계산, 0 = 무시
+};
+
 struct Transform
 {
 	XMFLOAT3 position = { 0,0,0 };
@@ -27,17 +52,69 @@ struct Transform
 	}
 };
 
+struct Material
+{
+	Vector4 ambient = { 0.1f, 0.1f, 0.1f, 0.1f };
+	Vector4 diffuse = { 0.0f, 0.0f, 0.0f, 0.0f };
+	Vector4 specular = { 0.0f, 0.0f, 0.0f, 0.0f };
+	Vector4 shininess = { 1.0f, 0, 0, 0 };
+};
+
 class Model
 {
 public:
 	std::vector<Mesh> meshes_;
+	std::vector<Texture> textures_loaded_;
 	std::string name;
 	Transform transform;
+	Material material;
 
 	Model() = default;
 
-	void Draw(ID3D11DeviceContext* devcon)
+	void Draw(ID3D11DeviceContext* devcon,
+		ID3D11Buffer* cb,
+		const XMMATRIX& view,
+		const XMMATRIX& proj,
+
+		const Vector4& lightDir,
+		const Vector4& ambient,
+		const Vector4& diffuse,
+		const Vector4& specular,
+		const Vector4& materialAmbient,
+		const Vector4& materialDiffuse,
+		const Vector4& materialSpecular,
+		const Vector4& shininess,
+
+		const Vector4& cameraPos,
+		const bool& useLighting
+	)
 	{
+		ConstantBuffer cbObj;
+		cbObj.mWorld = XMMatrixTranspose(transform.GetMatrix());
+		cbObj.mView = XMMatrixTranspose(view);
+		cbObj.mProjection = XMMatrixTranspose(proj);
+
+		cbObj.vLightDir = lightDir;
+		cbObj.vAmbientColor = ambient;
+		cbObj.vDiffuseColor = diffuse;
+		cbObj.vSpecularColor = specular;
+		cbObj.vMaterialAmbient = material.ambient;
+		cbObj.vMaterialDiffuse = material.diffuse;
+		cbObj.vMaterialSpecular = material.specular;
+		cbObj.vShininess = material.shininess;
+
+		cbObj.vOutputColor = XMFLOAT4(1, 1, 1, 1);
+
+		cbObj.cameraPos = cameraPos;
+
+		cbObj.UseLighting = useLighting ? Vector4(1, 0, 0, 0) : Vector4(0, 0, 0, 0);
+
+		devcon->UpdateSubresource(cb, 0, nullptr, &cbObj, 0, 0);
+
+		devcon->VSSetConstantBuffers(0, 1, &cb);
+		devcon->PSSetConstantBuffers(0, 1, &cb);
+
+
 		for (auto& mesh : meshes_)
 		{
 			mesh.Draw(devcon);
@@ -51,6 +128,12 @@ public:
 			mesh.Close();
 		}
 		meshes_.clear();
+
+		for (auto& tex : textures_loaded_)
+		{
+			tex.Release();
+		}
+		textures_loaded_.clear();
 	}
 };
 
@@ -67,18 +150,19 @@ public:
 	void Draw(ID3D11DeviceContext* devcon, const std::string& name);
 
 	void Close();
+
+	std::vector<Model> models_;
+
 private:
 	ID3D11Device* dev_;
 	ID3D11DeviceContext* devcon_;
 	std::string directory_;
-	std::vector<Texture> textures_loaded_;
+	
 	HWND hwnd_;
 
-	std::vector<Model> models_;
-
 	void processNode(aiNode* node, const aiScene* scene, Model& model);
-	Mesh processMesh(aiMesh* mesh, const aiScene* scene);
-	std::vector<Texture> loadMaterialTextures(aiMaterial* mat, aiTextureType type, std::string typeName, const aiScene* scene);
+	Mesh processMesh(aiMesh* mesh, const aiScene* scene, Model& model);
+	std::vector<Texture> loadMaterialTextures(aiMaterial* mat, aiTextureType type, std::string typeName, const aiScene* scene, Model& model);
 	ID3D11ShaderResourceView* loadEmbeddedTexture(const aiTexture* embeddedTexture);
 };
 

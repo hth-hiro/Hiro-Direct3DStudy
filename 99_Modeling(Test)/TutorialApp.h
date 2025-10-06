@@ -59,6 +59,16 @@ public:
 	ImGuiManager m_ImGuiManager;
 	ModelLoader m_ModelLoader;
 
+	// ModelLoad
+	Model* GetModelByName(const std::string& name)
+	{
+		for (auto& model : m_ModelLoader.models_)
+		{
+			if (model.name == name) return &model;
+		}
+		return nullptr;
+	}
+
 	//float m_Angle = 0.0f;
 
 	// 라이트 관련
@@ -89,4 +99,3 @@ public:
 	bool InitScene();
 	void UninitScene();
 };
-

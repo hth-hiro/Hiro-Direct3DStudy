@@ -11,31 +11,6 @@
 #pragma comment(lib, "dxgi.lib")
 #pragma comment(lib, "d3dcompiler.lib") // 셰이더 컴파일 시 필요
 
-// 상수 버퍼를 생성한다. 근데 라이트를 곁들인.
-struct ConstantBuffer
-{
-    Matrix mWorld;
-    Matrix mView;
-    Matrix mProjection;
-
-    Vector4 vLightDir;
-    Vector4 vOutputColor;
-
-    Vector4 vAmbientColor;
-    Vector4 vDiffuseColor;
-    Vector4 vSpecularColor;
-
-    Vector4 vMaterialAmbient;
-    Vector4 vMaterialDiffuse;
-    Vector4 vMaterialSpecular;
-
-    Vector4 cameraPos;
-
-    Vector4 vShininess;
-
-    Vector4 UseLighting; // 1 = 빛 계산, 0 = 무시
-};
-
 struct Skybox
 {
     Vector3 Pos;       // 스카이박스는 위치만 필요
@@ -85,20 +60,7 @@ void TutorialApp::Update()
     m_InitialLightDirs = { m_ImGuiManager.lightDir.x, m_ImGuiManager.lightDir.y, m_ImGuiManager.lightDir.z, 0.0f };
     m_LightDirsEvaluated = m_InitialLightDirs;
 
-    m_AmbientColor = { m_ImGuiManager.objectAmbient.x, m_ImGuiManager.objectAmbient.y, m_ImGuiManager.objectAmbient.z, m_ImGuiManager.objectAmbient.w };
-    m_DiffuseColor = { m_ImGuiManager.objectDiffuse.x, m_ImGuiManager.objectDiffuse.y, m_ImGuiManager.objectDiffuse.z, m_ImGuiManager.objectDiffuse.w };
-    m_SpecularColor = { m_ImGuiManager.objectSpecular.x, m_ImGuiManager.objectSpecular.y, m_ImGuiManager.objectSpecular.z, m_ImGuiManager.objectSpecular.w };
-
-    m_MaterialAmbient = { m_ImGuiManager.ambientColor.x, m_ImGuiManager.ambientColor.y, m_ImGuiManager.ambientColor.z, m_ImGuiManager.ambientColor.w };
-    m_MaterialDiffuse = { m_ImGuiManager.diffuseColor.x, m_ImGuiManager.diffuseColor.y, m_ImGuiManager.diffuseColor.z, m_ImGuiManager.diffuseColor.w };
-    m_MaterialSpecular = { m_ImGuiManager.specularColor.x, m_ImGuiManager.specularColor.y, m_ImGuiManager.specularColor.z, m_ImGuiManager.specularColor.w };
-
     m_cameraPos = { m_Camera.GetPosition().x, m_Camera.GetPosition().y, m_Camera.GetPosition().z, 1 };
-    m_shininess = { m_ImGuiManager.shininess };
-    //XMMATRIX mRotate = XMMatrixRotationY(m_Angle);
-    //XMVECTOR vLightDir = XMLoadFloat4(&m_InitialLightDirs);
-    //vLightDir = XMVector3Transform(vLightDir, mRotate);
-    //XMStoreFloat4(&m_LightDirsEvaluated, vLightDir);
 
     float nearZ = m_ImGuiManager.depth.x;
     float farZ = m_ImGuiManager.depth.y;
@@ -123,7 +85,7 @@ void TutorialApp::Update()
     // 회전각 변환
     XMMATRIX Rotate = XMMatrixRotationX(m_ImGuiManager.objectRotate.y / 180 * XM_PI) * XMMatrixRotationY(m_ImGuiManager.objectRotate.x / 180 * XM_PI)/* * XMMatrixRotationZ()*/;
 
-    m_World = Scale * Rotate * XMMatrixTranslation(m_ImGuiManager.objectTransform.x * scaleValue / 2.0f, m_ImGuiManager.objectTransform.y * scaleValue / 2.0f, m_ImGuiManager.objectTransform.z * scaleValue / 2.0f);
+    //m_World = Scale * Rotate * XMMatrixTranslation(m_ImGuiManager.objectTransform.x * scaleValue / 2.0f, m_ImGuiManager.objectTransform.y * scaleValue / 2.0f, m_ImGuiManager.objectTransform.z * scaleValue / 2.0f);
 
     m_Projection = XMMatrixPerspectiveFovLH(XM_PIDIV4 / m_ImGuiManager.FOV, m_ClientWidth / (FLOAT)m_ClientHeight, nearZ, finalFarZ);
 
@@ -138,6 +100,51 @@ void TutorialApp::Update()
     else
     {
         m_pCubeTextureRV = m_pCubeMuseumTextureRV;
+    }
+
+    Model* Zelda = GetModelByName("Zelda");
+    if (Zelda)
+    {
+        Zelda->transform.position = { -100, 0, 0 };
+        Zelda->transform.scale = { 1, 1, 1 };
+        Zelda->material.ambient = { 0, 0, 0, 0 };
+        Zelda->material.diffuse = { 1, 1, 1, 1 };
+        Zelda->material.specular = { 1, 1, 1, 1 };
+        Zelda->material.shininess = { 1000 };
+    }
+
+    Model* Character = GetModelByName("Character");
+    if (Character)
+    {
+        Character->transform.position = { 100, 0, 0 };
+        Character->transform.scale = { 1, 1, 1 };
+        Character->material.ambient = { 0, 0, 0, 0 };
+        Character->material.diffuse = { 1, 1, 1, 1 };
+        Character->material.specular = { 1, 1, 1, 1 };
+        Character->material.shininess = { 1000 };
+    }
+
+    Model* Tree = GetModelByName("Tree");
+    if (Tree)
+    {
+        Tree->transform.position = { 0, 0, 0 };
+        Tree->transform.scale = { 150, 150, 150 };
+        Tree->material.ambient = { 0, 0, 0, 0 };
+        Tree->material.diffuse = { 1, 1, 1, 1 };
+        Tree->material.specular = { 1, 1, 1, 1 };
+        Tree->material.shininess = { 1000 };
+    }
+
+    // Model 
+    Model* Miku = GetModelByName("Miku");
+    if (Miku)
+    {
+        Miku->transform.position = { 10, 0, 500 };
+        Miku->transform.scale = { scaleValue, scaleValue, scaleValue };
+        Miku->material.ambient = { m_ImGuiManager.ambientColor.x, m_ImGuiManager.objectAmbient.y, m_ImGuiManager.objectAmbient.z, m_ImGuiManager.objectAmbient.w };
+        Miku->material.diffuse = { m_ImGuiManager.diffuseColor.x, m_ImGuiManager.diffuseColor.y, m_ImGuiManager.diffuseColor.z, m_ImGuiManager.diffuseColor.w };
+        Miku->material.specular = { m_ImGuiManager.specularColor.x, m_ImGuiManager.specularColor.y, m_ImGuiManager.specularColor.z, m_ImGuiManager.specularColor.w };
+        Miku->material.shininess = { m_ImGuiManager.shininess };
     }
 }
 
@@ -189,34 +196,34 @@ void TutorialApp::Render()
     m_pDeviceContext->VSSetShader(m_pVertexShader, nullptr, 0);
     m_pDeviceContext->PSSetShader(m_pPixelShader, nullptr, 0);
 
-    ConstantBuffer cbObj;
-    cbObj.mWorld = XMMatrixTranspose(m_World);
-    cbObj.mView = XMMatrixTranspose(m_View);
-    cbObj.mProjection = XMMatrixTranspose(m_Projection);
-    cbObj.vLightDir = m_LightDirsEvaluated;
-    cbObj.vAmbientColor = m_AmbientColor;
-    cbObj.vDiffuseColor = m_DiffuseColor;
-    cbObj.vSpecularColor = m_SpecularColor;
-    cbObj.vMaterialAmbient = m_MaterialAmbient;
-    cbObj.vMaterialDiffuse = m_MaterialDiffuse;
-    cbObj.vMaterialSpecular = m_MaterialSpecular;
-    cbObj.vOutputColor = XMFLOAT4(1, 1, 1, 1);
-    cbObj.cameraPos = m_cameraPos;
-    cbObj.vShininess = m_shininess;
-    cbObj.UseLighting = m_ImGuiManager.useLighting ? Vector4(1,0,0,0) : Vector4(0,0,0,0);
-
-    m_pDeviceContext->VSSetConstantBuffers(0, 1, &m_pConstantBuffer);
-    m_pDeviceContext->PSSetConstantBuffers(0, 1, &m_pConstantBuffer);
-    m_pDeviceContext->UpdateSubresource(m_pConstantBuffer, 0, nullptr, &cbObj, 0, 0);
-    m_pDeviceContext->PSSetSamplers(0, 1, &m_pSamplerLinear);
-
     // 특정 모델마다 다르게 설정한다면, 렌더에서 새로 모델 드로우 할때마다 설정을 바꿔주면 됨
     // 렌더링 전에 상태 적용
     m_pDeviceContext->RSSetState(m_pRasterStateNoCull);
 
-    m_ModelLoader.Draw(m_pDeviceContext, "Miku");
+    //m_ModelLoader.Draw(m_pDeviceContext, "Miku");
+    //m_ModelLoader.Draw(m_pDeviceContext, "Tree");
 
-    m_ModelLoader.Draw(m_pDeviceContext, "Tree");
+    for (auto& model : m_ModelLoader.models_)
+    {
+        model.Draw(
+            m_pDeviceContext,
+            m_pConstantBuffer,
+            m_View,
+            m_Projection,
+            m_LightDirsEvaluated,
+            m_AmbientColor,
+            m_DiffuseColor,
+            m_SpecularColor,
+            m_MaterialAmbient,
+            m_MaterialDiffuse,
+            m_MaterialSpecular,
+            m_shininess,
+            m_cameraPos,
+            m_ImGuiManager.useLighting
+        );
+    }
+
+    m_pDeviceContext->PSSetSamplers(0, 1, &m_pSamplerLinear);
 
     // 4. GUI 렌더
     m_ImGuiManager.Render();
@@ -383,10 +390,9 @@ bool TutorialApp::InitScene()
     HRESULT hr = 0;
     ID3D10Blob* errorMessage = nullptr;
 
-    //m_ModelLoader.Load(m_pDevice, m_pDeviceContext, "../Resource/Character.fbx");
-    //m_ModelLoader.Load(m_pDevice, m_pDeviceContext, "../Resource/zeldaPosed001.fbx");
+    m_ModelLoader.Load(m_pDevice, m_pDeviceContext, "../Resource/Character.fbx", "Character");
+    m_ModelLoader.Load(m_pDevice, m_pDeviceContext, "../Resource/zeldaPosed001.fbx", "Zelda");
     m_ModelLoader.Load(m_pDevice, m_pDeviceContext, "../Resource/Appearance Miku/Appearance Miku.fbx", "Miku");
-
     m_ModelLoader.Load(m_pDevice, m_pDeviceContext, "../Resource/Tree.fbx", "Tree");
 
 

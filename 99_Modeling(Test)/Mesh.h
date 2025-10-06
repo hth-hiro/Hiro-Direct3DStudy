@@ -70,6 +70,11 @@ public:
         devcon->IASetVertexBuffers(0, 1, &VertexBuffer_, &stride, &offset);
         devcon->IASetIndexBuffer(IndexBuffer_, DXGI_FORMAT_R32_UINT, 0);
 
+        // 0~4 ΩΩ∑‘ √ ±‚»≠
+        ID3D11ShaderResourceView* nullSRV[1] = { nullptr };
+        for (int i = 0; i <= 4; i++)
+            devcon->PSSetShaderResources(i, 1, nullSRV);
+
         for (const auto& tex : textures_)
         {
             if (tex.type == "texture_diffuse")
