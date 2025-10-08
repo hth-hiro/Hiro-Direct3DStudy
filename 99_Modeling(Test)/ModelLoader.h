@@ -68,6 +68,8 @@ public:
 	std::string name;
 	Transform transform;
 	Material material;
+	Transform bone;
+	int num = 3;
 
 	Model() = default;
 
@@ -117,7 +119,30 @@ public:
 
 		for (auto& mesh : meshes_)
 		{
-			mesh.Draw(devcon);
+			if (name == "ApiMiku")
+			{
+				for (size_t i = 0; i < meshes_.size(); ++i)
+				{
+					// 특정 부분만 렌더를 할 수 있게 가능하다.
+
+					if (num == 0)
+					{
+						if (i >= 8 && i <= 9) continue;
+					}
+					else if (num == 1)
+					{
+						if (!(i == 11)) continue;
+					}
+					else if (num == 2)
+					{
+						if (!(i == 12)) continue;
+					}
+
+					meshes_[i].Draw(devcon);
+				}
+
+				break;
+			}
 		}
 	}
 
@@ -146,8 +171,7 @@ public:
 	//bool Load(ID3D11Device* dev, ID3D11DeviceContext* devcon, std::string filePath);
 
 	bool Load(ID3D11Device* dev, ID3D11DeviceContext* devcon, const std::string& filePath, const std::string& name);
-	void Draw(ID3D11DeviceContext* devcon, const std::string& name, int num);
-	void Draw(ID3D11DeviceContext* devcon, const std::string& name);
+	//void Draw(ID3D11DeviceContext* devcon, const std::string& name);
 
 	void Close();
 

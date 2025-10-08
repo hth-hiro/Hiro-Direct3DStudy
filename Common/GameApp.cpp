@@ -44,7 +44,7 @@ bool GameApp::Initialize(UINT Width, UINT Height)
 
 	//생성
 	m_hWnd = CreateWindowW(m_szWindowClass, m_szTitle, WS_OVERLAPPEDWINDOW,
-		100, 100,	// 생성되는 위치
+		0, 0,	// 생성되는 위치
 		rcClient.right - rcClient.left, rcClient.bottom - rcClient.top,
 		nullptr, nullptr, m_hInstance, nullptr);
 

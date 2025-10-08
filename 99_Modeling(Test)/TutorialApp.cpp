@@ -135,16 +135,15 @@ void TutorialApp::Update()
         Tree->material.shininess = { 1000 };
     }
 
-    // Model 
-    Model* Miku = GetModelByName("Miku");
-    if (Miku)
+    Model* ApiMiku = GetModelByName("ApiMiku");
+    if (ApiMiku)
     {
-        Miku->transform.position = { 10, 0, 500 };
-        Miku->transform.scale = { scaleValue, scaleValue, scaleValue };
-        Miku->material.ambient = { m_ImGuiManager.ambientColor.x, m_ImGuiManager.objectAmbient.y, m_ImGuiManager.objectAmbient.z, m_ImGuiManager.objectAmbient.w };
-        Miku->material.diffuse = { m_ImGuiManager.diffuseColor.x, m_ImGuiManager.diffuseColor.y, m_ImGuiManager.diffuseColor.z, m_ImGuiManager.diffuseColor.w };
-        Miku->material.specular = { m_ImGuiManager.specularColor.x, m_ImGuiManager.specularColor.y, m_ImGuiManager.specularColor.z, m_ImGuiManager.specularColor.w };
-        Miku->material.shininess = { m_ImGuiManager.shininess };
+        ApiMiku->transform.position={ m_ImGuiManager.objectTransform.x * scaleValue, m_ImGuiManager.objectTransform.y * scaleValue, m_ImGuiManager.objectTransform.z * scaleValue };
+        ApiMiku->transform.scale = { scaleValue, scaleValue, scaleValue };
+        ApiMiku->material.ambient = { m_ImGuiManager.ambientColor.x, m_ImGuiManager.objectAmbient.y, m_ImGuiManager.objectAmbient.z, m_ImGuiManager.objectAmbient.w };
+        ApiMiku->material.diffuse = { m_ImGuiManager.diffuseColor.x, m_ImGuiManager.diffuseColor.y, m_ImGuiManager.diffuseColor.z, m_ImGuiManager.diffuseColor.w };
+        ApiMiku->material.specular = { m_ImGuiManager.specularColor.x, m_ImGuiManager.specularColor.y, m_ImGuiManager.specularColor.z, m_ImGuiManager.specularColor.w };
+        ApiMiku->material.shininess = { m_ImGuiManager.shininess };
     }
 }
 
@@ -199,9 +198,6 @@ void TutorialApp::Render()
     // 특정 모델마다 다르게 설정한다면, 렌더에서 새로 모델 드로우 할때마다 설정을 바꿔주면 됨
     // 렌더링 전에 상태 적용
     m_pDeviceContext->RSSetState(m_pRasterStateNoCull);
-
-    //m_ModelLoader.Draw(m_pDeviceContext, "Miku");
-    //m_ModelLoader.Draw(m_pDeviceContext, "Tree");
 
     for (auto& model : m_ModelLoader.models_)
     {
@@ -390,10 +386,11 @@ bool TutorialApp::InitScene()
     HRESULT hr = 0;
     ID3D10Blob* errorMessage = nullptr;
 
-    m_ModelLoader.Load(m_pDevice, m_pDeviceContext, "../Resource/Character.fbx", "Character");
-    m_ModelLoader.Load(m_pDevice, m_pDeviceContext, "../Resource/zeldaPosed001.fbx", "Zelda");
-    m_ModelLoader.Load(m_pDevice, m_pDeviceContext, "../Resource/Appearance Miku/Appearance Miku.fbx", "Miku");
-    m_ModelLoader.Load(m_pDevice, m_pDeviceContext, "../Resource/Tree.fbx", "Tree");
+    //m_ModelLoader.Load(m_pDevice, m_pDeviceContext, "../Resource/Character.fbx", "Character");
+    //m_ModelLoader.Load(m_pDevice, m_pDeviceContext, "../Resource/zeldaPosed001.fbx", "Zelda");
+    m_ModelLoader.Load(m_pDevice, m_pDeviceContext, "../Resource/Appearance Miku/Appearance Miku.fbx", "ApiMiku");
+    //m_ModelLoader.Load(m_pDevice, m_pDeviceContext, "../Resource/Miku/miku_prefab.fbx", "Miku");
+    //m_ModelLoader.Load(m_pDevice, m_pDeviceContext, "../Resource/Tree.fbx", "Tree");
 
 
     Skybox skybox[] =

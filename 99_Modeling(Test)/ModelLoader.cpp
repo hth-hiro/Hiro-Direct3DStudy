@@ -61,52 +61,6 @@ bool ModelLoader::Load(ID3D11Device* dev, ID3D11DeviceContext* devcon, const std
 	return false;
 }
 
-void ModelLoader::Draw(ID3D11DeviceContext* devcon, const std::string& name, int num)
-{
-	for (auto& model : models_)
-	{
-		if (model.name == name && name == "Miku")
-		{
-			for (size_t i = 0; i < model.meshes_.size(); ++i)
-			{
-				// 특정 부분만 렌더를 할 수 있게 가능하다.
-
-				if (num == 0)
-				{
-					if (i >= 8 && i <= 9) continue;
-				}
-				else if (num == 1)
-				{
-					if (!(i == 11)) continue;
-				}
-				else if (num == 2)
-				{
-					if (!(i == 12)) continue;
-				}
-
-				model.meshes_[i].Draw(devcon);
-			}
-
-			break;
-		}
-	}
-}
-
-void ModelLoader::Draw(ID3D11DeviceContext* devcon, const std::string& name)
-{
-	for (auto& model : models_)
-	{
-		if (model.name == name)
-		{
-			for (auto& mesh : model.meshes_)
-			{
-				mesh.Draw(devcon);
-			}
-			break;
-		}
-	}
-}
-
 Mesh ModelLoader::processMesh(aiMesh* mesh, const aiScene* scene, Model& model)
 {
 	std::vector<Vertex> vertices;
@@ -185,6 +139,15 @@ Mesh ModelLoader::processMesh(aiMesh* mesh, const aiScene* scene, Model& model)
 	}
 
 	model.textures_loaded_.insert(model.textures_loaded_.end(), textures.begin(), textures.end());
+
+	if (mesh->HasBones())
+	{
+		for (UINT i = 0; i < mesh->mNumBones; i++)
+		{
+			aiBone* bone = mesh->mBones[i];
+			aiString name = mesh->mBones[i]->mName;
+		}
+	}
 
 	return Mesh(dev_, vertices, indices, textures);
 }
