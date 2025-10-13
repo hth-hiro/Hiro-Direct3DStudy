@@ -115,7 +115,14 @@ public:
 			if (name == "SeifukuApiMiku")
 			{
 				if (num == 19 &&
-					i == 13 || i == 16
+					(i == 11 || i == 13 || i == 14 ||
+						i == 18 || i == 15 || i == 17 ||
+						i == 19 || i == 22 || i == 23)
+					) continue;
+
+				if (num == 15 &&
+					(i == 18 || i == 15 || i == 17 ||
+						i == 19 || i == 22 || i == 23)
 					) continue;
 			}
 
