@@ -27,6 +27,8 @@ cbuffer ConstantBuffer : register(b0)
     float4 vShininess;
     
     float4 UseLighting;
+    
+    float4 hasTexrue_solidColor;
 }
 Texture2D txDiffuse : register(t0);
 

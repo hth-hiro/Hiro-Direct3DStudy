@@ -136,6 +136,20 @@ Mesh ModelLoader::processMesh(aiMesh* mesh, const aiScene* scene, Model& model)
 
 		std::vector<Texture> emissiveMaps = this->loadMaterialTextures(material, aiTextureType_EMISSIVE, "texture_emissive", scene, model);
 		textures.insert(textures.end(), emissiveMaps.begin(), emissiveMaps.end());
+
+		if (diffuseMaps.empty())
+		{
+			aiColor4D color(1,1,1,1);
+
+			if (AI_SUCCESS == material->Get(AI_MATKEY_COLOR_DIFFUSE, color))
+			{
+				Texture colorTex{};
+				colorTex.type = "texture_base";
+				colorTex.solidColor = XMFLOAT3(color.r, color.g, color.b);
+				colorTex.hasTexture = false;
+				textures.push_back(colorTex);
+			}
+		}
 	}
 
 	model.textures_loaded_.insert(model.textures_loaded_.end(), textures.begin(), textures.end());

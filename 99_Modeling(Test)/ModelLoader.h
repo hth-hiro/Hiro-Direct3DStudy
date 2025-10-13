@@ -37,6 +37,8 @@ struct ConstantBuffer
 	Vector4 vShininess;
 
 	Vector4 UseLighting; // 1 = ºû °è»ê, 0 = ¹«½Ã
+
+	Vector4 hasTexture_solidColor;
 };
 
 struct Transform
@@ -66,6 +68,7 @@ public:
 	std::vector<Mesh> meshes_;
 	std::vector<Texture> textures_loaded_;
 	std::string name;
+	Texture texture;
 	Transform transform;
 	Material material;
 	Transform bone;
@@ -110,6 +113,8 @@ public:
 		cbObj.cameraPos = cameraPos;
 
 		cbObj.UseLighting = useLighting ? Vector4(1, 0, 0, 0) : Vector4(0, 0, 0, 0);
+
+		cbObj.hasTexture_solidColor = Vector4(texture.hasTexture ? 1.0f : 0.0f, texture.solidColor.x, texture.solidColor.y, texture.solidColor.z);
 
 		devcon->UpdateSubresource(cb, 0, nullptr, &cbObj, 0, 0);
 
