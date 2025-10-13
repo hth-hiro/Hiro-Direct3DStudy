@@ -68,7 +68,6 @@ public:
 	std::vector<Mesh> meshes_;
 	std::vector<Texture> textures_loaded_;
 	std::string name;
-	Texture texture;
 	Transform transform;
 	Material material;
 	Transform bone;
@@ -94,60 +93,68 @@ public:
 		const bool& useLighting
 	)
 	{
-		ConstantBuffer cbObj;
-		cbObj.mWorld = XMMatrixTranspose(transform.GetMatrix());
-		cbObj.mView = XMMatrixTranspose(view);
-		cbObj.mProjection = XMMatrixTranspose(proj);
-
-		cbObj.vLightDir = lightDir;
-		cbObj.vAmbientColor = ambient;
-		cbObj.vDiffuseColor = diffuse;
-		cbObj.vSpecularColor = specular;
-		cbObj.vMaterialAmbient = material.ambient;
-		cbObj.vMaterialDiffuse = material.diffuse;
-		cbObj.vMaterialSpecular = material.specular;
-		cbObj.vShininess = material.shininess;
-
-		cbObj.vOutputColor = XMFLOAT4(1, 1, 1, 1);
-
-		cbObj.cameraPos = cameraPos;
-
-		cbObj.UseLighting = useLighting ? Vector4(1, 0, 0, 0) : Vector4(0, 0, 0, 0);
-
-		cbObj.hasTexture_solidColor = Vector4(texture.hasTexture ? 1.0f : 0.0f, texture.solidColor.x, texture.solidColor.y, texture.solidColor.z);
-
-		devcon->UpdateSubresource(cb, 0, nullptr, &cbObj, 0, 0);
-
-		devcon->VSSetConstantBuffers(0, 1, &cb);
-		devcon->PSSetConstantBuffers(0, 1, &cb);
-
-
-		for (auto& mesh : meshes_)
+		// 특정 부분만 렌더를 할 수 있게 가능하다.
+		for (size_t i = 0; i < meshes_.size(); ++i)
 		{
 			if (name == "ApiMiku")
 			{
-				for (size_t i = 0; i < meshes_.size(); ++i)
+				if (num == 0)
 				{
-					// 특정 부분만 렌더를 할 수 있게 가능하다.
-
-					if (num == 0)
-					{
-						if (i >= 8 && i <= 9) continue;
-					}
-					else if (num == 1)
-					{
-						if (!(i == 11)) continue;
-					}
-					else if (num == 2)
-					{
-						if (!(i == 12)) continue;
-					}
-
-					meshes_[i].Draw(devcon);
+					if (i >= 8 && i <= 9) continue;
 				}
-
-				break;
+				else if (num == 1)
+				{
+					if (!(i == 11)) continue;
+				}
+				else if (num == 2)
+				{
+					if (!(i == 12)) continue;
+				}
 			}
+
+			if (name == "SeifukuApiMiku")
+			{
+				if (num == 19 &&
+					i == 13 || i == 16
+					) continue;
+			}
+
+			// 상수 버퍼는 매 메시별로 업데이트가 되어야 한다.
+			ConstantBuffer cbObj;
+			cbObj.mWorld = XMMatrixTranspose(transform.GetMatrix());
+			cbObj.mView = XMMatrixTranspose(view);
+			cbObj.mProjection = XMMatrixTranspose(proj);
+
+			cbObj.vLightDir = lightDir;
+			cbObj.vAmbientColor = ambient;
+			cbObj.vDiffuseColor = diffuse;
+			cbObj.vSpecularColor = specular;
+
+			cbObj.vMaterialAmbient = material.ambient;
+			cbObj.vMaterialDiffuse = material.diffuse;
+			cbObj.vMaterialSpecular = material.specular;
+			cbObj.vShininess = material.shininess;
+
+			cbObj.vOutputColor = XMFLOAT4(1, 1, 1, 1);
+
+			cbObj.cameraPos = cameraPos;
+
+			cbObj.UseLighting = useLighting ? Vector4(1, 0, 0, 0) : Vector4(0, 0, 0, 0);
+
+			const auto& tex = meshes_[i].textures_.empty() ? Texture{} : meshes_[i].textures_[0];
+
+			cbObj.hasTexture_solidColor = Vector4(
+				tex.hasTexture ? 1.0f : 0.0f,
+				tex.solidColor.x,
+				tex.solidColor.y,
+				tex.solidColor.z);
+
+			devcon->UpdateSubresource(cb, 0, nullptr, &cbObj, 0, 0);
+
+			devcon->VSSetConstantBuffers(0, 1, &cb);
+			devcon->PSSetConstantBuffers(0, 1, &cb);
+
+			meshes_[i].Draw(devcon);
 		}
 	}
 

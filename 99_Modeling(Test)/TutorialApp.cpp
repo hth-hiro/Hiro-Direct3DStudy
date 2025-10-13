@@ -145,6 +145,17 @@ void TutorialApp::Update()
         ApiMiku->material.specular = { m_ImGuiManager.specularColor.x, m_ImGuiManager.specularColor.y, m_ImGuiManager.specularColor.z, m_ImGuiManager.specularColor.w };
         ApiMiku->material.shininess = { m_ImGuiManager.shininess };
     }
+
+    Model* SeifukuApiMiku = GetModelByName("SeifukuApiMiku");
+    if (SeifukuApiMiku)
+    {
+        SeifukuApiMiku->transform.position = { m_ImGuiManager.objectTransform.x * scaleValue, m_ImGuiManager.objectTransform.y * scaleValue, m_ImGuiManager.objectTransform.z * scaleValue };
+        SeifukuApiMiku->transform.scale = { scaleValue, scaleValue, scaleValue };
+        SeifukuApiMiku->material.ambient = { m_ImGuiManager.ambientColor.x, m_ImGuiManager.objectAmbient.y, m_ImGuiManager.objectAmbient.z, m_ImGuiManager.objectAmbient.w };
+        SeifukuApiMiku->material.diffuse = { m_ImGuiManager.diffuseColor.x, m_ImGuiManager.diffuseColor.y, m_ImGuiManager.diffuseColor.z, m_ImGuiManager.diffuseColor.w };
+        SeifukuApiMiku->material.specular = { m_ImGuiManager.specularColor.x, m_ImGuiManager.specularColor.y, m_ImGuiManager.specularColor.z, m_ImGuiManager.specularColor.w };
+        SeifukuApiMiku->material.shininess = { m_ImGuiManager.shininess };
+    }
 }
 
 void TutorialApp::Render()
@@ -388,7 +399,9 @@ bool TutorialApp::InitScene()
 
     //m_ModelLoader.Load(m_pDevice, m_pDeviceContext, "../Resource/Character.fbx", "Character");
     //m_ModelLoader.Load(m_pDevice, m_pDeviceContext, "../Resource/zeldaPosed001.fbx", "Zelda");
-    m_ModelLoader.Load(m_pDevice, m_pDeviceContext, "../Resource/Appearance Miku/Appearance Miku.fbx", "ApiMiku");
+    //m_ModelLoader.Load(m_pDevice, m_pDeviceContext, "../Resource/Appearance Miku/Appearance Miku.fbx", "ApiMiku");
+    m_ModelLoader.Load(m_pDevice, m_pDeviceContext, "../Resource/Seifuku_ver2.0/MikuTureSailor.fbx", "SeifukuApiMiku");
+    //m_ModelLoader.Load(m_pDevice, m_pDeviceContext, "../Resource/RedCube.fbx", "Cube");
     //m_ModelLoader.Load(m_pDevice, m_pDeviceContext, "../Resource/Miku/miku_prefab.fbx", "Miku");
     //m_ModelLoader.Load(m_pDevice, m_pDeviceContext, "../Resource/Tree.fbx", "Tree");
 

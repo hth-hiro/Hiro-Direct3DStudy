@@ -10,13 +10,14 @@ float4 main(PS_INPUT input) : SV_Target
      // 텍스처 샘플링
     float4 surface;
     
-    if (hasTexrue_solidColor.x > 0.5f)
+    if (hasTexture_solidColor.x > 0.5f)
     {
         surface = txDiffuse.Sample(samLinear, input.Tex);
+        //surface = float4(hasTexture_solidColor.yzw, 1.0f);
     }
     else
     {
-        surface = float4(hasTexrue_solidColor.yzw, 1.0f);
+        surface = float4(hasTexture_solidColor.yzw, 1.0f);
     }
     
     float4 txNormal = normalMap.Sample(samLinear, input.Tex);

@@ -41,7 +41,7 @@ struct Texture {
     std::string path;
     ID3D11ShaderResourceView* texture;
 
-    bool hasTexture = true;
+    bool hasTexture;
     Vector3 solidColor = {1.0f, 1.0f, 1.0f};    // Èò»ö
 
     void Release() {
@@ -81,17 +81,7 @@ public:
         for (const auto& tex : textures_)
         {
             if (tex.type == "texture_diffuse")
-            {
-                if (tex.hasTexture)
-                {
-                    devcon->PSSetShaderResources(0, 1, &tex.texture);
-                }
-                else
-                {
-                    ID3D11ShaderResourceView* nullSRV[1] = { nullptr };
-                    devcon->PSSetShaderResources(0, 1, nullSRV);
-                }
-            }
+                devcon->PSSetShaderResources(0, 1, &tex.texture);
             else if (tex.type == "texture_normal")
                 devcon->PSSetShaderResources(2, 1, &tex.texture);
             else if (tex.type == "texture_specular")

@@ -28,7 +28,7 @@ cbuffer ConstantBuffer : register(b0)
     
     float4 UseLighting;
     
-    float4 hasTexrue_solidColor;
+    float4 hasTexture_solidColor;
 }
 Texture2D txDiffuse : register(t0);
 

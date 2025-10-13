@@ -141,7 +141,8 @@ Mesh ModelLoader::processMesh(aiMesh* mesh, const aiScene* scene, Model& model)
 		{
 			aiColor4D color(1,1,1,1);
 
-			if (AI_SUCCESS == material->Get(AI_MATKEY_COLOR_DIFFUSE, color))
+			if (AI_SUCCESS == material->Get(AI_MATKEY_BASE_COLOR, color) ||
+				AI_SUCCESS == material->Get(AI_MATKEY_COLOR_DIFFUSE, color))
 			{
 				Texture colorTex{};
 				colorTex.type = "texture_base";
