@@ -12,7 +12,7 @@ float4 main(PS_INPUT input) : SV_Target
     
     if (hasTexrue_solidColor.x > 0.5f)
     {
-        //surface = txDiffuse.Sample(samLinear, input.Tex);
+        surface = txDiffuse.Sample(samLinear, input.Tex);
     }
     else
     {
