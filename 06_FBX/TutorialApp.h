@@ -10,6 +10,11 @@
 using namespace DirectX::SimpleMath;
 using namespace DirectX;
 
+enum ERasterizeState
+{
+	None, Default, Back = Default, Front
+};
+
 class TutorialApp : public GameApp
 {
 public:
@@ -78,13 +83,9 @@ public:
 	XMFLOAT4 m_SpecularColor = { 1.0f, 1.0f, 1.0f, 1.0f };
 	XMFLOAT4 m_InitialLightDirs = { 1.0f, -1.0f, 1.0f, 0.0f };
 	XMFLOAT4 m_LightDirsEvaluated = {};
-
-	XMFLOAT4 m_MaterialAmbient = {};
-	XMFLOAT4 m_MaterialDiffuse = {};
-	XMFLOAT4 m_MaterialSpecular = {};
+	Vector4 m_shininess;
 
 	Vector4 m_cameraPos;
-	Vector4 m_shininess;
 
 	bool Initialize(UINT Width, UINT Height) override;
 	void Update() override;
@@ -98,4 +99,10 @@ public:
 
 	bool InitScene();
 	void UninitScene();
+
+private:
+	void RSSetState(ERasterizeState state)
+	{
+
+	}
 };

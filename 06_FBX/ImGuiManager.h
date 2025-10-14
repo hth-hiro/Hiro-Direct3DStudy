@@ -23,6 +23,7 @@ public:
 	void Render();
 
 	float GetObjectScale() { return objectScaleXYZ; }
+	Vector3 GetScale() { return objectScale; }
 
 	float FOV = 1.0f;
 
@@ -54,6 +55,7 @@ private:
 	float farZ = 1000.0f;
 
 	float objectScaleXYZ = 10.0f;
+	Vector3 objectScale = {10,10,10};
 
 	GameApp* m_app;
 

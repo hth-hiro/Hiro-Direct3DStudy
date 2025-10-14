@@ -58,7 +58,8 @@ bool ModelLoader::Load(ID3D11Device* dev, ID3D11DeviceContext* devcon, const std
 	processNode(pScene->mRootNode, pScene, model);
 
 	models_.push_back(std::move(model));
-	return false;
+
+	return true;
 }
 
 Mesh ModelLoader::processMesh(aiMesh* mesh, const aiScene* scene, Model& model)
@@ -145,8 +146,8 @@ Mesh ModelLoader::processMesh(aiMesh* mesh, const aiScene* scene, Model& model)
 				AI_SUCCESS == material->Get(AI_MATKEY_COLOR_DIFFUSE, color))
 			{
 				Texture colorTex{};
-				colorTex.type = "texture_base";
-				colorTex.solidColor = XMFLOAT3(color.r, color.g, color.b);
+				colorTex.type = "baseColor";
+				colorTex.solidColor = XMFLOAT4(color.r, color.g, color.b, 1);
 				colorTex.hasTexture = false;
 				textures.push_back(colorTex);
 			}

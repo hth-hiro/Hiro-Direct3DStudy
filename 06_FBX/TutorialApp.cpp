@@ -59,12 +59,16 @@ void TutorialApp::Update()
     // Light
     m_InitialLightDirs = { m_ImGuiManager.lightDir.x, m_ImGuiManager.lightDir.y, m_ImGuiManager.lightDir.z, 0.0f };
     m_LightDirsEvaluated = m_InitialLightDirs;
+    m_AmbientColor = { m_ImGuiManager.ambientColor };
+    m_DiffuseColor = { m_ImGuiManager.diffuseColor };
+    m_SpecularColor = { m_ImGuiManager.specularColor };
 
+    float shininess = { m_ImGuiManager.shininess };
+
+    // Camera
     m_cameraPos = { m_Camera.GetPosition().x, m_Camera.GetPosition().y, m_Camera.GetPosition().z, 1 };
-
     float nearZ = m_ImGuiManager.depth.x;
     float farZ = m_ImGuiManager.depth.y;
-
     const float minZ = 0.1f;
 
     float finalFarZ = farZ;
@@ -78,14 +82,11 @@ void TutorialApp::Update()
     }
 
     // 스케일 변환
-    float scaleValue = m_ImGuiManager.GetObjectScale();
-
-    XMMATRIX Scale = XMMatrixScaling(scaleValue, scaleValue, scaleValue);
+    float scale= m_ImGuiManager.GetObjectScale();
+    Vector3 scaleValue = { scale, scale, scale };
 
     // 회전각 변환
-    XMMATRIX Rotate = XMMatrixRotationX(m_ImGuiManager.objectRotate.y / 180 * XM_PI) * XMMatrixRotationY(m_ImGuiManager.objectRotate.x / 180 * XM_PI)/* * XMMatrixRotationZ()*/;
-
-    //m_World = Scale * Rotate * XMMatrixTranslation(m_ImGuiManager.objectTransform.x * scaleValue / 2.0f, m_ImGuiManager.objectTransform.y * scaleValue / 2.0f, m_ImGuiManager.objectTransform.z * scaleValue / 2.0f);
+    Vector2 rotateValue = m_ImGuiManager.objectRotate / 180 * XM_PI;
 
     m_Projection = XMMatrixPerspectiveFovLH(XM_PIDIV4 / m_ImGuiManager.FOV, m_ClientWidth / (FLOAT)m_ClientHeight, nearZ, finalFarZ);
 
@@ -107,6 +108,7 @@ void TutorialApp::Update()
     {
         Zelda->transform.position = { -100, 0, 0 };
         Zelda->transform.scale = { 1, 1, 1 };
+
         Zelda->material.ambient = { 0, 0, 0, 0 };
         Zelda->material.diffuse = { 1, 1, 1, 1 };
         Zelda->material.specular = { 1, 1, 1, 1 };
@@ -118,6 +120,7 @@ void TutorialApp::Update()
     {
         Character->transform.position = { 100, 0, 0 };
         Character->transform.scale = { 1, 1, 1 };
+
         Character->material.ambient = { 0, 0, 0, 0 };
         Character->material.diffuse = { 1, 1, 1, 1 };
         Character->material.specular = { 1, 1, 1, 1 };
@@ -128,11 +131,13 @@ void TutorialApp::Update()
     if (Tree)
     {
         Tree->transform.position = { 0, 0, 0 };
-        Tree->transform.scale = { 150, 150, 150 };
+        Tree->transform.scale = { scaleValue.x, scaleValue.y, scaleValue.z };
+        Tree->transform.rotation = {rotateValue.y, rotateValue.x, 0};
+
         Tree->material.ambient = { 0, 0, 0, 0 };
         Tree->material.diffuse = { 1, 1, 1, 1 };
         Tree->material.specular = { 1, 1, 1, 1 };
-        Tree->material.shininess = { 1000 };
+        Tree->material.shininess = { shininess };
     }
 }
 
@@ -188,6 +193,8 @@ void TutorialApp::Render()
     // 렌더링 전에 상태 적용
     m_pDeviceContext->RSSetState(m_pRasterStateNoCull);
 
+    //RSSetState(None);
+
     for (auto& model : m_ModelLoader.models_)
     {
         model.Draw(
@@ -199,9 +206,6 @@ void TutorialApp::Render()
             m_AmbientColor,
             m_DiffuseColor,
             m_SpecularColor,
-            m_MaterialAmbient,
-            m_MaterialDiffuse,
-            m_MaterialSpecular,
             m_shininess,
             m_cameraPos,
             m_ImGuiManager.useLighting
@@ -375,10 +379,9 @@ bool TutorialApp::InitScene()
     HRESULT hr = 0;
     ID3D10Blob* errorMessage = nullptr;
 
-    m_ModelLoader.Load(m_pDevice, m_pDeviceContext, "../Resource/Character.fbx", "Character");
-    m_ModelLoader.Load(m_pDevice, m_pDeviceContext, "../Resource/zeldaPosed001.fbx", "Zelda");
+    //m_ModelLoader.Load(m_pDevice, m_pDeviceContext, "../Resource/Character.fbx", "Character");
+    //m_ModelLoader.Load(m_pDevice, m_pDeviceContext, "../Resource/zeldaPosed001.fbx", "Zelda");
     m_ModelLoader.Load(m_pDevice, m_pDeviceContext, "../Resource/Tree.fbx", "Tree");
-
 
     Skybox skybox[] =
     {

@@ -38,7 +38,10 @@ struct ConstantBuffer
 
 	Vector4 UseLighting; // 1 = 빛 계산, 0 = 무시
 
-	Vector4 hasTexture_solidColor;
+	bool hasTexture;
+	Vector3 padding;
+
+	Vector4 solidColor;
 };
 
 struct Transform
@@ -71,7 +74,6 @@ public:
 	Transform transform;
 	Material material;
 	Transform bone;
-	int num = 3;
 
 	Model() = default;
 
@@ -84,9 +86,7 @@ public:
 		const Vector4& ambient,
 		const Vector4& diffuse,
 		const Vector4& specular,
-		const Vector4& materialAmbient,
-		const Vector4& materialDiffuse,
-		const Vector4& materialSpecular,
+
 		const Vector4& shininess,
 
 		const Vector4& cameraPos,
@@ -96,36 +96,6 @@ public:
 		// 특정 부분만 렌더를 할 수 있게 가능하다.
 		for (size_t i = 0; i < meshes_.size(); ++i)
 		{
-			if (name == "ApiMiku")
-			{
-				if (num == 0)
-				{
-					if (i >= 8 && i <= 9) continue;
-				}
-				else if (num == 1)
-				{
-					if (!(i == 11)) continue;
-				}
-				else if (num == 2)
-				{
-					if (!(i == 12)) continue;
-				}
-			}
-
-			if (name == "SeifukuApiMiku")
-			{
-				if (num == 19 &&
-					(i == 11 || i == 13 || i == 14 ||
-						i == 18 || i == 15 || i == 17 ||
-						i == 19 || i == 22 || i == 23)
-					) continue;
-
-				if (num == 15 &&
-					(i == 18 || i == 15 || i == 17 ||
-						i == 19 || i == 22 || i == 23)
-					) continue;
-			}
-
 			// 상수 버퍼는 매 메시별로 업데이트가 되어야 한다.
 			ConstantBuffer cbObj;
 			cbObj.mWorld = XMMatrixTranspose(transform.GetMatrix());
@@ -150,11 +120,8 @@ public:
 
 			const auto& tex = meshes_[i].textures_.empty() ? Texture{} : meshes_[i].textures_[0];
 
-			cbObj.hasTexture_solidColor = Vector4(
-				tex.hasTexture ? 1.0f : 0.0f,
-				tex.solidColor.x,
-				tex.solidColor.y,
-				tex.solidColor.z);
+			cbObj.hasTexture = tex.hasTexture ? true : false;
+			cbObj.solidColor = tex.solidColor;
 
 			devcon->UpdateSubresource(cb, 0, nullptr, &cbObj, 0, 0);
 
