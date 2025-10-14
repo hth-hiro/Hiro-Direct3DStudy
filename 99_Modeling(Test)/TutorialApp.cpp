@@ -151,6 +151,7 @@ void TutorialApp::Update()
     {
         SeifukuApiMiku->transform.position = { m_ImGuiManager.objectTransform.x * scaleValue, m_ImGuiManager.objectTransform.y * scaleValue, m_ImGuiManager.objectTransform.z * scaleValue };
         SeifukuApiMiku->transform.scale = { scaleValue, scaleValue, scaleValue };
+        SeifukuApiMiku->transform.rotation = { m_ImGuiManager.objectRotate.y / 180 * XM_PI, m_ImGuiManager.objectRotate.x / 180 * XM_PI, 0 };
         SeifukuApiMiku->material.ambient = { m_ImGuiManager.ambientColor.x, m_ImGuiManager.objectAmbient.y, m_ImGuiManager.objectAmbient.z, m_ImGuiManager.objectAmbient.w };
         SeifukuApiMiku->material.diffuse = { m_ImGuiManager.diffuseColor.x, m_ImGuiManager.diffuseColor.y, m_ImGuiManager.diffuseColor.z, m_ImGuiManager.diffuseColor.w };
         SeifukuApiMiku->material.specular = { m_ImGuiManager.specularColor.x, m_ImGuiManager.specularColor.y, m_ImGuiManager.specularColor.z, m_ImGuiManager.specularColor.w };
