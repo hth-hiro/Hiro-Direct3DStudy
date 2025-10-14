@@ -38,7 +38,7 @@ struct ConstantBuffer
 
 	Vector4 UseLighting; // 1 = ºû °è»ê, 0 = ¹«½Ã
 
-	bool hasTexture;
+	int hasTexture;
 	Vector3 padding;
 
 	Vector4 solidColor;
@@ -120,7 +120,7 @@ public:
 
 			const auto& tex = meshes_[i].textures_.empty() ? Texture{} : meshes_[i].textures_[0];
 
-			cbObj.hasTexture = tex.hasTexture ? true : false;
+			cbObj.hasTexture = tex.hasTexture ? 1 : 0;
 			cbObj.solidColor = tex.solidColor;
 
 			devcon->UpdateSubresource(cb, 0, nullptr, &cbObj, 0, 0);

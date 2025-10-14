@@ -28,7 +28,7 @@ cbuffer ConstantBuffer : register(b0)
     
     float4 UseLighting;
     
-    bool hasTexture;
+    int hasTexture;
     float3 padding;               
     
     float4 solidColor;
