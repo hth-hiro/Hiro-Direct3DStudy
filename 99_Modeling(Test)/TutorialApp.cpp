@@ -59,12 +59,16 @@ void TutorialApp::Update()
     // Light
     m_InitialLightDirs = { m_ImGuiManager.lightDir.x, m_ImGuiManager.lightDir.y, m_ImGuiManager.lightDir.z, 0.0f };
     m_LightDirsEvaluated = m_InitialLightDirs;
+    m_AmbientColor = { m_ImGuiManager.ambientColor };
+    m_DiffuseColor = { m_ImGuiManager.diffuseColor };
+    m_SpecularColor = { m_ImGuiManager.specularColor };
+    
+    float shininess = { m_ImGuiManager.shininess };
 
+    // Camera
     m_cameraPos = { m_Camera.GetPosition().x, m_Camera.GetPosition().y, m_Camera.GetPosition().z, 1 };
-
     float nearZ = m_ImGuiManager.depth.x;
     float farZ = m_ImGuiManager.depth.y;
-
     const float minZ = 0.1f;
 
     float finalFarZ = farZ;
@@ -78,18 +82,14 @@ void TutorialApp::Update()
     }
 
     // 스케일 변환
-    float scaleValue = m_ImGuiManager.GetObjectScale();
-
-    XMMATRIX Scale = XMMatrixScaling(scaleValue, scaleValue, scaleValue);
+    float scale = m_ImGuiManager.GetObjectScale();
+    Vector3 scaleValue = { scale, scale, scale };
 
     // 회전각 변환
-    XMMATRIX Rotate = XMMatrixRotationX(m_ImGuiManager.objectRotate.y / 180 * XM_PI) * XMMatrixRotationY(m_ImGuiManager.objectRotate.x / 180 * XM_PI)/* * XMMatrixRotationZ()*/;
-
-    //m_World = Scale * Rotate * XMMatrixTranslation(m_ImGuiManager.objectTransform.x * scaleValue / 2.0f, m_ImGuiManager.objectTransform.y * scaleValue / 2.0f, m_ImGuiManager.objectTransform.z * scaleValue / 2.0f);
-
-    m_Projection = XMMatrixPerspectiveFovLH(XM_PIDIV4 / m_ImGuiManager.FOV, m_ClientWidth / (FLOAT)m_ClientHeight, nearZ, finalFarZ);
+    Vector2 rotateValue = m_ImGuiManager.objectRotate / 180 * XM_PI;
 
     // 카메라 뷰에 적용
+    m_Projection = XMMatrixPerspectiveFovLH(XM_PIDIV4 / m_ImGuiManager.FOV, m_ClientWidth / (FLOAT)m_ClientHeight, nearZ, finalFarZ);
     m_Camera.GetViewMatrix(m_View);
 
     if (m_ImGuiManager.viewChanger)
@@ -107,6 +107,7 @@ void TutorialApp::Update()
     {
         Zelda->transform.position = { -100, 0, 0 };
         Zelda->transform.scale = { 1, 1, 1 };
+
         Zelda->material.ambient = { 0, 0, 0, 0 };
         Zelda->material.diffuse = { 1, 1, 1, 1 };
         Zelda->material.specular = { 1, 1, 1, 1 };
@@ -118,6 +119,7 @@ void TutorialApp::Update()
     {
         Character->transform.position = { 100, 0, 0 };
         Character->transform.scale = { 1, 1, 1 };
+
         Character->material.ambient = { 0, 0, 0, 0 };
         Character->material.diffuse = { 1, 1, 1, 1 };
         Character->material.specular = { 1, 1, 1, 1 };
@@ -129,6 +131,7 @@ void TutorialApp::Update()
     {
         Tree->transform.position = { 0, 0, 0 };
         Tree->transform.scale = { 150, 150, 150 };
+
         Tree->material.ambient = { 0, 0, 0, 0 };
         Tree->material.diffuse = { 1, 1, 1, 1 };
         Tree->material.specular = { 1, 1, 1, 1 };
@@ -138,8 +141,10 @@ void TutorialApp::Update()
     Model* ApiMiku = GetModelByName("ApiMiku");
     if (ApiMiku)
     {
-        ApiMiku->transform.position={ m_ImGuiManager.objectTransform.x * scaleValue, m_ImGuiManager.objectTransform.y * scaleValue, m_ImGuiManager.objectTransform.z * scaleValue };
-        ApiMiku->transform.scale = { scaleValue, scaleValue, scaleValue };
+        ApiMiku->transform.position={ m_ImGuiManager.objectTransform };
+        ApiMiku->transform.scale = { scaleValue };
+        ApiMiku->transform.rotation = { rotateValue.y, rotateValue.x, 0 };
+
         ApiMiku->material.ambient = { m_ImGuiManager.ambientColor.x, m_ImGuiManager.objectAmbient.y, m_ImGuiManager.objectAmbient.z, m_ImGuiManager.objectAmbient.w };
         ApiMiku->material.diffuse = { m_ImGuiManager.diffuseColor.x, m_ImGuiManager.diffuseColor.y, m_ImGuiManager.diffuseColor.z, m_ImGuiManager.diffuseColor.w };
         ApiMiku->material.specular = { m_ImGuiManager.specularColor.x, m_ImGuiManager.specularColor.y, m_ImGuiManager.specularColor.z, m_ImGuiManager.specularColor.w };
@@ -149,9 +154,10 @@ void TutorialApp::Update()
     Model* SeifukuApiMiku = GetModelByName("SeifukuApiMiku");
     if (SeifukuApiMiku)
     {
-        SeifukuApiMiku->transform.position = { m_ImGuiManager.objectTransform.x * scaleValue, m_ImGuiManager.objectTransform.y * scaleValue, m_ImGuiManager.objectTransform.z * scaleValue };
-        SeifukuApiMiku->transform.scale = { scaleValue, scaleValue, scaleValue };
-        SeifukuApiMiku->transform.rotation = { m_ImGuiManager.objectRotate.y / 180 * XM_PI, m_ImGuiManager.objectRotate.x / 180 * XM_PI, 0 };
+        SeifukuApiMiku->transform.position = { m_ImGuiManager.objectTransform };
+        SeifukuApiMiku->transform.scale = { scaleValue };
+        SeifukuApiMiku->transform.rotation = { rotateValue.y, rotateValue.x, 0 };
+
         SeifukuApiMiku->material.ambient = { m_ImGuiManager.ambientColor.x, m_ImGuiManager.objectAmbient.y, m_ImGuiManager.objectAmbient.z, m_ImGuiManager.objectAmbient.w };
         SeifukuApiMiku->material.diffuse = { m_ImGuiManager.diffuseColor.x, m_ImGuiManager.diffuseColor.y, m_ImGuiManager.diffuseColor.z, m_ImGuiManager.diffuseColor.w };
         SeifukuApiMiku->material.specular = { m_ImGuiManager.specularColor.x, m_ImGuiManager.specularColor.y, m_ImGuiManager.specularColor.z, m_ImGuiManager.specularColor.w };
@@ -222,9 +228,6 @@ void TutorialApp::Render()
             m_AmbientColor,
             m_DiffuseColor,
             m_SpecularColor,
-            m_MaterialAmbient,
-            m_MaterialDiffuse,
-            m_MaterialSpecular,
             m_shininess,
             m_cameraPos,
             m_ImGuiManager.useLighting

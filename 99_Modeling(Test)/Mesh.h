@@ -42,7 +42,7 @@ struct Texture {
     ID3D11ShaderResourceView* texture;
 
     bool hasTexture;
-    Vector3 solidColor = {1.0f, 1.0f, 1.0f};    // Èò»ö
+    Vector4 solidColor = {1.0f, 1.0f, 1.0f, 1.0f};    // Èò»ö
 
     void Release() {
         SAFE_RELEASE(texture);

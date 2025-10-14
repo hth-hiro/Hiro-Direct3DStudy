@@ -88,9 +88,8 @@ void TutorialApp::Update()
     // 회전각 변환
     Vector2 rotateValue = m_ImGuiManager.objectRotate / 180 * XM_PI;
 
-    m_Projection = XMMatrixPerspectiveFovLH(XM_PIDIV4 / m_ImGuiManager.FOV, m_ClientWidth / (FLOAT)m_ClientHeight, nearZ, finalFarZ);
-
     // 카메라 뷰에 적용
+    m_Projection = XMMatrixPerspectiveFovLH(XM_PIDIV4 / m_ImGuiManager.FOV, m_ClientWidth / (FLOAT)m_ClientHeight, nearZ, finalFarZ);
     m_Camera.GetViewMatrix(m_View);
 
     if (m_ImGuiManager.viewChanger)
@@ -131,7 +130,7 @@ void TutorialApp::Update()
     if (Tree)
     {
         Tree->transform.position = { 0, 0, 0 };
-        Tree->transform.scale = { scaleValue.x, scaleValue.y, scaleValue.z };
+        Tree->transform.scale = { scaleValue };
         Tree->transform.rotation = {rotateValue.y, rotateValue.x, 0};
 
         Tree->material.ambient = { 0, 0, 0, 0 };

@@ -146,7 +146,7 @@ Mesh ModelLoader::processMesh(aiMesh* mesh, const aiScene* scene, Model& model)
 			{
 				Texture colorTex{};
 				colorTex.type = "texture_base";
-				colorTex.solidColor = XMFLOAT3(color.r, color.g, color.b);
+				colorTex.solidColor = XMFLOAT4(color.r, color.g, color.b, 1);
 				colorTex.hasTexture = false;
 				textures.push_back(colorTex);
 			}
