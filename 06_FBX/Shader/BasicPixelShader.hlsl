@@ -22,7 +22,7 @@ float4 main(PS_INPUT input) : SV_Target
     float4 txSpecular = hasSpecularMap > 0 ? specularMap.Sample(samLinear, input.Tex) : float4(1, 1, 1, 1);
     float4 txEmissive = hasEmissiveMap > 0 ? emissiveMap.Sample(samLinear, input.Tex) : float4(0, 0, 0, 0);
     
-    float3 normalVector = hasNormalMap > 0 ? -worldNormal : normalize(input.Norm); // ≥Î∏÷ ∫§≈Õ (N)      
+    float3 normalVector = hasNormalMap > 0 ? worldNormal : normalize(input.Norm); // ≥Î∏÷ ∫§≈Õ (N)      
     //float3 normalVector = - worldNormal;
     float3 lightVector = normalize(vLightDir.xyz);                                    // ∫˚¿« πÊ«‚ (L)
     float3 reflectVector = normalize(reflect(lightVector, normalVector));             // π›ªÁ ∫§≈Õ (R)
