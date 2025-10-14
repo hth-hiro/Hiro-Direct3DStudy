@@ -64,6 +64,7 @@ struct Material
 
 class Model
 {
+	int num = 3;
 public:
 	std::vector<Mesh> meshes_;
 	std::vector<Texture> textures_loaded_;
@@ -71,7 +72,6 @@ public:
 	Transform transform;
 	Material material;
 	Transform bone;
-	int num = 3;
 
 	Model() = default;
 
