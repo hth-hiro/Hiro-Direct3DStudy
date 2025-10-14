@@ -107,6 +107,7 @@ void TutorialApp::Update()
     {
         Zelda->transform.position = { -100, 0, 0 };
         Zelda->transform.scale = { 1, 1, 1 };
+        Zelda->transform.rotation = { rotateValue.y, rotateValue.x, 0 };
 
         Zelda->material.ambient = { 0, 0, 0, 0 };
         Zelda->material.diffuse = { 1, 1, 1, 1 };
@@ -194,8 +195,12 @@ void TutorialApp::Render()
 
     //RSSetState(None);
 
+    // 투명 오브젝트와 불투명 오브젝트를 따로 렌더해야 한다?
+    // 불투명 오브젝트 렌더 -> 알파 소팅 -> 투명 오브젝트 렌더
     for (auto& model : m_ModelLoader.models_)
     {
+        ConstantBuffer cbObj;
+
         model.Draw(
             m_pDeviceContext,
             m_pConstantBuffer,
@@ -379,7 +384,7 @@ bool TutorialApp::InitScene()
     ID3D10Blob* errorMessage = nullptr;
 
     //m_ModelLoader.Load(m_pDevice, m_pDeviceContext, "../Resource/Character.fbx", "Character");
-    //m_ModelLoader.Load(m_pDevice, m_pDeviceContext, "../Resource/zeldaPosed001.fbx", "Zelda");
+    m_ModelLoader.Load(m_pDevice, m_pDeviceContext, "../Resource/zeldaPosed001.fbx", "Zelda");
     m_ModelLoader.Load(m_pDevice, m_pDeviceContext, "../Resource/Tree.fbx", "Tree");
 
     Skybox skybox[] =

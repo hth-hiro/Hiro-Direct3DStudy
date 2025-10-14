@@ -39,7 +39,12 @@ struct ConstantBuffer
 	Vector4 UseLighting; // 1 = 빛 계산, 0 = 무시
 
 	int hasTexture;
-	Vector3 padding;
+	
+	int hasNormalMap;
+	int hasSpecularMap;
+	int hasEmissiveMap;
+	
+	//Vector3 padding;
 
 	Vector4 solidColor;
 };
@@ -52,7 +57,7 @@ struct Transform
 
 	XMMATRIX GetMatrix() const {
 		return XMMatrixScaling(scale.x, scale.y, scale.z) *
-			XMMatrixRotationRollPitchYaw(rotation.x, rotation.y, rotation.z) *
+			XMMatrixRotationRollPitchYaw(rotation.x, rotation.y, 0) *
 			XMMatrixTranslation(position.x, position.y, position.z);
 	}
 };
@@ -94,11 +99,12 @@ public:
 	)
 	{
 		// 특정 부분만 렌더를 할 수 있게 가능하다.
+		ConstantBuffer cbObj;
+
 		for (size_t i = 0; i < meshes_.size(); ++i)
 		{
 			// 상수 버퍼는 매 메시별로 업데이트가 되어야 한다.
-			ConstantBuffer cbObj;
-			cbObj.mWorld = XMMatrixTranspose(transform.GetMatrix());
+			cbObj.mWorld = XMMatrixTranspose(this->transform.GetMatrix());
 			cbObj.mView = XMMatrixTranspose(view);
 			cbObj.mProjection = XMMatrixTranspose(proj);
 
@@ -118,10 +124,15 @@ public:
 
 			cbObj.UseLighting = useLighting ? Vector4(1, 0, 0, 0) : Vector4(0, 0, 0, 0);
 
-			const auto& tex = meshes_[i].textures_.empty() ? Texture{} : meshes_[i].textures_[0];
+			for (auto& tex : meshes_[i].textures_)
+			{
+				if (tex.hasTexture) cbObj.hasTexture = 1;
+				if (tex.hasNormalMap) cbObj.hasNormalMap = 1;
+				if (tex.hasSpecularMap) cbObj.hasSpecularMap = 1;
+				if (tex.hasEmissiveMap) cbObj.hasEmissiveMap = 1;
 
-			cbObj.hasTexture = tex.hasTexture ? 1 : 0;
-			cbObj.solidColor = tex.solidColor;
+				cbObj.solidColor = tex.solidColor;
+			}
 
 			devcon->UpdateSubresource(cb, 0, nullptr, &cbObj, 0, 0);
 

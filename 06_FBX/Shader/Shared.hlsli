@@ -29,7 +29,11 @@ cbuffer ConstantBuffer : register(b0)
     float4 UseLighting;
     
     int hasTexture;
-    float3 padding;               
+    
+    int hasNormalMap;
+    int hasSpecularMap;
+    int hasEmissiveMap;
+    //float3 padding;               
     
     float4 solidColor;
 }

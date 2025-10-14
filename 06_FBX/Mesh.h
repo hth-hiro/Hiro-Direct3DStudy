@@ -41,7 +41,11 @@ struct Texture {
     std::string path;
     ID3D11ShaderResourceView* texture;
 
-    bool hasTexture;
+    bool hasTexture = true;
+    bool hasNormalMap = false;
+    bool hasSpecularMap = false;
+    bool hasEmissiveMap = false;
+
     Vector4 solidColor = {1.0f, 1.0f, 1.0f, 1.0f};    // Èò»ö
 
     void Release() {

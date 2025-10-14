@@ -200,6 +200,13 @@ std::vector<Texture> ModelLoader::loadMaterialTextures(aiMaterial* mat, aiTextur
 			HR_T(TextureLoader::CreateWICTextureFromFile(dev_, devcon_, filenamews.c_str(), nullptr, &texture.texture));
 		}
 
+		if (type == aiTextureType_NORMALS)
+			texture.hasNormalMap = true;
+		else if (type == aiTextureType_SPECULAR)
+			texture.hasSpecularMap = true;
+		else if (type == aiTextureType_EMISSIVE)
+			texture.hasEmissiveMap = true;
+
 		texture.type = typeName;
 		texture.path = str.C_Str();
 		textures.push_back(texture);
