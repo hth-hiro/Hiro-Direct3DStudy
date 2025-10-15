@@ -1,6 +1,7 @@
 #pragma once
 #include "../Common/GameApp.h"
 #include "../Common/Camera.h"
+#include "../Common/Transform.h"
 
 #include <imgui.h>
 #include <imgui_impl_win32.h>
@@ -10,6 +11,17 @@
 #include <directxtk/SimpleMath.h>
 
 using namespace DirectX::SimpleMath;
+
+struct Object
+{
+	Transform transform;
+
+	Vector4 ambient;
+	Vector4 diffuse;
+	Vector4 specular;
+
+	float shininess;
+};
 
 class ImGuiManager
 {
@@ -23,7 +35,10 @@ public:
 	void Render();
 
 	float GetObjectScale() { return objectScaleXYZ; }
-	Vector3 GetScale() { return objectScale; }
+
+	Object object1 = {};
+	Object object2 = {};
+	Object object3 = {};
 
 	float FOV = 1.0f;
 
@@ -55,7 +70,6 @@ private:
 	float farZ = 1000.0f;
 
 	float objectScaleXYZ = 10.0f;
-	Vector3 objectScale = {10,10,10};
 
 	GameApp* m_app;
 
@@ -68,6 +82,8 @@ private:
 		objectAmbient = { 0.1f, 0.1f, 0.1f, 0.1f };
 		objectDiffuse = { 1.0f, 1.0f, 1.0f, 1.0f };
 		objectSpecular = { 1.0f, 1.0f, 1.0f, 1.0f };
+
+		shininess = 1000.0f;
 	}
 
 	void LightReset()
@@ -76,6 +92,7 @@ private:
 		diffuseColor = { 1.0f, 1.0f, 1.0f, 1.0f };
 		specularColor = { 1.0f, 1.0f, 1.0f, 1.0f };
 		lightDir = { 0.0f, 0.0f, 1.0f };
-		shininess = 1000.0f;
 	}
+
+	void RenderObjectUI(const char* label, Object& obj);
 };

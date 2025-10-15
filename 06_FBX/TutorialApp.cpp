@@ -82,6 +82,21 @@ void TutorialApp::Update()
     }
 
     // 스케일 변환
+    Vector3 scale1(m_ImGuiManager.object1.transform.GetScale().x,
+        m_ImGuiManager.object1.transform.GetScale().y,
+        m_ImGuiManager.object1.transform.GetScale().z);
+
+    // 스케일 변환
+    Vector3 scale2(m_ImGuiManager.object2.transform.GetScale().x,
+        m_ImGuiManager.object2.transform.GetScale().y,
+        m_ImGuiManager.object2.transform.GetScale().z);
+
+    // 스케일 변환
+    Vector3 scale3(m_ImGuiManager.object3.transform.GetScale().x,
+        m_ImGuiManager.object3.transform.GetScale().y,
+        m_ImGuiManager.object3.transform.GetScale().z);
+
+
     float scale= m_ImGuiManager.GetObjectScale();
     Vector3 scaleValue = { scale, scale, scale };
 
@@ -119,7 +134,7 @@ void TutorialApp::Update()
     if (Character)
     {
         Character->transform.position = { 100, 0, 0 };
-        Character->transform.scale = { scaleValue / 10.f };
+        Character->transform.scale = { scale2 / 10.f };
         Character->transform.rotation = { rotateValue.y, rotateValue.x, 0 };
 
         Character->material.ambient = { 0, 0, 0, 0 };

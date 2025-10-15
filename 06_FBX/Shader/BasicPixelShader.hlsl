@@ -30,9 +30,8 @@ float4 main(PS_INPUT input) : SV_Target
     float3 harfVector = normalize(-lightVector + viewVector);                         // гога ╨╓ем (H)
     
     float4 ambient =
-    vAmbientColor 
-    * vMaterialAmbient
-    * surface;
+    vAmbientColor
+    * vMaterialAmbient;
     
     float4 diffuse =
     vDiffuseColor

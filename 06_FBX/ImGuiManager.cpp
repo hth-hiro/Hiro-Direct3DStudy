@@ -1,5 +1,5 @@
 #include "ImGuiManager.h"
-
+#include <string>
 void ImGuiManager::Initialize()
 {
 	ObjectReset();
@@ -33,6 +33,18 @@ void ImGuiManager::EndFrame()
 	ImGui::DestroyContext();
 }
 
+void ImGuiManager::RenderObjectUI(const char* label, Object& obj)
+{
+	ImGui::SliderFloat3((std::string(label) + u8" 크기").c_str(), &obj.transform.scale.x, 10.0f, 1000.0f);
+	ImGui::SliderFloat3((std::string(label) + u8" 위치").c_str(), &obj.transform.position.x, -10.0f, 10.0f);
+	ImGui::DragFloat3((std::string(label) + u8" 회전").c_str(), &obj.transform.rotation.x, 0.1f);
+	ImGui::ColorEdit4((std::string(label) + u8" Material Ambient").c_str(), &obj.ambient.x);
+	ImGui::ColorEdit4((std::string(label) + u8" Material Diffuse").c_str(), &obj.diffuse.x);
+	ImGui::ColorEdit4((std::string(label) + u8" Material Specular").c_str(), &obj.specular.x);
+	ImGui::SliderFloat((std::string(label) + u8" 광택지수").c_str(), &obj.shininess, 200.0f, 20000.0f);
+	ImGui::Text("");
+}
+
 void ImGuiManager::Render()
 {
 	ImGuiIO& io = ImGui::GetIO(); (void)io;
@@ -55,13 +67,25 @@ void ImGuiManager::Render()
 
 		//ImGui::Separator();
 
-		// Object
-		ImGui::SliderFloat(u8" 크기", &objectScaleXYZ, 10.0f, 1000.0f);
-		ImGui::SliderFloat3(u8" 위치", &objectTransform.x, -10.0f, 10.0f);
-		ImGui::DragFloat2(u8"Y축 회전 & X축 회전", &objectRotate.x, 0.1f);
-		ImGui::ColorEdit4(u8" Material Ambient 색상", &objectAmbient.x);
-		ImGui::ColorEdit4(u8" Material Diffuse 색상", &objectDiffuse.x);
-		ImGui::ColorEdit4(u8" Material Specular 색상", &objectSpecular.x);
+		// Object1
+		//ImGui::SliderFloat3(u8" 크기", &objectScaleXYZ, 10.0f, 1000.0f);
+		//ImGui::SliderFloat3(u8" 위치", &objectTransform.x, -10.0f, 10.0f);
+		//ImGui::DragFloat2(u8"Y축 회전 & X축 회전", &objectRotate.x, 0.1f);
+		//ImGui::ColorEdit4(u8" Material Ambient 색상", &objectAmbient.x);
+		//ImGui::ColorEdit4(u8" Material Diffuse 색상", &objectDiffuse.x);
+		//ImGui::ColorEdit4(u8" Material Specular 색상", &objectSpecular.x);
+		//ImGui::SliderFloat(u8" 광택지수", &shininess, 200.0f, 20000.0f);
+
+		// Object1
+		RenderObjectUI(u8" 오브젝트1", object1);
+
+		// Object2
+		RenderObjectUI(u8" 오브젝트2", object2);
+
+		// Object3
+		RenderObjectUI(u8" 오브젝트3", object3);
+
+		// ...
 
 		if (ImGui::Button(u8"오브젝트 초기화")) ObjectReset();
 		ImGui::Text("");
@@ -71,15 +95,12 @@ void ImGuiManager::Render()
 		ImGui::ColorEdit4(u8" Ambient 색상", &ambientColor.x);
 		ImGui::ColorEdit4(u8" Diffuse 색상", &diffuseColor.x);
 		ImGui::ColorEdit4(u8" Specular 색상", &specularColor.x);
-		ImGui::SliderFloat(u8" 광택지수", &shininess, 200.0f, 20000.0f);
 		ImGui::SliderFloat3(u8" 방향", &lightDir.x, -1.0f, 1.0f, "%.1f");
 
 		ImGui::Checkbox("Use Lighting", &useLighting);
 
-		if (ImGui::Button(u8" 빛 초기화"))
-		{
-			LightReset();
-		}
+		if (ImGui::Button(u8" 빛 초기화"))LightReset();
+
 		ImGui::Text("");
 
 		// 카메라

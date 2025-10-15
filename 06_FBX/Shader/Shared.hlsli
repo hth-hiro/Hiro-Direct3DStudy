@@ -14,13 +14,13 @@ cbuffer ConstantBuffer : register(b0)
     float4 vLightDir;
     float4 vOutputColor;
     
-    float4 vMaterialAmbient;
-    float4 vMaterialDiffuse;
-    float4 vMaterialSpecular;
-    
     float4 vAmbientColor;
     float4 vDiffuseColor;
     float4 vSpecularColor;
+    
+    float4 vMaterialAmbient;
+    float4 vMaterialDiffuse;
+    float4 vMaterialSpecular;
     
     float4 cameraPos;
     
