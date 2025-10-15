@@ -36,7 +36,8 @@ struct ConstantBuffer
 
 	Vector4 vShininess;
 
-	Vector4 UseLighting; // 1 = ºû °è»ê, 0 = ¹«½Ã
+	int UseLighting; // 1 = ºû °è»ê, 0 = ¹«½Ã
+	Vector3 padding;
 
 	int hasTexture;
 	
@@ -44,7 +45,6 @@ struct ConstantBuffer
 	int hasSpecularMap;
 	int hasEmissiveMap;
 	
-	//Vector3 padding;
 
 	Vector4 solidColor;
 };
@@ -56,9 +56,11 @@ struct Transform
 	XMFLOAT3 scale	  = { 1,1,1 };
 
 	XMMATRIX GetMatrix() const {
-		return XMMatrixScaling(scale.x, scale.y, scale.z) *
-			XMMatrixRotationRollPitchYaw(rotation.x, rotation.y, 0) *
-			XMMatrixTranslation(position.x, position.y, position.z);
+		XMMATRIX S = XMMatrixScaling(scale.x, scale.y, scale.z);
+		XMMATRIX R = XMMatrixRotationRollPitchYaw(rotation.x, rotation.y, rotation.z);
+		XMMATRIX T = XMMatrixTranslation(position.x, position.y, position.z);
+
+		return S * R * T;
 	}
 };
 
@@ -122,7 +124,7 @@ public:
 
 			cbObj.cameraPos = cameraPos;
 
-			cbObj.UseLighting = useLighting ? Vector4(1, 0, 0, 0) : Vector4(0, 0, 0, 0);
+			cbObj.UseLighting = useLighting ? 1 : 0;
 
 			for (auto& tex : meshes_[i].textures_)
 			{

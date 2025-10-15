@@ -53,7 +53,7 @@ float4 main(PS_INPUT input) : SV_Target
     if (surface.a < 0.5f)
         discard;
     
-    if (UseLighting.x > 0.5f)
+    if (UseLighting > 0)
     {
         finalColor = saturate(ambient + diffuse + specular);
         finalColor.a = surface.a;

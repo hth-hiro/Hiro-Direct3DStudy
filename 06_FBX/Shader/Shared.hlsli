@@ -26,14 +26,14 @@ cbuffer ConstantBuffer : register(b0)
     
     float4 vShininess;
     
-    float4 UseLighting;
+    int UseLighting;
+    float3 padding;               
     
     int hasTexture;
     
     int hasNormalMap;
     int hasSpecularMap;
     int hasEmissiveMap;
-    //float3 padding;               
     
     float4 solidColor;
 }

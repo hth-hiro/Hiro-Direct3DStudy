@@ -106,7 +106,7 @@ void TutorialApp::Update()
     if (Zelda)
     {
         Zelda->transform.position = { -100, 0, 0 };
-        Zelda->transform.scale = { 1, 1, 1 };
+        Zelda->transform.scale = { scaleValue / 10.f };
         Zelda->transform.rotation = { rotateValue.y, rotateValue.x, 0 };
 
         Zelda->material.ambient = { 0, 0, 0, 0 };
@@ -119,7 +119,8 @@ void TutorialApp::Update()
     if (Character)
     {
         Character->transform.position = { 100, 0, 0 };
-        Character->transform.scale = { 1, 1, 1 };
+        Character->transform.scale = { scaleValue / 10.f };
+        Character->transform.rotation = { rotateValue.y, rotateValue.x, 0 };
 
         Character->material.ambient = { 0, 0, 0, 0 };
         Character->material.diffuse = { 1, 1, 1, 1 };
