@@ -131,7 +131,7 @@ void TutorialApp::Update()
     if (Tree)
     {
         Tree->transform.position = { 0, 0, 0 };
-        Tree->transform.scale = { scaleValue };
+        Tree->transform.scale = { scaleValue * 15 };
         Tree->transform.rotation = {rotateValue.y, rotateValue.x, 0};
 
         Tree->material.ambient = { 0, 0, 0, 0 };

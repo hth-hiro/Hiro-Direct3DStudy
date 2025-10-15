@@ -127,11 +127,16 @@ public:
 			for (auto& tex : meshes_[i].textures_)
 			{
 				if (tex.hasTexture) cbObj.hasTexture = 1;
+				else
+				{
+					cbObj.solidColor = tex.solidColor;
+					cbObj.hasTexture = 0;
+				}
+
 				if (tex.hasNormalMap) cbObj.hasNormalMap = 1;
 				if (tex.hasSpecularMap) cbObj.hasSpecularMap = 1;
 				if (tex.hasEmissiveMap) cbObj.hasEmissiveMap = 1;
 
-				cbObj.solidColor = tex.solidColor;
 			}
 
 			devcon->UpdateSubresource(cb, 0, nullptr, &cbObj, 0, 0);
