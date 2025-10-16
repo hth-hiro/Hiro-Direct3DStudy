@@ -9,18 +9,24 @@
 #include <Psapi.h>
 
 #include <directxtk/SimpleMath.h>
+#include <vector>
 
 using namespace DirectX::SimpleMath;
 
 struct Object
 {
+	Object() = default;
+	Object(const XMFLOAT3& pos) : transform(pos), initPos(pos) {}
+
+	Vector3 initPos;
+
 	Transform transform;
 
-	Vector4 ambient;
-	Vector4 diffuse;
-	Vector4 specular;
+	Vector4 ambient = {0.1f, 0.1f, 0.1f, 0.1f};
+	Vector4 diffuse = {1,1,1,1};
+	Vector4 specular = {1,1,1,1};
 
-	float shininess;
+	float shininess = 1000.f;
 };
 
 class ImGuiManager
@@ -36,9 +42,9 @@ public:
 
 	float GetObjectScale() { return objectScaleXYZ; }
 
-	Object object1 = {};
-	Object object2 = {};
-	Object object3 = {};
+	Object object1 = { Vector3(-100,0,0)};
+	Object object2 = { Vector3(0,0,0) };
+	Object object3 = { Vector3(100,0,0) };
 
 	float FOV = 1.0f;
 
@@ -73,25 +79,13 @@ private:
 
 	GameApp* m_app;
 
-	void ObjectReset()
-	{
-		objectScaleXYZ = 1.0f;
-		objectTransform = { 0.0f , 0.0f, 0.0f };
-		objectRotate = { 0.0f, 0.0f };
-
-		objectAmbient = { 0.1f, 0.1f, 0.1f, 0.1f };
-		objectDiffuse = { 1.0f, 1.0f, 1.0f, 1.0f };
-		objectSpecular = { 1.0f, 1.0f, 1.0f, 1.0f };
-
-		shininess = 1000.0f;
-	}
-
 	void LightReset()
 	{
 		ambientColor = { 0.1f, 0.1f, 0.1f, 0.1f };
 		diffuseColor = { 1.0f, 1.0f, 1.0f, 1.0f };
 		specularColor = { 1.0f, 1.0f, 1.0f, 1.0f };
 		lightDir = { 0.0f, 0.0f, 1.0f };
+		shininess = 1000.0f;
 	}
 
 	void RenderObjectUI(const char* label, Object& obj);

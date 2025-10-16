@@ -12,6 +12,9 @@ class Transform
 	bool dirty = true;
 
 public:
+	Transform() = default;
+	Transform(const XMFLOAT3& pos) : position(pos) {}
+
 	XMFLOAT3 position = { 0,0,0 };
 	XMFLOAT3 rotation = { 0,0,0 };
 	XMFLOAT3 scale = { 1,1,1 };
@@ -42,7 +45,7 @@ public:
 	void SetScale(const XMFLOAT3& scale_) { scale = scale_; dirty = true; }
 
 	const XMFLOAT3& GetPosition() const { return position; }
-	const XMFLOAT3& GetRotation() const { return rotation; }
+	const XMFLOAT3& GetRotation() const { return XMFLOAT3(rotation.y / 180 * XM_PI, rotation.x / 180 * XM_PI, rotation.z / 180 * XM_PI); }
 	const XMFLOAT3& GetScale()    const { return scale; }
 
 	XMMATRIX GetMatrix() {

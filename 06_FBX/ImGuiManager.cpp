@@ -2,7 +2,6 @@
 #include <string>
 void ImGuiManager::Initialize()
 {
-	ObjectReset();
 	LightReset();
 }
 
@@ -36,7 +35,7 @@ void ImGuiManager::EndFrame()
 void ImGuiManager::RenderObjectUI(const char* label, Object& obj)
 {
 	ImGui::SliderFloat3((std::string(label) + u8" 크기").c_str(), &obj.transform.scale.x, 1.0f, 100.0f);
-	ImGui::SliderFloat3((std::string(label) + u8" 위치").c_str(), &obj.transform.position.x, -10.0f, 10.0f);
+	ImGui::SliderFloat3((std::string(label) + u8" 위치").c_str(), &obj.transform.position.x, -100.0f, 100.0f, "%.1f");
 	ImGui::DragFloat3((std::string(label) + u8" 회전").c_str(), &obj.transform.rotation.x, 0.1f);
 	ImGui::ColorEdit4((std::string(label) + u8" Material Ambient").c_str(), &obj.ambient.x);
 	ImGui::ColorEdit4((std::string(label) + u8" Material Diffuse").c_str(), &obj.diffuse.x);
@@ -68,15 +67,6 @@ void ImGuiManager::Render()
 		//ImGui::Separator();
 
 		// Object1
-		//ImGui::SliderFloat3(u8" 크기", &objectScaleXYZ, 10.0f, 1000.0f);
-		//ImGui::SliderFloat3(u8" 위치", &objectTransform.x, -10.0f, 10.0f);
-		//ImGui::DragFloat2(u8"Y축 회전 & X축 회전", &objectRotate.x, 0.1f);
-		//ImGui::ColorEdit4(u8" Material Ambient 색상", &objectAmbient.x);
-		//ImGui::ColorEdit4(u8" Material Diffuse 색상", &objectDiffuse.x);
-		//ImGui::ColorEdit4(u8" Material Specular 색상", &objectSpecular.x);
-		//ImGui::SliderFloat(u8" 광택지수", &shininess, 200.0f, 20000.0f);
-
-		// Object1
 		RenderObjectUI(u8" 오브젝트1", object1);
 
 		// Object2
@@ -86,9 +76,6 @@ void ImGuiManager::Render()
 		RenderObjectUI(u8" 오브젝트3", object3);
 
 		// ...
-
-		if (ImGui::Button(u8"오브젝트 초기화")) ObjectReset();
-		ImGui::Text("");
 
 		// Light
 		ImGui::SeparatorText(u8"빛 조절");
@@ -107,14 +94,14 @@ void ImGuiManager::Render()
 		ImGui::SeparatorText(u8" 카메라 조절");
 		ImGui::SliderFloat(u8" 시야범위", &FOV, 0.6f, 100.0f);
 		ImGui::DragFloat2(u8" 렌더 최소/최대 거리", &depth.x, 0.1f, 1.0f, 10000.0f, "%.1f");
-		if (nearZ > farZ) farZ = nearZ;
+		if (depth.x > depth.y) depth.y = depth.x;
 
 		if (ImGui::Button(u8"카메라 초기화"))
 		{
 			FOV = 1.0f;
 
-			nearZ = 1.0f;
-			farZ = 10000.0f;
+			depth.x = 1.0f;
+			depth.y = 10000.0f;
 		}
 		ImGui::Text("");
 

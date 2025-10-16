@@ -63,8 +63,6 @@ void TutorialApp::Update()
     m_DiffuseColor = { m_ImGuiManager.diffuseColor };
     m_SpecularColor = { m_ImGuiManager.specularColor };
 
-    float shininess = { m_ImGuiManager.shininess };
-
     // Camera
     m_cameraPos = { m_Camera.GetPosition().x, m_Camera.GetPosition().y, m_Camera.GetPosition().z, 1 };
     float nearZ = m_ImGuiManager.depth.x;
@@ -80,28 +78,6 @@ void TutorialApp::Update()
     {
         finalFarZ = farZ;
     }
-
-    // 스케일 변환
-    Vector3 scale1(m_ImGuiManager.object1.transform.GetScale().x,
-        m_ImGuiManager.object1.transform.GetScale().y,
-        m_ImGuiManager.object1.transform.GetScale().z);
-
-    // 스케일 변환
-    Vector3 scale2(m_ImGuiManager.object2.transform.GetScale().x,
-        m_ImGuiManager.object2.transform.GetScale().y,
-        m_ImGuiManager.object2.transform.GetScale().z);
-
-    // 스케일 변환
-    Vector3 scale3(m_ImGuiManager.object3.transform.GetScale().x,
-        m_ImGuiManager.object3.transform.GetScale().y,
-        m_ImGuiManager.object3.transform.GetScale().z);
-
-
-    float scale= m_ImGuiManager.GetObjectScale();
-    Vector3 scaleValue = { scale, scale, scale };
-
-    // 회전각 변환
-    Vector2 rotateValue = m_ImGuiManager.objectRotate / 180 * XM_PI;
 
     // 카메라 뷰에 적용
     m_Projection = XMMatrixPerspectiveFovLH(XM_PIDIV4 / m_ImGuiManager.FOV, m_ClientWidth / (FLOAT)m_ClientHeight, nearZ, finalFarZ);
@@ -120,40 +96,46 @@ void TutorialApp::Update()
     Model* Zelda = GetModelByName("Zelda");
     if (Zelda)
     {
-        Zelda->transform.position = { -100, 0, 0 };
-        Zelda->transform.scale = { scale1 };
-        Zelda->transform.rotation = { rotateValue.y, rotateValue.x, 0 };
+        Object obj = m_ImGuiManager.object1;
 
-        Zelda->material.ambient = { 0, 0, 0, 0 };
-        Zelda->material.diffuse = { 1, 1, 1, 1 };
-        Zelda->material.specular = { 1, 1, 1, 1 };
-        Zelda->material.shininess = { 1000 };
-    }
+        Zelda->transform.position = { obj.transform.GetPosition()};
+        Zelda->transform.scale = { obj.transform.GetScale() };
+        Zelda->transform.rotation = { obj.transform.GetRotation() };
 
-    Model* Character = GetModelByName("Character");
-    if (Character)
-    {
-        Character->transform.position = { 100, 0, 0 };
-        Character->transform.scale = { scale2 };
-        Character->transform.rotation = { rotateValue.y, rotateValue.x, 0 };
-
-        Character->material.ambient = { 0, 0, 0, 0 };
-        Character->material.diffuse = { 1, 1, 1, 1 };
-        Character->material.specular = { 1, 1, 1, 1 };
-        Character->material.shininess = { 1000 };
+        Zelda->material.ambient = { obj.ambient };
+        Zelda->material.diffuse = { obj.diffuse };
+        Zelda->material.specular = { obj.specular };
+        Zelda->material.shininess = { obj.shininess };
     }
 
     Model* Tree = GetModelByName("Tree");
     if (Tree)
     {
-        Tree->transform.position = { 0, 0, 0 };
-        Tree->transform.scale = { scale3 * 150 };
-        Tree->transform.rotation = {rotateValue.y, rotateValue.x, 0};
+        Object obj = m_ImGuiManager.object2;
 
-        Tree->material.ambient = { 0, 0, 0, 0 };
-        Tree->material.diffuse = { 1, 1, 1, 1 };
-        Tree->material.specular = { 1, 1, 1, 1 };
-        Tree->material.shininess = { shininess };
+        Tree->transform.position = { obj.transform.GetPosition() };
+        Tree->transform.scale = { obj.transform.GetScale() * 150 };
+        Tree->transform.rotation = { obj.transform.GetRotation() };
+
+        Tree->material.ambient = { obj.ambient };
+        Tree->material.diffuse = { obj.diffuse };
+        Tree->material.specular = { obj.specular };
+        Tree->material.shininess = { obj.shininess };
+    }
+
+    Model* Character = GetModelByName("Character");
+    if (Character)
+    {
+        Object obj = m_ImGuiManager.object3;
+
+        Character->transform.position = { obj.transform.GetPosition() };
+        Character->transform.scale = { obj.transform.GetScale() };
+        Character->transform.rotation = { obj.transform.GetRotation() };
+
+        Character->material.ambient = { obj.ambient };
+        Character->material.diffuse = { obj.diffuse };
+        Character->material.specular = { obj.specular };;
+        Character->material.shininess = { obj.shininess };
     }
 }
 
