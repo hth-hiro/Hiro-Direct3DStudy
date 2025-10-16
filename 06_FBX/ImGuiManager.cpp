@@ -35,7 +35,7 @@ void ImGuiManager::EndFrame()
 
 void ImGuiManager::RenderObjectUI(const char* label, Object& obj)
 {
-	ImGui::SliderFloat3((std::string(label) + u8" 크기").c_str(), &obj.transform.scale.x, 10.0f, 1000.0f);
+	ImGui::SliderFloat3((std::string(label) + u8" 크기").c_str(), &obj.transform.scale.x, 1.0f, 100.0f);
 	ImGui::SliderFloat3((std::string(label) + u8" 위치").c_str(), &obj.transform.position.x, -10.0f, 10.0f);
 	ImGui::DragFloat3((std::string(label) + u8" 회전").c_str(), &obj.transform.rotation.x, 0.1f);
 	ImGui::ColorEdit4((std::string(label) + u8" Material Ambient").c_str(), &obj.ambient.x);

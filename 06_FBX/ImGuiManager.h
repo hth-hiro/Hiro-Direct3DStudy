@@ -69,13 +69,13 @@ private:
 	float nearZ = 1.0f;
 	float farZ = 1000.0f;
 
-	float objectScaleXYZ = 10.0f;
+	float objectScaleXYZ = 1.0f;
 
 	GameApp* m_app;
 
 	void ObjectReset()
 	{
-		objectScaleXYZ = 10.0f;
+		objectScaleXYZ = 1.0f;
 		objectTransform = { 0.0f , 0.0f, 0.0f };
 		objectRotate = { 0.0f, 0.0f };
 
