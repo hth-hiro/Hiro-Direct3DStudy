@@ -59,9 +59,9 @@ void TutorialApp::Update()
     // Light
     m_InitialLightDirs = { m_ImGuiManager.lightDir.x, m_ImGuiManager.lightDir.y, m_ImGuiManager.lightDir.z, 0.0f };
     m_LightDirsEvaluated = m_InitialLightDirs;
-    m_AmbientColor = { m_ImGuiManager.ambientColor };
-    m_DiffuseColor = { m_ImGuiManager.diffuseColor };
-    m_SpecularColor = { m_ImGuiManager.specularColor };
+    m_AmbientColor = { m_ImGuiManager.ambientLight };
+    m_DiffuseColor = { m_ImGuiManager.diffuseLight };
+    m_SpecularColor = { m_ImGuiManager.specularLight };
 
     // Camera
     m_cameraPos = { m_Camera.GetPosition().x, m_Camera.GetPosition().y, m_Camera.GetPosition().z, 1 };

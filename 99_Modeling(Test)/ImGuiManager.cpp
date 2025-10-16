@@ -68,9 +68,9 @@ void ImGuiManager::Render()
 
 		// Light
 		ImGui::SeparatorText(u8"빛 조절");
-		ImGui::ColorEdit4(u8" Ambient 색상", &ambientColor.x);
-		ImGui::ColorEdit4(u8" Diffuse 색상", &diffuseColor.x);
-		ImGui::ColorEdit4(u8" Specular 색상", &specularColor.x);
+		ImGui::ColorEdit4(u8" Ambient 색상", &ambientLight.x);
+		ImGui::ColorEdit4(u8" Diffuse 색상", &diffuseLight.x);
+		ImGui::ColorEdit4(u8" Specular 색상", &specularLight.x);
 		ImGui::SliderFloat(u8" 광택지수", &shininess, 200.0f, 20000.0f);
 		ImGui::SliderFloat3(u8" 방향", &lightDir.x, -1.0f, 1.0f, "%.1f");
 

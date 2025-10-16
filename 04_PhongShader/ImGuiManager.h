@@ -33,9 +33,9 @@ public:
 
 	float shininess = 1000.0f;
 
-	Vector4 ambientColor = {  };
-	Vector4 diffuseColor = {  };
-	Vector4 specularColor = {  };
+	Vector4 ambientLight = {  };
+	Vector4 diffuseLight = {  };
+	Vector4 specularLight = {  };
 	Vector3 lightDir = {  };
 
 	bool viewChanger = false;
@@ -67,9 +67,9 @@ private:
 
 	void LightReset()
 	{
-		ambientColor = { 0.1f, 0.1f, 0.1f, 0.1f };
-		diffuseColor = { 1.0f, 1.0f, 1.0f, 1.0f };
-		specularColor = { 1.0f, 1.0f, 1.0f, 1.0f };
+		ambientLight = { 0.1f, 0.1f, 0.1f, 0.1f };
+		diffuseLight = { 1.0f, 1.0f, 1.0f, 1.0f };
+		specularLight = { 1.0f, 1.0f, 1.0f, 1.0f };
 		lightDir = { 0.0f, 0.0f, 1.0f };
 		shininess = 1000.0f;
 	}

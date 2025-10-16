@@ -94,9 +94,9 @@ void TutorialApp::Update()
     m_DiffuseColor = { m_ImGuiManager.objectDiffuse.x, m_ImGuiManager.objectDiffuse.y, m_ImGuiManager.objectDiffuse.z, m_ImGuiManager.objectDiffuse.w };
     m_SpecularColor = { m_ImGuiManager.objectSpecular.x, m_ImGuiManager.objectSpecular.y, m_ImGuiManager.objectSpecular.z, m_ImGuiManager.objectSpecular.w };
 
-    m_MaterialAmbient = { m_ImGuiManager.ambientColor.x, m_ImGuiManager.ambientColor.y, m_ImGuiManager.ambientColor.z, m_ImGuiManager.ambientColor.w };
-    m_MaterialDiffuse = { m_ImGuiManager.diffuseColor.x, m_ImGuiManager.diffuseColor.y, m_ImGuiManager.diffuseColor.z, m_ImGuiManager.diffuseColor.w };
-    m_MaterialSpecular = { m_ImGuiManager.specularColor.x, m_ImGuiManager.specularColor.y, m_ImGuiManager.specularColor.z, m_ImGuiManager.specularColor.w };
+    m_MaterialAmbient = { m_ImGuiManager.ambientLight.x, m_ImGuiManager.ambientLight.y, m_ImGuiManager.ambientLight.z, m_ImGuiManager.ambientLight.w };
+    m_MaterialDiffuse = { m_ImGuiManager.diffuseLight.x, m_ImGuiManager.diffuseLight.y, m_ImGuiManager.diffuseLight.z, m_ImGuiManager.diffuseLight.w };
+    m_MaterialSpecular = { m_ImGuiManager.specularLight.x, m_ImGuiManager.specularLight.y, m_ImGuiManager.specularLight.z, m_ImGuiManager.specularLight.w };
 
     m_cameraPos = { m_Camera.GetPosition().x, m_Camera.GetPosition().y, m_Camera.GetPosition().z, 1 };
     m_shininess = { m_ImGuiManager.shininess };

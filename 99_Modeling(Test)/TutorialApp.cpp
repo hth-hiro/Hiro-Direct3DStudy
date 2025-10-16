@@ -59,9 +59,9 @@ void TutorialApp::Update()
     // Light
     m_InitialLightDirs = { m_ImGuiManager.lightDir.x, m_ImGuiManager.lightDir.y, m_ImGuiManager.lightDir.z, 0.0f };
     m_LightDirsEvaluated = m_InitialLightDirs;
-    m_AmbientColor = { m_ImGuiManager.ambientColor };
-    m_DiffuseColor = { m_ImGuiManager.diffuseColor };
-    m_SpecularColor = { m_ImGuiManager.specularColor };
+    m_AmbientColor = { m_ImGuiManager.ambientLight };
+    m_DiffuseColor = { m_ImGuiManager.diffuseLight };
+    m_SpecularColor = { m_ImGuiManager.specularLight };
     
     float shininess = { m_ImGuiManager.shininess };
 
@@ -145,9 +145,9 @@ void TutorialApp::Update()
         ApiMiku->transform.scale = { scaleValue };
         ApiMiku->transform.rotation = { rotateValue.y, rotateValue.x, 0 };
 
-        ApiMiku->material.ambient = { m_ImGuiManager.ambientColor.x, m_ImGuiManager.objectAmbient.y, m_ImGuiManager.objectAmbient.z, m_ImGuiManager.objectAmbient.w };
-        ApiMiku->material.diffuse = { m_ImGuiManager.diffuseColor.x, m_ImGuiManager.diffuseColor.y, m_ImGuiManager.diffuseColor.z, m_ImGuiManager.diffuseColor.w };
-        ApiMiku->material.specular = { m_ImGuiManager.specularColor.x, m_ImGuiManager.specularColor.y, m_ImGuiManager.specularColor.z, m_ImGuiManager.specularColor.w };
+        ApiMiku->material.ambient = { m_ImGuiManager.ambientLight.x, m_ImGuiManager.objectAmbient.y, m_ImGuiManager.objectAmbient.z, m_ImGuiManager.objectAmbient.w };
+        ApiMiku->material.diffuse = { m_ImGuiManager.diffuseLight.x, m_ImGuiManager.diffuseLight.y, m_ImGuiManager.diffuseLight.z, m_ImGuiManager.diffuseLight.w };
+        ApiMiku->material.specular = { m_ImGuiManager.specularLight.x, m_ImGuiManager.specularLight.y, m_ImGuiManager.specularLight.z, m_ImGuiManager.specularLight.w };
         ApiMiku->material.shininess = { m_ImGuiManager.shininess };
     }
 
@@ -158,9 +158,9 @@ void TutorialApp::Update()
         SeifukuApiMiku->transform.scale = { scaleValue };
         SeifukuApiMiku->transform.rotation = { rotateValue.y, rotateValue.x, 0 };
 
-        SeifukuApiMiku->material.ambient = { m_ImGuiManager.ambientColor.x, m_ImGuiManager.objectAmbient.y, m_ImGuiManager.objectAmbient.z, m_ImGuiManager.objectAmbient.w };
-        SeifukuApiMiku->material.diffuse = { m_ImGuiManager.diffuseColor.x, m_ImGuiManager.diffuseColor.y, m_ImGuiManager.diffuseColor.z, m_ImGuiManager.diffuseColor.w };
-        SeifukuApiMiku->material.specular = { m_ImGuiManager.specularColor.x, m_ImGuiManager.specularColor.y, m_ImGuiManager.specularColor.z, m_ImGuiManager.specularColor.w };
+        SeifukuApiMiku->material.ambient = { m_ImGuiManager.ambientLight.x, m_ImGuiManager.objectAmbient.y, m_ImGuiManager.objectAmbient.z, m_ImGuiManager.objectAmbient.w };
+        SeifukuApiMiku->material.diffuse = { m_ImGuiManager.diffuseLight.x, m_ImGuiManager.diffuseLight.y, m_ImGuiManager.diffuseLight.z, m_ImGuiManager.diffuseLight.w };
+        SeifukuApiMiku->material.specular = { m_ImGuiManager.specularLight.x, m_ImGuiManager.specularLight.y, m_ImGuiManager.specularLight.z, m_ImGuiManager.specularLight.w };
         SeifukuApiMiku->material.shininess = { m_ImGuiManager.shininess };
     }
 }
