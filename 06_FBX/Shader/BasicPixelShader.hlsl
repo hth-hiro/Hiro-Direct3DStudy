@@ -49,7 +49,7 @@ float4 main(PS_INPUT input) : SV_Target
     // Æþ °è»ê
     //float4 specular = vSpecularColor.rgba * pow(saturate(dot(reflectVector, viewVector)), (float)vShininess);
 
-    if (surface.a < 0.5f)
+    if (surface.a < 0.1f)
         discard;
     
     if (UseLighting > 0)
