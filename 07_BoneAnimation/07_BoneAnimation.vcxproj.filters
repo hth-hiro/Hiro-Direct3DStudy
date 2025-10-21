@@ -30,20 +30,20 @@
     <ClInclude Include="07_BoneAnimation.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="ImGuiManager.h">
-      <Filter>소스 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Mesh.h">
-      <Filter>소스 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="ModelLoader.h">
-      <Filter>소스 파일</Filter>
+    <ClInclude Include="TutorialApp.h">
+      <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="TextureLoader.h">
-      <Filter>소스 파일</Filter>
+      <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="TutorialApp.h">
-      <Filter>소스 파일</Filter>
+    <ClInclude Include="ModelLoader.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Mesh.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="ImGuiManager.h">
+      <Filter>헤더 파일</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

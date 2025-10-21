@@ -41,6 +41,7 @@ void ImGuiManager::RenderObjectUI(const char* label, Object& obj)
 	ImGui::ColorEdit4((std::string(label) + u8" Material Diffuse").c_str(), &obj.diffuse.x);
 	ImGui::ColorEdit4((std::string(label) + u8" Material Specular").c_str(), &obj.specular.x);
 	ImGui::SliderFloat((std::string(label) + u8" 광택지수").c_str(), &obj.shininess, 200.0f, 20000.0f);
+	if (ImGui::Button((std::string(label) + u8" 초기화").c_str())) obj.Reset();
 	ImGui::Text("");
 }
 

@@ -27,6 +27,19 @@ struct Object
 	Vector4 specular = {1,1,1,1};
 
 	float shininess = 1000.f;
+	
+	void Reset()
+	{
+		transform.SetPosition(initPos);
+		transform.SetRotation(Vector3(0, 0, 0));
+		transform.SetScale(Vector3(1, 1, 1));
+
+		ambient = { 0.1f, 0.1f, 0.1f, 0.1f };
+		diffuse = { 1,1,1,1 };
+		specular = { 1,1,1,1 };
+
+		shininess = 1000.f;
+	}
 };
 
 class ImGuiManager
