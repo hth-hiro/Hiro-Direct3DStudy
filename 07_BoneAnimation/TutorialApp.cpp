@@ -1,6 +1,7 @@
 #include "TutorialApp.h"
 #include "Mesh.h"
 #include "../Common/Helper.h"
+#include "../Common/TimeSystem.h"
 #include <dxgi1_3.h>
 #include <d3dcompiler.h>
 #include <wrl/client.h>
@@ -39,6 +40,8 @@ TutorialApp::~TutorialApp()
 bool TutorialApp::Initialize(UINT Width, UINT Height)
 {
     __super::Initialize(Width, Height);
+
+    m_Time.Initialize();
 
     if (!InitD3D())
         return false;
@@ -93,50 +96,22 @@ void TutorialApp::Update()
         m_pCubeTextureRV = m_pCubeMuseumTextureRV;
     }
 
-    Model* Zelda = GetModelByName("Zelda");
-    if (Zelda)
+    Model* BoxHuman = GetModelByName("BoxHuman");
+    if (BoxHuman)
     {
         Object obj = m_ImGuiManager.object1;
 
-        Zelda->transform.position = { obj.transform.GetPosition()};
-        Zelda->transform.scale = { obj.transform.GetScale() };
-        Zelda->transform.rotation = { obj.transform.GetRotation() };
+        BoxHuman->transform.position = { obj.transform.GetPosition() };
+        BoxHuman->transform.scale = { obj.transform.GetScale() * 100 };
+        BoxHuman->transform.rotation = { obj.transform.GetRotation() };
 
-        Zelda->material.ambient = { obj.ambient };
-        Zelda->material.diffuse = { obj.diffuse };
-        Zelda->material.specular = { obj.specular };
-        Zelda->material.shininess = { obj.shininess };
+        BoxHuman->material.ambient = { obj.ambient };
+        BoxHuman->material.diffuse = { obj.diffuse };
+        BoxHuman->material.specular = { obj.specular };
+        BoxHuman->material.shininess = { obj.shininess };
     }
 
-    Model* Tree = GetModelByName("Tree");
-    if (Tree)
-    {
-        Object obj = m_ImGuiManager.object2;
-
-        Tree->transform.position = { obj.transform.GetPosition() };
-        Tree->transform.scale = { obj.transform.GetScale() * 150 };
-        Tree->transform.rotation = { obj.transform.GetRotation() };
-
-        Tree->material.ambient = { obj.ambient };
-        Tree->material.diffuse = { obj.diffuse };
-        Tree->material.specular = { obj.specular };
-        Tree->material.shininess = { obj.shininess };
-    }
-
-    Model* Character = GetModelByName("Character");
-    if (Character)
-    {
-        Object obj = m_ImGuiManager.object3;
-
-        Character->transform.position = { obj.transform.GetPosition() };
-        Character->transform.scale = { obj.transform.GetScale() };
-        Character->transform.rotation = { obj.transform.GetRotation() };
-
-        Character->material.ambient = { obj.ambient };
-        Character->material.diffuse = { obj.diffuse };
-        Character->material.specular = { obj.specular };;
-        Character->material.shininess = { obj.shininess };
-    }
+    m_SkeletalModelLoader.Update(m_Time.GetDeltaTime());
 }
 
 void TutorialApp::Render()
@@ -195,7 +170,7 @@ void TutorialApp::Render()
 
     // 투명 오브젝트와 불투명 오브젝트를 따로 렌더해야 한다?
     // 불투명 오브젝트 렌더 -> 알파 소팅 -> 투명 오브젝트 렌더
-    for (auto& model : m_ModelLoader.models_)
+    for (auto& model : m_SkeletalModelLoader.models_)
     {
         ConstantBuffer cbObj;
 
@@ -381,10 +356,9 @@ bool TutorialApp::InitScene()
     HRESULT hr = 0;
     ID3D10Blob* errorMessage = nullptr;
 
-    m_ModelLoader.Load(m_pDevice, m_pDeviceContext, "../Resource/Character.fbx", "Character");
-    m_ModelLoader.Load(m_pDevice, m_pDeviceContext, "../Resource/zeldaPosed001.fbx", "Zelda");
-    m_ModelLoader.Load(m_pDevice, m_pDeviceContext, "../Resource/Tree.fbx", "Tree");
-
+    //m_ModelLoader.Load(m_pDevice, m_pDeviceContext, "../Resource/BoxHuman.fbx", "BoxHuman");
+    m_SkeletalModelLoader.Load(m_pDevice, m_pDeviceContext, "../Resource/BoxHuman.fbx", "BoxHuman");
+    
     Skybox skybox[] =
     {
         { Vector3(-1.0f,  1.0f,  1.0f) },

@@ -71,10 +71,10 @@ void ImGuiManager::Render()
 		RenderObjectUI(u8" 오브젝트1", object1);
 
 		// Object2
-		RenderObjectUI(u8" 오브젝트2", object2);
+		//RenderObjectUI(u8" 오브젝트2", object2);
 
 		// Object3
-		RenderObjectUI(u8" 오브젝트3", object3);
+		//RenderObjectUI(u8" 오브젝트3", object3);
 
 		// ...
 

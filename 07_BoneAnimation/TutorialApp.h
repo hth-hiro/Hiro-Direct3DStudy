@@ -6,6 +6,7 @@
 #include "Mesh.h"
 #include "ImGuiManager.h"
 #include "ModelLoader.h"
+#include "SkeletalMesh.h"
 
 using namespace DirectX::SimpleMath;
 using namespace DirectX;
@@ -63,6 +64,9 @@ public:
 	// Manager
 	ImGuiManager m_ImGuiManager;
 	ModelLoader m_ModelLoader;
+	SkeletalMesh m_SkeletalModelLoader;
+
+	TimeSystem m_TimeSystem;
 
 	// ModelLoad
 	Model* GetModelByName(const std::string& name)
@@ -71,9 +75,14 @@ public:
 		{
 			if (model.name == name) return &model;
 		}
+
+		for (auto& model : m_SkeletalModelLoader.models_)
+		{
+			if (model.name == name) return &model;
+		}
+
 		return nullptr;
 	}
-
 	//float m_Angle = 0.0f;
 
 	// 라이트 관련

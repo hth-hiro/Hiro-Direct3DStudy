@@ -9,7 +9,7 @@
 #include <vector>
 #include <stdexcept>
 #include <d3d11_1.h>
-#include <DirectXMath.h>
+//#include <DirectXMath.h>
 
 #include <d3d11.h>
 #include <wrl/client.h>
@@ -20,7 +20,6 @@
 
 #include <directxtk/SimpleMath.h>
 
-#include "ImGuiManager.h"
 #include "../Common/Helper.h"
 
 using namespace DirectX::SimpleMath;

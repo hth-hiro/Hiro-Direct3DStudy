@@ -1,7 +1,7 @@
-#include "ModelLoader.h"
+#include "SkeletalMesh.h"
 #include "../Common/Helper.h"
 
-ModelLoader::ModelLoader() :
+SkeletalMesh::SkeletalMesh() :
 	dev_(nullptr),
 	devcon_(nullptr),
 	directory_(),
@@ -9,11 +9,16 @@ ModelLoader::ModelLoader() :
 {
 }
 
-ModelLoader::~ModelLoader()
+SkeletalMesh::~SkeletalMesh()
 {
 }
 
-bool ModelLoader::Load(ID3D11Device* dev, ID3D11DeviceContext* devcon, const std::string& filePath, const std::string& name)
+bool SkeletalMesh::Load(ID3D11Device* dev, ID3D11DeviceContext* devcon, const std::string& filePath, const std::string& name)
+{
+	return ReadSkeletonMeshFile(dev, devcon, filePath, name);
+}
+
+bool SkeletalMesh::ReadSkeletonMeshFile(ID3D11Device* dev, ID3D11DeviceContext* devcon, const std::string& filePath, const std::string& name)
 {
 	Assimp::Importer importer;
 
@@ -30,7 +35,7 @@ bool ModelLoader::Load(ID3D11Device* dev, ID3D11DeviceContext* devcon, const std
 	Model model;
 	model.name = name;
 	directory_ = filePath.substr(0, filePath.find_last_of("/\\"));
-	
+
 	this->dev_ = dev;
 	this->devcon_ = devcon;
 
@@ -41,7 +46,87 @@ bool ModelLoader::Load(ID3D11Device* dev, ID3D11DeviceContext* devcon, const std
 	return true;
 }
 
-Mesh ModelLoader::processMesh(aiMesh* mesh, const aiScene* scene, Model& model)
+void SkeletalMesh::ReadAnimationFile()
+{
+
+}
+
+int SkeletalMesh::CreateSkeleton(aiNode* node, int parentBoneIndex)
+{
+	Bone bone;
+	bone.m_Name = node->mName.C_Str();
+	bone.m_Local = Matrix::Identity;
+	bone.m_Model = Matrix::Identity;
+	bone.m_ParentIndex = parentBoneIndex;
+	bone.m_pBoneAnimation = nullptr;
+	bone.m_Index = static_cast<int>(m_Skeleton.size());
+
+	m_Skeleton.push_back(bone);
+
+	return bone.m_Index;
+}
+
+void SkeletalMesh::Update(float deltaTime)
+{
+	if (!m_Animations.empty())
+	{
+		m_AnimationProcessTime += deltaTime;
+		m_AnimationProcessTime = fmod(m_AnimationProcessTime, m_Animations[m_AnimationsIndex].Duration);
+	}
+
+	for (auto& bone : m_Skeleton)
+	{
+		if (bone.m_pBoneAnimation != nullptr)
+		{
+			Vector3 position, scaling;
+			Quaternion rotation;
+
+			// Evalute 미구현(구현 예정)
+			bone.m_pBoneAnimation->Evaluate(m_AnimationProcessTime, position, rotation, scaling);
+			bone.m_Local = Matrix::CreateScale(scaling) * Matrix::CreateFromQuaternion(rotation)
+				* Matrix::CreateTranslation(position);
+		}
+
+		if (bone.m_ParentIndex != -1)
+		{
+			bone.m_Model = bone.m_Local * m_Skeleton[bone.m_ParentIndex].m_Model;
+		}
+		else
+		{
+			bone.m_Model = bone.m_Local;
+		}
+
+		m_SkeletonPose.Array[bone.m_Index] = (bone.m_Model).Transpose();
+	}
+}
+
+void SkeletalMesh::Close()
+{
+	for (auto& model : models_)
+	{
+		model.Close();
+	}
+
+	models_.clear();
+}
+
+void SkeletalMesh::processNode(aiNode* node, const aiScene* scene, Model& model, int parentBoneIndex)
+{
+	int boneIndex = CreateSkeleton(node, parentBoneIndex);
+
+	for (UINT i = 0; i < node->mNumMeshes; i++)
+	{
+		aiMesh* mesh = scene->mMeshes[node->mMeshes[i]];
+		model.meshes_.push_back(this->processMesh(mesh, scene, model));
+	}
+
+	for (UINT i = 0; i < node->mNumChildren; i++)
+	{
+		this->processNode(node->mChildren[i], scene, model, boneIndex);
+	}
+}
+
+Mesh SkeletalMesh::processMesh(aiMesh* mesh, const aiScene* scene, Model& model)
 {
 	std::vector<Vertex> vertices;
 	std::vector<UINT> indices;
@@ -66,7 +151,7 @@ Mesh ModelLoader::processMesh(aiMesh* mesh, const aiScene* scene, Model& model)
 			vertex.Normal = {};
 		}
 
-		if (mesh->mTextureCoords[0]) 
+		if (mesh->mTextureCoords[0])
 		{
 			vertex.Tex.x = (float)mesh->mTextureCoords[0][i].x;
 			vertex.Tex.y = (float)mesh->mTextureCoords[0][i].y;
@@ -119,7 +204,7 @@ Mesh ModelLoader::processMesh(aiMesh* mesh, const aiScene* scene, Model& model)
 
 		if (diffuseMaps.empty())
 		{
-			aiColor4D color(1,1,1,1);
+			aiColor4D color(1, 1, 1, 1);
 
 			if (AI_SUCCESS == material->Get(AI_MATKEY_BASE_COLOR, color) ||
 				AI_SUCCESS == material->Get(AI_MATKEY_COLOR_DIFFUSE, color))
@@ -135,25 +220,17 @@ Mesh ModelLoader::processMesh(aiMesh* mesh, const aiScene* scene, Model& model)
 
 	model.textures_loaded_.insert(model.textures_loaded_.end(), textures.begin(), textures.end());
 
-	//if (mesh->HasBones())
-	//{
-	//	for (UINT i = 0; i < mesh->mNumBones; i++)
-	//	{
-	//		aiBone* bone = mesh->mBones[i];
-	//		aiString name = mesh->mBones[i]->mName;
-	//	}
-	//}
-
 	return Mesh(dev_, vertices, indices, textures);
 }
 
-std::vector<Texture> ModelLoader::loadMaterialTextures(aiMaterial* mat, aiTextureType type, std::string typeName, const aiScene* scene, Model& model) {
+std::vector<Texture> SkeletalMesh::loadMaterialTextures(aiMaterial* mat, aiTextureType type, std::string typeName, const aiScene* scene, Model& model)
+{
 	std::vector<Texture> textures;
 	for (UINT i = 0; i < mat->GetTextureCount(type); i++)
 	{
 		aiString str;
 		mat->GetTexture(type, i, &str);
-		
+
 		Texture texture;
 
 		// 여기서 임베디드 텍스처의 여부를 확인하고,
@@ -190,36 +267,12 @@ std::vector<Texture> ModelLoader::loadMaterialTextures(aiMaterial* mat, aiTextur
 		texture.path = str.C_Str();
 		textures.push_back(texture);
 		//model.textures_loaded_.push_back(texture);  // 이 텍스처를 모델 전체에서 로드된 텍스처로 저장하여 불필요하게 중복로드되는 일을 방지한다.
-		
+
 	}
 	return textures;
 }
 
-void ModelLoader::Close()
-{
-	for (auto& model : models_)
-	{
-		model.Close();
-	}
-	
-	models_.clear();
-}
-
-void ModelLoader::processNode(aiNode* node, const aiScene* scene, Model& model)
-{
-	for (UINT i = 0; i < node->mNumMeshes; i++)
-	{
-		aiMesh* mesh = scene->mMeshes[node->mMeshes[i]];
-		model.meshes_.push_back(this->processMesh(mesh, scene, model));
-	}
-
-	for (UINT i = 0; i < node->mNumChildren; i++)
-	{
-		this->processNode(node->mChildren[i], scene, model);
-	}
-}
-
-ID3D11ShaderResourceView* ModelLoader::loadEmbeddedTexture(const aiTexture* embeddedTexture)
+ID3D11ShaderResourceView* SkeletalMesh::loadEmbeddedTexture(const aiTexture* embeddedTexture)
 {
 	ID3D11ShaderResourceView* texture = nullptr;
 
