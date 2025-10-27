@@ -41,9 +41,9 @@ public:
 	ComPtr<ID3D11RasterizerState> m_pRasterStateFrontCull;			// 컬링 여부(앞면 컬링, 반전)
 
 	/*------스카이박스-------*/
-	ComPtr<ID3D11VertexShader> m_pSkyboxVertexShader = nullptr;		// 정점 셰이더
-	ComPtr<ID3D11PixelShader> m_pSkyboxPixelShader = nullptr;		// 픽셀 셰이더
-	ID3D11InputLayout* m_pSkyboxInputLayout = nullptr;				// 입력 레이아웃
+	ComPtr<ID3D11VertexShader> m_pSkyboxVertexShader;				// 정점 셰이더
+	ComPtr<ID3D11PixelShader> m_pSkyboxPixelShader;					// 픽셀 셰이더
+	ComPtr<ID3D11InputLayout> m_pSkyboxInputLayout;					// 입력 레이아웃
 	ID3D11Buffer* m_pSkyboxVertexBuffer = nullptr;					// 버텍스 버퍼
 	UINT m_SkyboxVertexBufferStride = 0;							// 버텍스 하나의 크기
 	UINT m_SkyboxVertexBufferOffset = 0;							// 버텍스 버퍼의 오프셋

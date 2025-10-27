@@ -136,7 +136,7 @@ void TutorialApp::Render()
     m_pDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
     m_pDeviceContext->IASetVertexBuffers(0, 1, &m_pSkyboxVertexBuffer, &m_SkyboxVertexBufferStride, &m_SkyboxVertexBufferOffset);
     m_pDeviceContext->IASetIndexBuffer(m_pSkyboxIndexBuffer, DXGI_FORMAT_R16_UINT, 0);
-    m_pDeviceContext->IASetInputLayout(m_pSkyboxInputLayout);
+    m_pDeviceContext->IASetInputLayout(m_pSkyboxInputLayout.Get());
 
     m_pDeviceContext->VSSetShader(m_pSkyboxVertexShader.Get(), nullptr, 0);
     m_pDeviceContext->PSSetShader(m_pSkyboxPixelShader.Get(), nullptr, 0);
@@ -530,6 +530,10 @@ bool TutorialApp::InitScene()
 void TutorialApp::UninitScene()
 {
     SAFE_RELEASE(m_pConstantBuffer);
+
+    SAFE_RELEASE(m_pCubeMuseumTextureRV);
+    SAFE_RELEASE(m_pCubeDaylightTextureRV);
+    SAFE_RELEASE(m_pCubeHanakoTextureRV);
 
     m_ModelLoader.Close();
 }
