@@ -15,7 +15,18 @@ SkeletalMesh::~SkeletalMesh()
 
 bool SkeletalMesh::Load(ID3D11Device* dev, ID3D11DeviceContext* devcon, const std::string& filePath, const std::string& name)
 {
-	return ReadSkeletonMeshFile(dev, devcon, filePath, name);
+	if (!ReadSkeletonMeshFile(dev, devcon, filePath, name))
+		return false;
+
+	for (auto& section : m_Sections)
+	{
+		section.CreateVertexBuffer(dev);
+		section.CreateIndexBuffer(dev);
+		section.CreateBoneWeightedVertex(dev);
+		section.SetSkeletonInfo();
+	}
+
+	return true;
 }
 
 bool SkeletalMesh::ReadSkeletonMeshFile(ID3D11Device* dev, ID3D11DeviceContext* devcon, const std::string& filePath, const std::string& name)
@@ -41,27 +52,97 @@ bool SkeletalMesh::ReadSkeletonMeshFile(ID3D11Device* dev, ID3D11DeviceContext* 
 
 	processNode(pScene->mRootNode, pScene, model);
 
+	ReadAnimationFile(pScene);
+
 	models_.push_back(std::move(model));
 
 	return true;
 }
 
-void SkeletalMesh::ReadAnimationFile()
+void SkeletalMesh::ReadAnimationFile(const aiScene* scene)
 {
+	for (unsigned int i = 0; i < scene->mNumAnimations; ++i)
+	{
+		aiAnimation* aiAnim = scene->mAnimations[i];
+		Animation animation;
 
+		animation.Name = aiAnim->mName.C_Str();
+		animation.Duration = (float)aiAnim->mDuration / (float)(aiAnim->mTicksPerSecond != 0 ? aiAnim->mTicksPerSecond : 25.0f);
+		animation.BoneAnimations.resize(aiAnim->mNumChannels);
+
+		for (unsigned int c = 0; c < aiAnim->mNumChannels; ++c)
+		{
+			aiNodeAnim* channel = aiAnim->mChannels[c];
+			BoneAnimation* boneAnim = new BoneAnimation();
+
+			for (unsigned int k = 0; k < channel->mNumPositionKeys; ++k)
+			{
+				AnimationKey key{};
+				key.Time = static_cast<float>(channel->mPositionKeys[k].mTime / 
+					(aiAnim->mTicksPerSecond != 0 ? aiAnim->mTicksPerSecond : 25.0f));
+
+				key.Position = Vector3(channel->mPositionKeys[k].mValue.x,
+									channel->mPositionKeys[k].mValue.y,
+									channel->mPositionKeys[k].mValue.z);
+
+				boneAnim->AnimationKeys.push_back(key);
+			}
+
+			for (unsigned int k = 0; k < channel->mNumRotationKeys; ++k)
+			{
+				if (k < boneAnim->AnimationKeys.size())
+				boneAnim->AnimationKeys[k].Rotation = Quaternion(channel->mRotationKeys[k].mValue.x,
+					channel->mRotationKeys[k].mValue.y,
+					channel->mRotationKeys[k].mValue.z,
+					channel->mRotationKeys[k].mValue.w
+				);
+			}
+
+			for (unsigned int k = 0; k < channel->mNumScalingKeys; ++k)
+			{
+				if (k < boneAnim->AnimationKeys.size())
+					boneAnim->AnimationKeys[k].Scaling = Vector3(channel->mScalingKeys[k].mValue.x,
+						channel->mScalingKeys[k].mValue.y,
+						channel->mScalingKeys[k].mValue.z
+					);
+			}
+
+			if (c < m_Skeleton.size())
+				m_Skeleton[c].m_pBoneAnimation = boneAnim;
+		}
+
+		m_Animations.push_back(animation);
+	}
 }
 
 int SkeletalMesh::CreateSkeleton(aiNode* node, int parentBoneIndex)
 {
 	Bone bone;
 	bone.m_Name = node->mName.C_Str();
-	bone.m_Local = Matrix::Identity;
+
+	// aiMatrix4x4 -> DirectX::SimpleMath::Matrix 변환
+	aiMatrix4x4& t = node->mTransformation;
+	Matrix mat = Matrix(
+		(float)t.a1, (float)t.b1, (float)t.c1, (float)t.d1,
+		(float)t.a2, (float)t.b2, (float)t.c2, (float)t.d2,
+		(float)t.a3, (float)t.b3, (float)t.c3, (float)t.d3,
+		(float)t.a4, (float)t.b4, (float)t.c4, (float)t.d4
+	);
+
+	bone.m_Local = mat;
 	bone.m_Model = Matrix::Identity;
 	bone.m_ParentIndex = parentBoneIndex;
 	bone.m_pBoneAnimation = nullptr;
 	bone.m_Index = static_cast<int>(m_Skeleton.size());
 
 	m_Skeleton.push_back(bone);
+	m_BoneNameToIndex[bone.m_Name] = bone.m_Index;
+
+	int thisIndex = bone.m_Index;
+	for (UINT i = 0; i < node->mNumChildren; ++i)
+	{
+		CreateSkeleton(node->mChildren[i], thisIndex);
+	}
 
 	return bone.m_Index;
 }
@@ -81,7 +162,6 @@ void SkeletalMesh::Update(float deltaTime)
 			Vector3 position, scaling;
 			Quaternion rotation;
 
-			// Evalute 미구현(구현 예정)
 			bone.m_pBoneAnimation->Evaluate(m_AnimationProcessTime, position, rotation, scaling);
 			bone.m_Local = Matrix::CreateScale(scaling) * Matrix::CreateFromQuaternion(rotation)
 				* Matrix::CreateTranslation(position);
@@ -105,6 +185,15 @@ void SkeletalMesh::Close()
 	for (auto& model : models_)
 	{
 		model.Close();
+	}
+
+	for (auto& bone : m_Skeleton)
+	{
+		if (bone.m_pBoneAnimation)
+		{
+			delete bone.m_pBoneAnimation;
+			bone.m_pBoneAnimation = nullptr;
+		}
 	}
 
 	models_.clear();

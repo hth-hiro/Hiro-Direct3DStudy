@@ -122,11 +122,13 @@ void TutorialApp::Render()
     float blendFactor[4] = { 0.f, 0.f, 0.f, 0.f }; // 일반적으로 0,0,0,0
     UINT sampleMask = 0xffffffff; // 모든 샘플 사용
 
-    m_pDeviceContext->OMSetBlendState(m_pBlendState, blendFactor, sampleMask);
+    m_pDeviceContext->OMSetBlendState(m_pBlendState.Get(), blendFactor, sampleMask);
 
-    m_pDeviceContext->OMSetRenderTargets(1, &m_pRenderTargetView, m_pDepthStencilView);
-    m_pDeviceContext->ClearRenderTargetView(m_pRenderTargetView, color);
-    m_pDeviceContext->ClearDepthStencilView(m_pDepthStencilView, D3D11_CLEAR_DEPTH, 1.0f, 0);
+    ID3D11RenderTargetView* rtv = m_pRenderTargetView.Get(); // 내부 포인터
+    m_pDeviceContext->OMSetRenderTargets(1, &rtv, m_pDepthStencilView.Get());
+    m_pDeviceContext->ClearRenderTargetView(rtv, color);
+    m_pDeviceContext->ClearDepthStencilView(m_pDepthStencilView.Get(), D3D11_CLEAR_DEPTH, 1.0f, 0);
+
 
     // 2. 스카이박스 렌더
     m_pDeviceContext->OMSetDepthStencilState(m_pSkyboxDepthStencilState, 0);
@@ -136,8 +138,8 @@ void TutorialApp::Render()
     m_pDeviceContext->IASetIndexBuffer(m_pSkyboxIndexBuffer, DXGI_FORMAT_R16_UINT, 0);
     m_pDeviceContext->IASetInputLayout(m_pSkyboxInputLayout);
 
-    m_pDeviceContext->VSSetShader(m_pSkyboxVertexShader, nullptr, 0);
-    m_pDeviceContext->PSSetShader(m_pSkyboxPixelShader, nullptr, 0);
+    m_pDeviceContext->VSSetShader(m_pSkyboxVertexShader.Get(), nullptr, 0);
+    m_pDeviceContext->PSSetShader(m_pSkyboxPixelShader.Get(), nullptr, 0);
 
     // 스카이박스 상수버퍼
     // 카메라 위치 중심
@@ -158,13 +160,13 @@ void TutorialApp::Render()
     m_pDeviceContext->OMSetDepthStencilState(nullptr, 0);
 
     // 3. 일반 오브젝트 렌더
-    m_pDeviceContext->IASetInputLayout(m_pInputLayout);
-    m_pDeviceContext->VSSetShader(m_pVertexShader, nullptr, 0);
-    m_pDeviceContext->PSSetShader(m_pPixelShader, nullptr, 0);
+    m_pDeviceContext->IASetInputLayout(m_pInputLayout.Get());
+    m_pDeviceContext->VSSetShader(m_pVertexShader.Get(), nullptr, 0);
+    m_pDeviceContext->PSSetShader(m_pPixelShader.Get(), nullptr, 0);
 
     // 특정 모델마다 다르게 설정한다면, 렌더에서 새로 모델 드로우 할때마다 설정을 바꿔주면 됨
     // 렌더링 전에 상태 적용
-    m_pDeviceContext->RSSetState(m_pRasterStateNoCull);
+    m_pDeviceContext->RSSetState(m_pRasterStateNoCull.Get());
 
     //RSSetState(None);
 
@@ -235,7 +237,7 @@ bool TutorialApp::InitD3D()
     }
 
     //-------Create D3D11 Device, DeviceContext-------//
-    hr = m_pDevice->CreateRenderTargetView(pBackBufferTexture, NULL, &m_pRenderTargetView);
+    hr = m_pDevice->CreateRenderTargetView(pBackBufferTexture, NULL, m_pRenderTargetView.GetAddressOf());
     if (FAILED(hr))
     {
         MessageBox(m_hWnd, L"렌더 타겟 뷰 생성 실패", L"에러", MB_OK);
@@ -290,7 +292,8 @@ bool TutorialApp::InitD3D()
     viewport.MinDepth = 0.0f;
     viewport.MaxDepth = 1.0f;
     m_pDeviceContext->RSSetViewports(1, &viewport);
-    m_pDeviceContext->OMSetRenderTargets(1, &m_pRenderTargetView, m_pDepthStencilView);
+    ID3D11RenderTargetView* rtv = m_pRenderTargetView.Get();  // 내부 포인터
+    m_pDeviceContext->OMSetRenderTargets(1, &rtv, m_pDepthStencilView.Get());
 
     D3D11_BLEND_DESC blendDesc = {};
     blendDesc.AlphaToCoverageEnable = FALSE; // 멀티샘플링과 함께 알파 투명도 사용 시 TRUE
@@ -332,11 +335,9 @@ bool TutorialApp::InitD3D()
 
 void TutorialApp::UninitD3D()
 {
-    SAFE_RELEASE(m_pRenderTargetView);
     SAFE_RELEASE(m_pDeviceContext);
     SAFE_RELEASE(m_pSwapChain);
     SAFE_RELEASE(m_pDevice);
-    SAFE_RELEASE(m_pBlendState);
 }
 
 bool TutorialApp::InitImGUI()
@@ -358,7 +359,7 @@ bool TutorialApp::InitScene()
 
     //m_ModelLoader.Load(m_pDevice, m_pDeviceContext, "../Resource/BoxHuman.fbx", "BoxHuman");
     m_SkeletalModelLoader.Load(m_pDevice, m_pDeviceContext, "../Resource/BoxHuman.fbx", "BoxHuman");
-    
+
     Skybox skybox[] =
     {
         { Vector3(-1.0f,  1.0f,  1.0f) },
@@ -418,7 +419,8 @@ bool TutorialApp::InitScene()
     SAFE_RELEASE(pixelShaderBuffer);
 
     vbDesc.Usage = D3D11_USAGE_DEFAULT;
-    vbDesc.ByteWidth = sizeof(ConstantBuffer);
+    //vbDesc.ByteWidth = sizeof(ConstantBuffer);
+    vbDesc.ByteWidth = (sizeof(ConstantBuffer) + 15) / 16 * 16; // 16바이트 정렬
     vbDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
     vbDesc.CPUAccessFlags = 0;
     HR_T(m_pDevice->CreateBuffer(&vbDesc, nullptr, &m_pConstantBuffer));
@@ -527,15 +529,7 @@ bool TutorialApp::InitScene()
 
 void TutorialApp::UninitScene()
 {
-    SAFE_RELEASE(m_pInputLayout);
-    SAFE_RELEASE(m_pVertexShader);
-    SAFE_RELEASE(m_pPixelShader);
-    SAFE_RELEASE(m_pSkyboxVertexShader);
-    SAFE_RELEASE(m_pSkyboxPixelShader);
     SAFE_RELEASE(m_pConstantBuffer);
-    SAFE_RELEASE(m_pRasterStateNoCull);
-    SAFE_RELEASE(m_pRasterStateBackCull);
-    SAFE_RELEASE(m_pRasterStateFrontCull);
 
     m_ModelLoader.Close();
 }

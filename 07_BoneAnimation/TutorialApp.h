@@ -25,24 +25,24 @@ public:
 	ID3D11Device* m_pDevice = nullptr;								// 디바이스	
 	ID3D11DeviceContext* m_pDeviceContext = nullptr;				// 즉시 디바이스 컨텍스트
 	IDXGISwapChain* m_pSwapChain = nullptr;							// 스왑체인
-	ID3D11RenderTargetView* m_pRenderTargetView = nullptr;			// 렌더링 타겟뷰
-	ID3D11DepthStencilView* m_pDepthStencilView = nullptr;			// 깊이값 처리를 위한 뎊스스텐실 뷰
+	ID3D11Buffer* m_pConstantBuffer;								// 상수 버퍼.
 
-	// 렌더링 파이프라인에 적용하는  객체와 정보
-	ID3D11VertexShader* m_pVertexShader = nullptr;					// 정점 셰이더.
-	ID3D11PixelShader* m_pPixelShader = nullptr;					// 픽셀 셰이더.	
-	ID3D11InputLayout* m_pInputLayout = nullptr;					// 입력 레이아웃.
-	ID3D11Buffer* m_pConstantBuffer = nullptr;						// 상수 버퍼.
-	ID3D11SamplerState* m_pSamplerLinear = nullptr;					// 샘플러 스테이트
-	ID3D11BlendState* m_pBlendState = nullptr;						// 블렌더 스테이트
+	ComPtr<ID3D11RenderTargetView> m_pRenderTargetView;				// 렌더링 타겟뷰
+	ComPtr<ID3D11DepthStencilView> m_pDepthStencilView;				// 깊이값 처리를 위한 뎊스스텐실 뷰
 
-	ID3D11RasterizerState* m_pRasterStateNoCull = nullptr;			// 컬링 여부(컬링 안함)
-	ID3D11RasterizerState* m_pRasterStateBackCull = nullptr;		// 컬링 여부(기본 값)
-	ID3D11RasterizerState* m_pRasterStateFrontCull = nullptr;		// 컬링 여부(앞면 컬링, 반전)
+	ComPtr<ID3D11VertexShader> m_pVertexShader;						// 정점 셰이더.
+	ComPtr<ID3D11PixelShader> m_pPixelShader;						// 픽셀 셰이더.	
+	ComPtr<ID3D11InputLayout> m_pInputLayout;						// 입력 레이아웃.
+	ComPtr<ID3D11SamplerState> m_pSamplerLinear;					// 샘플러 스테이트
+	ComPtr<ID3D11BlendState> m_pBlendState;							// 블렌더 스테이트
+
+	ComPtr<ID3D11RasterizerState> m_pRasterStateNoCull;				// 컬링 여부(컬링 안함)
+	ComPtr<ID3D11RasterizerState> m_pRasterStateBackCull;			// 컬링 여부(기본 값)
+	ComPtr<ID3D11RasterizerState> m_pRasterStateFrontCull;			// 컬링 여부(앞면 컬링, 반전)
 
 	/*------스카이박스-------*/
-	ID3D11VertexShader* m_pSkyboxVertexShader = nullptr;			// 정점 셰이더
-	ID3D11PixelShader* m_pSkyboxPixelShader = nullptr;				// 픽셀 셰이더
+	ComPtr<ID3D11VertexShader> m_pSkyboxVertexShader = nullptr;		// 정점 셰이더
+	ComPtr<ID3D11PixelShader> m_pSkyboxPixelShader = nullptr;		// 픽셀 셰이더
 	ID3D11InputLayout* m_pSkyboxInputLayout = nullptr;				// 입력 레이아웃
 	ID3D11Buffer* m_pSkyboxVertexBuffer = nullptr;					// 버텍스 버퍼
 	UINT m_SkyboxVertexBufferStride = 0;							// 버텍스 하나의 크기

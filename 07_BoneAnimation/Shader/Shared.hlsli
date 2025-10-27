@@ -36,16 +36,26 @@ cbuffer ConstantBuffer : register(b0)
     int hasEmissiveMap;
     
     float4 solidColor;
+    
+    uint IsRigid;
+    uint RefBoneIndex;
+    float pad1;
+    float pad2;
 }
-Texture2D txDiffuse : register(t0);
 
 cbuffer SkyboxCB : register(b1)
 {
     matrix SkyboxView;
     matrix SkyboxProjection;
 }
-TextureCube txCube : register(t1);
 
+cbuffer ModelMatrix : register(b2)
+{
+    matrix gModelMatrices[128];
+}
+
+Texture2D txDiffuse : register(t0);
+TextureCube txCube : register(t1);
 Texture2D normalMap : register(t2);
 Texture2D specularMap : register(t3);
 Texture2D emissiveMap : register(t4);

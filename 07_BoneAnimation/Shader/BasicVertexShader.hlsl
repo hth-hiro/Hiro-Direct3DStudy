@@ -19,6 +19,6 @@ PS_INPUT main(VS_INPUT input)
     
     // 입력된 uv텍스처를 출력에 반영한다.
     output.Tex = input.Tex;
-
+    
     return output;
 }

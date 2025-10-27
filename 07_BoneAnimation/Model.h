@@ -43,8 +43,12 @@ struct ConstantBuffer
 	int hasSpecularMap;
 	int hasEmissiveMap;
 
-
 	Vector4 solidColor;
+
+	UINT IsRigid;
+	UINT RefBoneIndex;
+	float pad1;
+	float pad2;
 };
 
 struct Material
@@ -121,7 +125,6 @@ public:
 				if (tex.hasNormalMap) cbObj.hasNormalMap = 1;
 				if (tex.hasSpecularMap) cbObj.hasSpecularMap = 1;
 				if (tex.hasEmissiveMap) cbObj.hasEmissiveMap = 1;
-
 			}
 
 			devcon->UpdateSubresource(cb, 0, nullptr, &cbObj, 0, 0);
