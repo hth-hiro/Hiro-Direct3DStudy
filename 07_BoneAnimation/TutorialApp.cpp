@@ -96,20 +96,20 @@ void TutorialApp::Update()
         m_pCubeTextureRV = m_pCubeMuseumTextureRV;
     }
 
-    //Model* BoxHuman = GetModelByName("BoxHuman");
-    //if (BoxHuman)
-    //{
-    //    Object obj = m_ImGuiManager.object1;
+    Model* BoxHuman = GetModelByName("BoxHuman");
+    if (BoxHuman)
+    {
+        Object obj = m_ImGuiManager.object1;
 
-    //    BoxHuman->transform.position = { obj.transform.GetPosition() };
-    //    BoxHuman->transform.scale = { obj.transform.GetScale() * 100 };
-    //    BoxHuman->transform.rotation = { obj.transform.GetRotation() };
+        BoxHuman->transform.position = { obj.transform.GetPosition() };
+        BoxHuman->transform.scale = { obj.transform.GetScale() * 100 };
+        BoxHuman->transform.rotation = { obj.transform.GetRotation() };
 
-    //    BoxHuman->material.ambient = { obj.ambient };
-    //    BoxHuman->material.diffuse = { obj.diffuse };
-    //    BoxHuman->material.specular = { obj.specular };
-    //    BoxHuman->material.shininess = { obj.shininess };
-    //}
+        BoxHuman->material.ambient = { obj.ambient };
+        BoxHuman->material.diffuse = { obj.diffuse };
+        BoxHuman->material.specular = { obj.specular };
+        BoxHuman->material.shininess = { obj.shininess };
+    }
 
     m_SkeletalModelLoader.Update(m_Time.GetDeltaTime());
 }
@@ -128,7 +128,6 @@ void TutorialApp::Render()
     m_pDeviceContext->OMSetRenderTargets(1, &rtv, m_pDepthStencilView.Get());
     m_pDeviceContext->ClearRenderTargetView(rtv, color);
     m_pDeviceContext->ClearDepthStencilView(m_pDepthStencilView.Get(), D3D11_CLEAR_DEPTH, 1.0f, 0);
-
 
     // 2. 스카이박스 렌더
     m_pDeviceContext->OMSetDepthStencilState(m_pSkyboxDepthStencilState, 0);

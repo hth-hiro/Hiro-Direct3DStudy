@@ -1,5 +1,6 @@
 #include "SkeletalMesh.h"
 #include "../Common/Helper.h"
+#include "SkeletalModel.h"
 
 SkeletalMesh::SkeletalMesh() :
 	dev_(nullptr),
@@ -35,7 +36,7 @@ bool SkeletalMesh::ReadSkeletonMeshFile(ID3D11Device* dev, ID3D11DeviceContext* 
 	if (pScene == nullptr)
 		return false;
 
-	SkeletalModel model;
+	SkeletalModel model(this);
 	model.name = name;
 	directory_ = filePath.substr(0, filePath.find_last_of("/\\"));
 
@@ -166,6 +167,10 @@ void SkeletalMesh::Update(float deltaTime)
 			Quaternion rotation;
 
 			bone.m_pBoneAnimation->Evaluate(m_AnimationProcessTime, position, rotation, scaling);
+
+            if (bone.m_ParentIndex == -1)
+                position += Vector3(transform.position.x, transform.position.y, transform.position.z);
+
 			bone.m_Local = Matrix::CreateScale(scaling) * Matrix::CreateFromQuaternion(rotation)
 				* Matrix::CreateTranslation(position);
 		}
@@ -202,36 +207,28 @@ void SkeletalMesh::Draw(
 {
     if (m_Skeleton.empty()) return;
 
+    // 본 행렬 업데이트
     devcon->UpdateSubresource(boneCB, 0, nullptr, &m_SkeletonPose.Array, 0, 0);
     devcon->VSSetConstantBuffers(2, 1, &boneCB);
 
     for (auto& model : models_)
     {
-        for (size_t i = 0; i < model.meshes_.size(); ++i)
-        {
-            int refBoneIndex = -1;
-
-            if (i < m_Sections.size())
-                refBoneIndex = m_Sections[i].m_RefBoneIndex;
-
-            model.Draw(
-                devcon,
-                cb,
-                view,
-                proj,
-                lightDir,
-                ambient,
-                diffuse,
-                specular,
-                shininess,
-                cameraPos,
-                useLighting,
-                &m_SkeletonPose,
-                boneCB,
-                refBoneIndex  // 섹션별로 고유하게 전달
-            );
-        }
+        model.Draw(
+            devcon,
+            cb,
+            view,
+            proj,
+            lightDir,
+            ambient,
+            diffuse,
+            specular,
+            shininess,
+            cameraPos,
+            useLighting
+        );
     }
+
+
 }
 
 void SkeletalMesh::Close()

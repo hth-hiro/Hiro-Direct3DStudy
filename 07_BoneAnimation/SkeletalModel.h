@@ -5,6 +5,7 @@
 #include "Bone.h"
 #include "../Common/Transform.h"
 #include "Model.h"
+#include "SkeletalMesh.h"
 
 class Mesh;
 struct Texture;
@@ -13,6 +14,11 @@ using namespace DirectX;
 class SkeletalModel : public Model
 {
 public:
+    SkeletalMesh* skeletalMesh = nullptr;
+    
+    SkeletalModel() = default;
+    SkeletalModel(SkeletalMesh* mesh) : skeletalMesh(mesh) {}
+
     void Draw(
         ID3D11DeviceContext* devcon,
         ID3D11Buffer* cb,
@@ -34,12 +40,13 @@ public:
         int refBoneIndex = -1
     )
     {
-        // 특정 부분만 렌더를 할 수 있게 가능하다.
-        ConstantBuffer cbObj;
-
         for (size_t i = 0; i < meshes_.size(); ++i)
         {
-            // 상수 버퍼는 매 메시별로 업데이트가 되어야 한다.
+            int refBoneIndex = -1;
+            if (i < skeletalMesh->m_Sections.size())
+                refBoneIndex = skeletalMesh->m_Sections[i].m_RefBoneIndex;
+
+            ConstantBuffer cbObj{};
             cbObj.mWorld = XMMatrixTranspose(this->transform.GetMatrix());
             cbObj.mView = XMMatrixTranspose(view);
             cbObj.mProjection = XMMatrixTranspose(proj);
@@ -54,22 +61,16 @@ public:
             cbObj.vMaterialSpecular = material.specular;
             cbObj.vShininess = material.shininess;
 
-            cbObj.vOutputColor = XMFLOAT4(1, 1, 1, 1);
-
             cbObj.cameraPos = cameraPos;
-
             cbObj.UseLighting = useLighting ? 1 : 0;
-
             cbObj.RefBoneIndex = refBoneIndex;
 
-            for (auto& tex : meshes_[i].textures_)
+            auto& mesh = meshes_[i];
+            cbObj.hasTexture = 0;
+            for (auto& tex : mesh.textures_)
             {
                 if (tex.hasTexture) cbObj.hasTexture = 1;
-                else
-                {
-                    cbObj.solidColor = tex.solidColor;
-                    cbObj.hasTexture = 0;
-                }
+                else cbObj.solidColor = tex.solidColor;
 
                 if (tex.hasNormalMap) cbObj.hasNormalMap = 1;
                 if (tex.hasSpecularMap) cbObj.hasSpecularMap = 1;
@@ -80,7 +81,7 @@ public:
             devcon->VSSetConstantBuffers(0, 1, &cb);
             devcon->PSSetConstantBuffers(0, 1, &cb);
 
-            meshes_[i].Draw(devcon);
+            mesh.Draw(devcon);
         }
     }
 

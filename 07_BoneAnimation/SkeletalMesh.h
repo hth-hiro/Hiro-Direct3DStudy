@@ -8,7 +8,7 @@
 #include "../Common/Transform.h"
 
 #include "TextureLoader.h"
-#include "SkeletalModel.h"
+
 #include <unordered_map>
 #include <map>
 
@@ -22,6 +22,8 @@ using namespace std;
 //	bool operator<(const MeshName& other) const { return Name < other.Name; }
 //	bool operator==(const MeshName& other) const { return Name == other.Name; }
 //};
+
+class SkeletalModel;
 
 struct SkeletonInfo
 {
@@ -142,6 +144,8 @@ public:
 	float m_AnimationProcessTime;
 
     unordered_map<string, shared_ptr<SkeletalMeshSection>> loadedSections;
+
+    Transform transform;
 
 	SkeletalMesh();
 	~SkeletalMesh();

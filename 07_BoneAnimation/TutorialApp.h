@@ -7,6 +7,7 @@
 #include "ImGuiManager.h"
 #include "ModelLoader.h"
 #include "SkeletalMesh.h"
+#include "SkeletalModel.h"
 
 using namespace DirectX::SimpleMath;
 using namespace DirectX;
