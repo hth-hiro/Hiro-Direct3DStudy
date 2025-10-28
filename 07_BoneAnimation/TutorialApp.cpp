@@ -101,7 +101,7 @@ void TutorialApp::Update()
     {
         Object obj = m_ImGuiManager.object1;
 
-        //BoxHuman->transform.position = { obj.transform.GetPosition() };
+        BoxHuman->transform.position = { obj.transform.GetPosition() };
         BoxHuman->transform.scale = { obj.transform.GetScale() };
         BoxHuman->transform.rotation = { obj.transform.GetRotation() };
 

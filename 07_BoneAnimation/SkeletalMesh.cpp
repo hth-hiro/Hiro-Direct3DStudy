@@ -160,22 +160,20 @@ void SkeletalMesh::Update(float deltaTime)
 	}
 
 	for (auto& bone : m_Skeleton)
-	{
+	{	
+        Vector3 position, scaling;
+		Quaternion rotation;
+
 		if (bone.m_pBoneAnimation != nullptr)
 		{
-			Vector3 position, scaling;
-			Quaternion rotation;
-
 			bone.m_pBoneAnimation->Evaluate(m_AnimationProcessTime, position, rotation, scaling);
-
-            if (bone.m_ParentIndex == -1)
-                bone.m_Model = bone.m_Local * Matrix::CreateTranslation(transform.position.x, transform.position.y, transform.position.z);
-            else
-                bone.m_Model = bone.m_Local * m_Skeleton[bone.m_ParentIndex].m_Model;
 
 			bone.m_Local = Matrix::CreateScale(scaling) * Matrix::CreateFromQuaternion(rotation)
 				* Matrix::CreateTranslation(position);
 		}
+
+        if (bone.m_ParentIndex == -1)
+            position += Vector3(transform.position.x, transform.position.y, transform.position.z);
 
 		if (bone.m_ParentIndex != -1)
 		{
@@ -229,8 +227,6 @@ void SkeletalMesh::Draw(
             useLighting
         );
     }
-
-
 }
 
 void SkeletalMesh::Close()
