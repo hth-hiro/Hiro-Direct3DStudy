@@ -169,7 +169,9 @@ void SkeletalMesh::Update(float deltaTime)
 			bone.m_pBoneAnimation->Evaluate(m_AnimationProcessTime, position, rotation, scaling);
 
             if (bone.m_ParentIndex == -1)
-                position += Vector3(transform.position.x, transform.position.y, transform.position.z);
+                bone.m_Model = bone.m_Local * Matrix::CreateTranslation(transform.position.x, transform.position.y, transform.position.z);
+            else
+                bone.m_Model = bone.m_Local * m_Skeleton[bone.m_ParentIndex].m_Model;
 
 			bone.m_Local = Matrix::CreateScale(scaling) * Matrix::CreateFromQuaternion(rotation)
 				* Matrix::CreateTranslation(position);

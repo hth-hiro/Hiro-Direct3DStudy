@@ -47,7 +47,7 @@ public:
                 refBoneIndex = skeletalMesh->m_Sections[i].m_RefBoneIndex;
 
             ConstantBuffer cbObj{};
-            cbObj.mWorld = XMMatrixTranspose(this->transform.GetMatrix());
+            cbObj.mWorld = XMMatrixTranspose(transform.GetMatrix());
             cbObj.mView = XMMatrixTranspose(view);
             cbObj.mProjection = XMMatrixTranspose(proj);
 

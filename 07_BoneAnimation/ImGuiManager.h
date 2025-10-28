@@ -26,7 +26,7 @@ struct Object
 	Vector4 diffuse = {1,1,1,1};
 	Vector4 specular = {1,1,1,1};
 
-	float shininess = 1000.f;
+	float shininess = 200.f;
 	
 	void Reset()
 	{
@@ -38,7 +38,7 @@ struct Object
 		diffuse = { 1,1,1,1 };
 		specular = { 1,1,1,1 };
 
-		shininess = 1000.f;
+		shininess = 200.f;
 	}
 };
 

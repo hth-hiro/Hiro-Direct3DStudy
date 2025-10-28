@@ -98,7 +98,7 @@ public:
 	XMFLOAT4 m_SpecularColor = { 1.0f, 1.0f, 1.0f, 1.0f };
 	XMFLOAT4 m_InitialLightDirs = { 1.0f, -1.0f, 1.0f, 0.0f };
 	XMFLOAT4 m_LightDirsEvaluated = {};
-	Vector4 m_shininess;
+    Vector4 m_shininess = { 200, 0, 0, 0 };
 
 	Vector4 m_cameraPos;
 

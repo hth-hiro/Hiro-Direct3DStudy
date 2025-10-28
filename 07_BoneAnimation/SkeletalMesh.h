@@ -16,13 +16,6 @@ using namespace DirectX::SimpleMath;
 using namespace DirectX;
 using namespace std;
 
-//struct MeshName
-//{
-//	string Name;
-//	bool operator<(const MeshName& other) const { return Name < other.Name; }
-//	bool operator==(const MeshName& other) const { return Name == other.Name; }
-//};
-
 class SkeletalModel;
 
 struct SkeletonInfo
