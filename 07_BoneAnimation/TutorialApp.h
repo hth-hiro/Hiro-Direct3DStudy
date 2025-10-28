@@ -26,6 +26,7 @@ public:
 	ID3D11DeviceContext* m_pDeviceContext = nullptr;				// 즉시 디바이스 컨텍스트
 	IDXGISwapChain* m_pSwapChain = nullptr;							// 스왑체인
 	ID3D11Buffer* m_pConstantBuffer;								// 상수 버퍼.
+    ID3D11Buffer* m_pBoneBuffer;								    // 상수 버퍼.
 
 	ComPtr<ID3D11RenderTargetView> m_pRenderTargetView;				// 렌더링 타겟뷰
 	ComPtr<ID3D11DepthStencilView> m_pDepthStencilView;				// 깊이값 처리를 위한 뎊스스텐실 뷰
@@ -39,6 +40,9 @@ public:
 	ComPtr<ID3D11RasterizerState> m_pRasterStateNoCull;				// 컬링 여부(컬링 안함)
 	ComPtr<ID3D11RasterizerState> m_pRasterStateBackCull;			// 컬링 여부(기본 값)
 	ComPtr<ID3D11RasterizerState> m_pRasterStateFrontCull;			// 컬링 여부(앞면 컬링, 반전)
+
+    ComPtr<ID3D11VertexShader> m_pSkeletalVS;                       // 본애니메이션 전용 VS
+    ComPtr<ID3D11InputLayout> m_pSkeletalInputLayout;               // 본애니메이션 전용 IA
 
 	/*------스카이박스-------*/
 	ComPtr<ID3D11VertexShader> m_pSkyboxVertexShader;				// 정점 셰이더
@@ -56,6 +60,7 @@ public:
 	ID3D11ShaderResourceView* m_pCubeMuseumTextureRV = nullptr;		// 텍스처 파일1(큐브맵, 실내)
 	ID3D11ShaderResourceView* m_pCubeDaylightTextureRV = nullptr;	// 텍스처 파일2(큐브맵, 실외)
 	ID3D11ShaderResourceView* m_pCubeHanakoTextureRV = nullptr;		// 텍스처 파일3(큐브맵, 디버그)
+
 
 	Matrix m_World;
 	Matrix m_View;

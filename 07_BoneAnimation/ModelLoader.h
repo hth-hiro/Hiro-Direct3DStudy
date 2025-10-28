@@ -25,6 +25,22 @@ public:
 	bool Load(ID3D11Device* dev, ID3D11DeviceContext* devcon, const std::string& filePath, const std::string& name);
 	//void Draw(ID3D11DeviceContext* devcon, const std::string& name);
 
+    void Draw(
+        ID3D11DeviceContext* devcon,
+        ID3D11Buffer* cb,
+        const XMMATRIX& view,
+        const XMMATRIX& proj,
+
+        const Vector4& lightDir,
+        const Vector4& ambient,
+        const Vector4& diffuse,
+        const Vector4& specular,
+
+        const Vector4& shininess,
+
+        const Vector4& cameraPos,
+        const bool& useLighting);
+
 	void Close();
 
 	std::vector<Model> models_;

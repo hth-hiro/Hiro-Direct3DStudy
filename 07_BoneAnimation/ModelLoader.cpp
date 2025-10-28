@@ -195,6 +195,40 @@ std::vector<Texture> ModelLoader::loadMaterialTextures(aiMaterial* mat, aiTextur
 	return textures;
 }
 
+void ModelLoader::Draw(
+    ID3D11DeviceContext* devcon,
+    ID3D11Buffer* cb,
+    const XMMATRIX& view,
+    const XMMATRIX& proj,
+
+    const Vector4& lightDir,
+    const Vector4& ambient,
+    const Vector4& diffuse,
+    const Vector4& specular,
+
+    const Vector4& shininess,
+
+    const Vector4& cameraPos,
+    const bool& useLighting)
+{
+    for (auto& model : models_)
+    {
+        model.Draw(
+            devcon,
+            cb,
+            view,
+            proj,
+            lightDir,
+            ambient,
+            diffuse,
+            specular,
+            shininess,
+            cameraPos,
+            useLighting
+        );
+    }
+}
+
 void ModelLoader::Close()
 {
 	for (auto& model : models_)

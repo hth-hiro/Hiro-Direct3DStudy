@@ -4,6 +4,8 @@
 //#include <DirectXMath.h>
 
 #include "Mesh.h"
+#include "Bone.h"
+//#include "SkeletalMesh.h"
 
 #include "../Common/Transform.h"
 
@@ -54,8 +56,8 @@ struct ConstantBuffer
 struct Material
 {
 	Vector4 ambient = { 0.1f, 0.1f, 0.1f, 0.1f };
-	Vector4 diffuse = { 0.0f, 0.0f, 0.0f, 0.0f };
-	Vector4 specular = { 0.0f, 0.0f, 0.0f, 0.0f };
+	Vector4 diffuse = { 1.0f, 1.0f, 1.0f, 1.0f };
+	Vector4 specular = { 1.0f, 1.0f, 1.0f, 1.0f };
 	Vector4 shininess = { 1.0f, 0, 0, 0 };
 };
 
@@ -69,22 +71,27 @@ public:
 	Material material;
 	Transform bone;
 
+    vector<Bone> bones_;
+
 	Model() = default;
 
-	void Draw(ID3D11DeviceContext* devcon,
-		ID3D11Buffer* cb,
-		const XMMATRIX& view,
-		const XMMATRIX& proj,
+    void Draw(ID3D11DeviceContext* devcon,
+        ID3D11Buffer* cb,
+        const XMMATRIX& view,
+        const XMMATRIX& proj,
 
-		const Vector4& lightDir,
-		const Vector4& ambient,
-		const Vector4& diffuse,
-		const Vector4& specular,
+        const Vector4& lightDir,
+        const Vector4& ambient,
+        const Vector4& diffuse,
+        const Vector4& specular,
 
-		const Vector4& shininess,
+        const Vector4& shininess,
 
-		const Vector4& cameraPos,
-		const bool& useLighting
+        const Vector4& cameraPos,
+        const bool& useLighting,
+
+        BoneMatrixContainer* pBones = nullptr,
+        ID3D11Buffer* boneCB = nullptr
 	)
 	{
 		// 특정 부분만 렌더를 할 수 있게 가능하다.
@@ -131,6 +138,12 @@ public:
 
 			devcon->VSSetConstantBuffers(0, 1, &cb);
 			devcon->PSSetConstantBuffers(0, 1, &cb);
+
+            if (pBones && boneCB)
+            {
+                devcon->UpdateSubresource(boneCB, 0, nullptr, pBones->Array , 0, 0);
+                devcon->VSSetConstantBuffers(2, 1, &boneCB);
+            }
 
 			meshes_[i].Draw(devcon);
 		}

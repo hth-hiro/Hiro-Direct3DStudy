@@ -37,8 +37,8 @@ cbuffer ConstantBuffer : register(b0)
     
     float4 solidColor;
     
-    uint IsRigid;
-    uint RefBoneIndex;
+    uint gIsRigid;
+    uint gRefBoneIndex;
     float pad1;
     float pad2;
 }
@@ -90,6 +90,15 @@ struct PS_INPUT
     float2 Tex : TEXCOORD1;
     float3 Tangent : TEXCOORD3;
     float3 Bitangent : TEXCOORD4;
+};
+
+struct VS_INPUT_BONED
+{
+    float4 Pos : POSITION;
+    float3 Norm : NORMAL;
+    float2 Tex : TEXCOORD0;
+    float3 Tangent : TANGENT;
+    float3 Bitangent : BITANGENT;
 };
 
 float3 EncodeNormal(float3 N)

@@ -96,20 +96,20 @@ void TutorialApp::Update()
         m_pCubeTextureRV = m_pCubeMuseumTextureRV;
     }
 
-    Model* BoxHuman = GetModelByName("BoxHuman");
-    if (BoxHuman)
-    {
-        Object obj = m_ImGuiManager.object1;
+    //Model* BoxHuman = GetModelByName("BoxHuman");
+    //if (BoxHuman)
+    //{
+    //    Object obj = m_ImGuiManager.object1;
 
-        BoxHuman->transform.position = { obj.transform.GetPosition() };
-        BoxHuman->transform.scale = { obj.transform.GetScale() * 100 };
-        BoxHuman->transform.rotation = { obj.transform.GetRotation() };
+    //    BoxHuman->transform.position = { obj.transform.GetPosition() };
+    //    BoxHuman->transform.scale = { obj.transform.GetScale() * 100 };
+    //    BoxHuman->transform.rotation = { obj.transform.GetRotation() };
 
-        BoxHuman->material.ambient = { obj.ambient };
-        BoxHuman->material.diffuse = { obj.diffuse };
-        BoxHuman->material.specular = { obj.specular };
-        BoxHuman->material.shininess = { obj.shininess };
-    }
+    //    BoxHuman->material.ambient = { obj.ambient };
+    //    BoxHuman->material.diffuse = { obj.diffuse };
+    //    BoxHuman->material.specular = { obj.specular };
+    //    BoxHuman->material.shininess = { obj.shininess };
+    //}
 
     m_SkeletalModelLoader.Update(m_Time.GetDeltaTime());
 }
@@ -162,6 +162,10 @@ void TutorialApp::Render()
     // 3. 일반 오브젝트 렌더
     m_pDeviceContext->IASetInputLayout(m_pInputLayout.Get());
     m_pDeviceContext->VSSetShader(m_pVertexShader.Get(), nullptr, 0);
+
+    m_pDeviceContext->IASetInputLayout(m_pSkeletalInputLayout.Get());
+    m_pDeviceContext->VSSetShader(m_pSkeletalVS.Get(), nullptr, 0);
+
     m_pDeviceContext->PSSetShader(m_pPixelShader.Get(), nullptr, 0);
 
     // 특정 모델마다 다르게 설정한다면, 렌더에서 새로 모델 드로우 할때마다 설정을 바꿔주면 됨
@@ -172,24 +176,31 @@ void TutorialApp::Render()
 
     // 투명 오브젝트와 불투명 오브젝트를 따로 렌더해야 한다?
     // 불투명 오브젝트 렌더 -> 알파 소팅 -> 투명 오브젝트 렌더
-    for (auto& model : m_SkeletalModelLoader.models_)
-    {
-        ConstantBuffer cbObj;
 
-        model.Draw(
-            m_pDeviceContext,
-            m_pConstantBuffer,
-            m_View,
-            m_Projection,
-            m_LightDirsEvaluated,
-            m_AmbientColor,
-            m_DiffuseColor,
-            m_SpecularColor,
-            m_shininess,
-            m_cameraPos,
-            m_ImGuiManager.useLighting
-        );
-    }
+    //m_ModelLoader.Draw(m_pDeviceContext,
+    //    m_pConstantBuffer,
+    //    m_View,
+    //    m_Projection,
+    //    m_LightDirsEvaluated,
+    //    m_AmbientColor,
+    //    m_DiffuseColor,
+    //    m_SpecularColor,
+    //    m_shininess,
+    //    m_cameraPos,
+    //    m_ImGuiManager.useLighting);
+
+    m_SkeletalModelLoader.Draw(m_pDeviceContext,
+        m_pConstantBuffer,
+        m_pBoneBuffer,
+        m_View,
+        m_Projection,
+        m_LightDirsEvaluated,
+        m_AmbientColor,
+        m_DiffuseColor,
+        m_SpecularColor,
+        m_shininess,
+        m_cameraPos,
+        m_ImGuiManager.useLighting);
 
     m_pDeviceContext->PSSetSamplers(0, 1, &m_pSamplerLinear);
 
@@ -425,6 +436,16 @@ bool TutorialApp::InitScene()
     vbDesc.CPUAccessFlags = 0;
     HR_T(m_pDevice->CreateBuffer(&vbDesc, nullptr, &m_pConstantBuffer));
 
+    D3D11_BUFFER_DESC boneDesc = {};
+    boneDesc.Usage = D3D11_USAGE_DEFAULT;
+    boneDesc.ByteWidth = sizeof(BoneBuffer);  // BoneBuffer 구조체 크기
+    boneDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+    boneDesc.CPUAccessFlags = 0;
+    boneDesc.MiscFlags = 0;
+    boneDesc.StructureByteStride = 0;
+
+    HR_T(m_pDevice->CreateBuffer(&boneDesc, nullptr, &m_pBoneBuffer));
+
     // 여기에 Sampler State 생성, CreateSamplerState 사용
     D3D11_SAMPLER_DESC sampDesc = {};
 
@@ -438,17 +459,27 @@ bool TutorialApp::InitScene()
     sampDesc.MaxLOD = D3D11_FLOAT32_MAX;                    // 밉맵 최대값
     HR_T(m_pDevice->CreateSamplerState(&sampDesc, &m_pSamplerLinear));
 
-    // 여기에 텍스처 렌더, CreateDDSTextureFromFile 사용
-    //HR_T(CreateDDSTextureFromFile(m_pDevice, L"../Resource/seafloor.dds", nullptr, &m_pTextureRV));
+    /*--------Vertex Shader--------*/
+    ID3DBlob* boneShader = nullptr;
+    CompileShaderFromFile(L"Shader/BoneModelVS.hlsl", "main", "vs_5_0", &boneShader);
 
-    //HR_T(CreateWICTextureFromFile(m_pDevice, L"../Resource/Bricks059_1K-JPG_Color.jpg", nullptr, &m_pTextureRV));
+    HR_T(m_pDevice->CreateVertexShader(boneShader->GetBufferPointer(),
+        boneShader->GetBufferSize(), NULL, &m_pSkeletalVS));
 
-    // 노멀맵을 가져온다.
-    //HR_T(CreateWICTextureFromFile(m_pDevice, L"../Resource/Bricks059_1K-JPG_NormalDX.jpg", nullptr, &m_pNormalMapRV));
+    /*--------InputLayout--------*/
+    D3D11_INPUT_ELEMENT_DESC bonelayout[] =
+    {
+        {"POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0},
+        {"NORMAL", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 12, D3D11_INPUT_PER_VERTEX_DATA, 0},
+        {"TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 24, D3D11_INPUT_PER_VERTEX_DATA, 0},
+        {"TANGENT", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 32, D3D11_INPUT_PER_VERTEX_DATA, 0},
+        {"BITANGENT", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 44, D3D11_INPUT_PER_VERTEX_DATA, 0},
+    };
 
-    // 스펙큘러맵을 가져온다.
-    //HR_T(CreateWICTextureFromFile(m_pDevice, L"../Resource/Bricks059_Specular.png", nullptr, &m_pSpecularMapRV));
+    HR_T(m_pDevice->CreateInputLayout(bonelayout, ARRAYSIZE(bonelayout), boneShader->GetBufferPointer(),
+        boneShader->GetBufferSize(), &m_pSkeletalInputLayout));
 
+    SAFE_RELEASE(boneShader);
 
     // 스카이박스 전용 버퍼 생성
     // Create Vertex Buffer

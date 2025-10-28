@@ -18,14 +18,6 @@ bool SkeletalMesh::Load(ID3D11Device* dev, ID3D11DeviceContext* devcon, const st
 	if (!ReadSkeletonMeshFile(dev, devcon, filePath, name))
 		return false;
 
-	for (auto& section : m_Sections)
-	{
-		section.CreateVertexBuffer(dev);
-		section.CreateIndexBuffer(dev);
-		section.CreateBoneWeightedVertex(dev);
-		section.SetSkeletonInfo();
-	}
-
 	return true;
 }
 
@@ -43,14 +35,20 @@ bool SkeletalMesh::ReadSkeletonMeshFile(ID3D11Device* dev, ID3D11DeviceContext* 
 	if (pScene == nullptr)
 		return false;
 
-	Model model;
+	SkeletalModel model;
 	model.name = name;
 	directory_ = filePath.substr(0, filePath.find_last_of("/\\"));
 
 	this->dev_ = dev;
 	this->devcon_ = devcon;
 
+    // Bone 생성
+    m_SkeletonInfo.CreateFromAiScene(pScene);
+
+    // Section 채우기
 	processNode(pScene->mRootNode, pScene, model);
+
+    CreateSkeleton(pScene->mRootNode);
 
 	ReadAnimationFile(pScene);
 
@@ -107,8 +105,12 @@ void SkeletalMesh::ReadAnimationFile(const aiScene* scene)
 					);
 			}
 
-			if (c < m_Skeleton.size())
-				m_Skeleton[c].m_pBoneAnimation = boneAnim;
+			//if (c < m_Skeleton.size())
+			//	m_Skeleton[c].m_pBoneAnimation = boneAnim;
+
+            auto it = m_BoneNameToIndex.find(channel->mNodeName.C_Str());
+            if (it != m_BoneNameToIndex.end())
+                m_Skeleton[it->second].m_pBoneAnimation = boneAnim;
 		}
 
 		m_Animations.push_back(animation);
@@ -138,13 +140,14 @@ int SkeletalMesh::CreateSkeleton(aiNode* node, int parentBoneIndex)
 	m_Skeleton.push_back(bone);
 	m_BoneNameToIndex[bone.m_Name] = bone.m_Index;
 
-	int thisIndex = bone.m_Index;
-	for (UINT i = 0; i < node->mNumChildren; ++i)
-	{
-		CreateSkeleton(node->mChildren[i], thisIndex);
-	}
+    int currentIndex = bone.m_Index;
 
-	return bone.m_Index;
+    for (unsigned int i = 0; i < node->mNumChildren; ++i)
+    {
+        CreateSkeleton(node->mChildren[i], currentIndex);
+    }
+
+	return currentIndex;
 }
 
 void SkeletalMesh::Update(float deltaTime)
@@ -180,6 +183,57 @@ void SkeletalMesh::Update(float deltaTime)
 	}
 }
 
+void SkeletalMesh::Draw(
+    ID3D11DeviceContext* devcon,
+    ID3D11Buffer* cb,
+    ID3D11Buffer* boneCB,
+    const XMMATRIX& view,
+    const XMMATRIX& proj,
+
+    const Vector4& lightDir,
+    const Vector4& ambient,
+    const Vector4& diffuse,
+    const Vector4& specular,
+
+    const Vector4& shininess,
+
+    const Vector4& cameraPos,
+    const bool& useLighting)
+{
+    if (m_Skeleton.empty()) return;
+
+    devcon->UpdateSubresource(boneCB, 0, nullptr, &m_SkeletonPose.Array, 0, 0);
+    devcon->VSSetConstantBuffers(2, 1, &boneCB);
+
+    for (auto& model : models_)
+    {
+        for (size_t i = 0; i < model.meshes_.size(); ++i)
+        {
+            int refBoneIndex = -1;
+
+            if (i < m_Sections.size())
+                refBoneIndex = m_Sections[i].m_RefBoneIndex;
+
+            model.Draw(
+                devcon,
+                cb,
+                view,
+                proj,
+                lightDir,
+                ambient,
+                diffuse,
+                specular,
+                shininess,
+                cameraPos,
+                useLighting,
+                &m_SkeletonPose,
+                boneCB,
+                refBoneIndex  // 섹션별로 고유하게 전달
+            );
+        }
+    }
+}
+
 void SkeletalMesh::Close()
 {
 	for (auto& model : models_)
@@ -199,117 +253,125 @@ void SkeletalMesh::Close()
 	models_.clear();
 }
 
-void SkeletalMesh::processNode(aiNode* node, const aiScene* scene, Model& model, int parentBoneIndex)
+void SkeletalMesh::processNode(aiNode* node, const aiScene* scene, SkeletalModel& model)
 {
-	int boneIndex = CreateSkeleton(node, parentBoneIndex);
+    if (!node) return;
 
-	for (UINT i = 0; i < node->mNumMeshes; i++)
-	{
-		aiMesh* mesh = scene->mMeshes[node->mMeshes[i]];
-		model.meshes_.push_back(this->processMesh(mesh, scene, model));
-	}
+    for (UINT i = 0; i < node->mNumMeshes; ++i)
+    {
+        aiMesh* mesh = scene->mMeshes[node->mMeshes[i]];
+        model.meshes_.push_back(this->processMesh(mesh, scene, model));
+    }
 
-	for (UINT i = 0; i < node->mNumChildren; i++)
-	{
-		this->processNode(node->mChildren[i], scene, model, boneIndex);
-	}
+    for (UINT i = 0; i < node->mNumChildren; ++i)
+    {
+        this->processNode(node->mChildren[i], scene, model);
+    }
 }
 
-Mesh SkeletalMesh::processMesh(aiMesh* mesh, const aiScene* scene, Model& model)
+Mesh SkeletalMesh::processMesh(aiMesh* mesh, const aiScene* scene, SkeletalModel& model)
 {
-	std::vector<Vertex> vertices;
-	std::vector<UINT> indices;
-	std::vector<Texture> textures;
+    int boneIndex = m_SkeletonInfo.GetBoneIndexByMeshName(mesh->mName.C_Str());
 
-	// 서로 다른 메시의 버텍스에 대해 루프를 돌린다.
-	for (UINT i = 0; i < mesh->mNumVertices; i++)
-	{
-		Vertex vertex;
+    SkeletalMeshSection section;
+    section.m_RefBoneIndex = boneIndex;
+    section.m_Vertices.resize(mesh->mNumVertices);
 
-		vertex.Pos.x = mesh->mVertices[i].x;
-		vertex.Pos.y = mesh->mVertices[i].y;
-		vertex.Pos.z = mesh->mVertices[i].z;
+    // 서로 다른 메시의 버텍스에 대해 루프를 돌린다.
+    for (UINT i = 0; i < mesh->mNumVertices; i++)
+    {
+        section.m_Vertices[i].Pos.x = mesh->mVertices[i].x;
+        section.m_Vertices[i].Pos.y = mesh->mVertices[i].y;
+        section.m_Vertices[i].Pos.z = mesh->mVertices[i].z;
 
-		if (mesh->HasNormals())
-		{
-			vertex.Normal.x = mesh->mNormals[i].x;
-			vertex.Normal.y = mesh->mNormals[i].y;
-			vertex.Normal.z = mesh->mNormals[i].z;
-		}
-		else {
-			vertex.Normal = {};
-		}
+        if (mesh->HasNormals())
+        {
+            section.m_Vertices[i].Normal.x = mesh->mNormals[i].x;
+            section.m_Vertices[i].Normal.y = mesh->mNormals[i].y;
+            section.m_Vertices[i].Normal.z = mesh->mNormals[i].z;
+        }
+        else {
+            section.m_Vertices[i].Normal = {};
+        }
 
-		if (mesh->mTextureCoords[0])
-		{
-			vertex.Tex.x = (float)mesh->mTextureCoords[0][i].x;
-			vertex.Tex.y = (float)mesh->mTextureCoords[0][i].y;
-		}
-		else {
-			vertex.Tex = { 0.0f, 0.0f };
-		}
+        if (mesh->mTextureCoords[0])
+        {
+            section.m_Vertices[i].Tex.x = (float)mesh->mTextureCoords[0][i].x;
+            section.m_Vertices[i].Tex.y = (float)mesh->mTextureCoords[0][i].y;
+        }
+        else {
+            section.m_Vertices[i].Tex = { 0.0f, 0.0f };
+        }
 
-		if (mesh->HasTangentsAndBitangents())
-		{
-			vertex.Tangent.x = mesh->mTangents[i].x;
-			vertex.Tangent.y = mesh->mTangents[i].y;
-			vertex.Tangent.z = mesh->mTangents[i].z;
+        if (mesh->HasTangentsAndBitangents())
+        {
+            section.m_Vertices[i].Tangent.x = mesh->mTangents[i].x;
+            section.m_Vertices[i].Tangent.y = mesh->mTangents[i].y;
+            section.m_Vertices[i].Tangent.z = mesh->mTangents[i].z;
 
-			vertex.Bitangent.x = mesh->mBitangents[i].x;
-			vertex.Bitangent.y = mesh->mBitangents[i].y;
-			vertex.Bitangent.z = mesh->mBitangents[i].z;
-		}
-		else {
-			vertex.Tangent = { 0.0f, 0.0f, 0.0f };
-			vertex.Bitangent = { 0.0f, 0.0f, 0.0f };
-		}
+            section.m_Vertices[i].Bitangent.x = mesh->mBitangents[i].x;
+            section.m_Vertices[i].Bitangent.y = mesh->mBitangents[i].y;
+            section.m_Vertices[i].Bitangent.z = mesh->mBitangents[i].z;
+        }
+        else {
+            section.m_Vertices[i].Tangent = { 0.0f, 0.0f, 0.0f };
+            section.m_Vertices[i].Bitangent = { 0.0f, 0.0f, 0.0f };
+        }
+    }
 
-		vertices.push_back(vertex);
-	}
+    for (UINT i = 0; i < mesh->mNumFaces; i++)
+    {
+        aiFace face = mesh->mFaces[i];
 
-	for (UINT i = 0; i < mesh->mNumFaces; i++)
-	{
-		aiFace face = mesh->mFaces[i];
+        for (UINT j = 0; j < face.mNumIndices; j++)
+            section.m_Indices.push_back(face.mIndices[j]);
+    }
 
-		for (UINT j = 0; j < face.mNumIndices; j++)
-			indices.push_back(face.mIndices[j]);
-	}
+    if (mesh->mMaterialIndex >= 0)
+    {
+        aiMaterial* material = scene->mMaterials[mesh->mMaterialIndex];
 
-	if (mesh->mMaterialIndex >= 0)
-	{
-		aiMaterial* material = scene->mMaterials[mesh->mMaterialIndex];
+        std::vector<Texture> diffuseMaps = this->loadMaterialTextures(material, aiTextureType_DIFFUSE, "texture_diffuse", scene, model);
+        section.m_Textures.insert(section.m_Textures.end(), diffuseMaps.begin(), diffuseMaps.end());
 
-		std::vector<Texture> diffuseMaps = this->loadMaterialTextures(material, aiTextureType_DIFFUSE, "texture_diffuse", scene, model);
-		textures.insert(textures.end(), diffuseMaps.begin(), diffuseMaps.end());
+        std::vector<Texture> normalMaps = this->loadMaterialTextures(material, aiTextureType_NORMALS, "texture_normal", scene, model);
+        section.m_Textures.insert(section.m_Textures.end(), normalMaps.begin(), normalMaps.end());
 
-		std::vector<Texture> normalMaps = this->loadMaterialTextures(material, aiTextureType_NORMALS, "texture_normal", scene, model);
-		textures.insert(textures.end(), normalMaps.begin(), normalMaps.end());
+        std::vector<Texture> specularMaps = this->loadMaterialTextures(material, aiTextureType_SPECULAR, "texture_specular", scene, model);
+        section.m_Textures.insert(section.m_Textures.end(), specularMaps.begin(), specularMaps.end());
 
-		std::vector<Texture> specularMaps = this->loadMaterialTextures(material, aiTextureType_SPECULAR, "texture_specular", scene, model);
-		textures.insert(textures.end(), specularMaps.begin(), specularMaps.end());
+        std::vector<Texture> emissiveMaps = this->loadMaterialTextures(material, aiTextureType_EMISSIVE, "texture_emissive", scene, model);
+        section.m_Textures.insert(section.m_Textures.end(), emissiveMaps.begin(), emissiveMaps.end());
 
-		std::vector<Texture> emissiveMaps = this->loadMaterialTextures(material, aiTextureType_EMISSIVE, "texture_emissive", scene, model);
-		textures.insert(textures.end(), emissiveMaps.begin(), emissiveMaps.end());
+        if (diffuseMaps.empty())
+        {
+            aiColor4D color(1, 1, 1, 1);
 
-		if (diffuseMaps.empty())
-		{
-			aiColor4D color(1, 1, 1, 1);
+            if (AI_SUCCESS == material->Get(AI_MATKEY_BASE_COLOR, color) ||
+                AI_SUCCESS == material->Get(AI_MATKEY_COLOR_DIFFUSE, color))
+            {
+                Texture colorTex{};
+                colorTex.type = "baseColor";
+                colorTex.solidColor = XMFLOAT4(color.r, color.g, color.b, 1);
+                colorTex.hasTexture = false;
+                section.m_Textures.push_back(colorTex);
+            }
+        }
+    }
 
-			if (AI_SUCCESS == material->Get(AI_MATKEY_BASE_COLOR, color) ||
-				AI_SUCCESS == material->Get(AI_MATKEY_COLOR_DIFFUSE, color))
-			{
-				Texture colorTex{};
-				colorTex.type = "baseColor";
-				colorTex.solidColor = XMFLOAT4(color.r, color.g, color.b, 1);
-				colorTex.hasTexture = false;
-				textures.push_back(colorTex);
-			}
-		}
-	}
+    model.textures_loaded_.insert(model.textures_loaded_.end(), section.m_Textures.begin(), section.m_Textures.end());
 
-	model.textures_loaded_.insert(model.textures_loaded_.end(), textures.begin(), textures.end());
+    m_Sections.push_back(section);
+    int newIndex = static_cast<int>(m_Sections.size() - 1);
+    m_SkeletonInfo.m_MeshMappingTable[mesh->mName.C_Str()] = newIndex;
 
-	return Mesh(dev_, vertices, indices, textures);
+    SkeletalMeshSection& storedSection = m_Sections.back();
+    storedSection.CreateVertexBuffer(dev_);
+    storedSection.CreateIndexBuffer(dev_);
+    storedSection.CreateBoneWeightedVertex(dev_);
+    storedSection.SetSkeletonInfo();
+
+    return Mesh(dev_, storedSection.m_Vertices, storedSection.m_Indices, storedSection.m_Textures);
 }
 
 std::vector<Texture> SkeletalMesh::loadMaterialTextures(aiMaterial* mat, aiTextureType type, std::string typeName, const aiScene* scene, Model& model)
@@ -398,4 +460,102 @@ ID3D11ShaderResourceView* SkeletalMesh::loadEmbeddedTexture(const aiTexture* emb
 	HR_T(TextureLoader::CreateWICTextureFromMemory(dev_, devcon_, reinterpret_cast<const unsigned char*>(embeddedTexture->pcData), size, nullptr, &texture));
 
 	return texture;
+}
+
+void SkeletonInfo::CreateFromAiScene(const aiScene* pScene)
+{
+    m_Bones.clear();
+    m_BoneMappingTable.clear();
+    m_MeshMappingTable.clear();
+
+    if (!pScene) return;
+
+    CreateBoneInfo(pScene, pScene->mRootNode);
+}
+
+// 본 트리 생성
+BoneInfo* SkeletonInfo::CreateBoneInfo(const aiScene* pScene, const aiNode* pNode)
+{
+    if (!pScene) return nullptr;
+
+    BoneInfo bone(pNode);
+    bone.Name = pNode->mName.C_Str();
+    bone.Index = static_cast<int>(m_Bones.size());
+    bone.ParentIndex = -1;
+
+    if (pNode->mParent)
+    {
+        string parentName = pNode->mParent->mName.C_Str();
+        auto it = m_BoneMappingTable.find(parentName);
+        if (it != m_BoneMappingTable.end())
+            bone.ParentIndex = it->second;
+    }
+
+    m_Bones.push_back(bone);
+    m_BoneMappingTable[bone.Name] = bone.Index;
+
+    // 메쉬 이름 매핑 (해당 노드가 메시를 참조하는 경우)
+    if (pNode->mNumMeshes > 0 && pNode->mMeshes != nullptr)
+    {
+        for (unsigned int i = 0; i < pNode->mNumMeshes; ++i)
+        {
+            unsigned int meshIndex = pNode->mMeshes[i];
+            aiMesh* mesh = pScene->mMeshes[meshIndex];
+
+            // 여기서 mesh 이름과 Bone 매핑 처리
+            m_MeshMappingTable[mesh->mName.C_Str()] = bone.Index;
+        }
+    }
+
+    // 재귀적으로 자식들 탐색
+    for (unsigned int i = 0; i < pNode->mNumChildren; ++i)
+        CreateBoneInfo(pScene, pNode->mChildren[i]);
+
+    return &m_Bones.back();
+}
+
+BoneInfo* SkeletonInfo::GetBoneInfoByName(const string& name)
+{
+    auto it = m_BoneMappingTable.find(name);
+    if (it != m_BoneMappingTable.end())
+    {
+        int index = it->second;
+        if (index >= 0 && index < static_cast<int>(m_Bones.size()))
+        {
+            return &m_Bones[index];
+        }
+    }
+
+    return nullptr;
+}
+
+BoneInfo* SkeletonInfo::GetBoneInfoByIndex(int index)
+{
+    if (index >= 0 && index < static_cast<int>(m_Bones.size()))
+    {
+        return &m_Bones[index];
+    }
+
+    return nullptr;
+}
+
+int SkeletonInfo::GetBoneIndexByMeshName(const string& meshName)
+{
+    auto it = m_MeshMappingTable.find(meshName);
+    if (it != m_MeshMappingTable.end())
+        return it->second;
+
+    return -1;
+}
+
+void SkeletonInfo::CountNode(int& Count, const aiNode* pNode)
+{
+    if (!pNode) return;
+
+    Count++;
+
+    for (unsigned int i = 0; i < pNode->mNumChildren; ++i)
+    {
+        CountNode(Count, pNode->mChildren[i]);
+    }
 }
