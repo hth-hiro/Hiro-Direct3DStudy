@@ -27,10 +27,11 @@ bool SkeletalMesh::ReadSkeletonMeshFile(ID3D11Device* dev, ID3D11DeviceContext* 
 	Assimp::Importer importer;
 
 	const aiScene* pScene = importer.ReadFile(filePath,
-		aiProcess_Triangulate |    // vertex 삼각형 으로 출력
-		aiProcess_GenNormals |        // Normal 정보 생성  
-		aiProcess_GenUVCoords |      // 텍스처 좌표 생성
-		aiProcess_CalcTangentSpace |  // 탄젠트 벡터 생성
+		aiProcess_Triangulate |         // vertex 삼각형 으로 출력
+		aiProcess_GenNormals |          // Normal 정보 생성  
+		aiProcess_GenUVCoords |         // 텍스처 좌표 생성
+		aiProcess_CalcTangentSpace |    // 탄젠트 벡터 생성
+        aiProcess_LimitBoneWeights |    // 본의 영향을 받는 정점의 개수 제한
 		aiProcess_ConvertToLeftHanded);
 
     importer.SetPropertyBool(AI_CONFIG_IMPORT_FBX_PRESERVE_PIVOTS, false);
@@ -357,6 +358,33 @@ Mesh SkeletalMesh::processMesh(aiMesh* mesh, const aiScene* scene, SkeletalModel
     }
 
     model.textures_loaded_.insert(model.textures_loaded_.end(), section.m_Textures.begin(), section.m_Textures.end());
+
+    for (unsigned int i = 0; i < mesh->mNumBones; ++i)
+    {
+        aiBone* pAiBone = mesh->mBones[i];
+        string boneName = pAiBone->mName.C_Str();
+
+        int boneIndex = m_SkeletonInfo.GetBoneIndexByBoneName(boneName);
+
+        aiMatrix4x4 m = pAiBone->mOffsetMatrix;
+
+        m_SkeletonInfo.m_Bones[boneIndex].m_OffsetMatrix = Matrix(
+            m.a1, m.b1, m.c1, m.d1,
+            m.a2, m.b2, m.c2, m.d2,
+            m.a3, m.b3, m.c3, m.d3,
+            m.a4, m.b4, m.c4, m.d4
+        );
+
+        for (unsigned int w = 0; w < pAiBone->mNumWeights; ++w)
+        {
+            const aiVertexWeight& weight = pAiBone->mWeights[w];
+            UINT vertexId = weight.mVertexId;
+
+            if (vertexId >= section.m_BoneWeights.size()) continue;
+
+
+        }
+    }
 
     m_Sections.push_back(section);
     int newIndex = static_cast<int>(m_Sections.size() - 1);

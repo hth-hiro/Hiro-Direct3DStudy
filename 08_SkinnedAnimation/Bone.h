@@ -32,6 +32,12 @@ struct BoneBuffer
 
 struct BoneWeightVertex
 {
+    Vector3 Position;
+    Vector3 TexCoord;
+    Vector3 Normal;
+    Vector3 Tangent;
+
+    // 영향받는 본 수는 최대 4개로 제한
     int boneIndices[4] = { 0, };
     float weights[4] = { 0.f, };
 };
@@ -43,6 +49,7 @@ struct BoneInfo
     int ParentIndex = -1;
     Matrix LocalTransform;
     Matrix GlobalTransform;
+    Matrix m_OffsetMatrix;
     
     BoneInfo(const aiNode* pNode)
     {
