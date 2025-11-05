@@ -51,7 +51,7 @@ cbuffer SkyboxCB : register(b1)
 
 cbuffer ModelMatrix : register(b2)
 {
-    matrix gModelMatrices[128];
+    matrix gModelMatrices[256];
 }
 
 Texture2D txDiffuse : register(t0);

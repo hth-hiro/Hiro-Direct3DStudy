@@ -368,7 +368,8 @@ bool TutorialApp::InitScene()
     ID3D10Blob* errorMessage = nullptr;
 
     //m_ModelLoader.Load(m_pDevice, m_pDeviceContext, "../Resource/BoxHuman.fbx", "BoxHuman");
-    m_SkeletalModelLoader.Load(m_pDevice, m_pDeviceContext, "../Resource/BoxHuman.fbx", "BoxHuman");
+    //m_SkeletalModelLoader.Load(m_pDevice, m_pDeviceContext, "../Resource/BoxHuman.fbx", "BoxHuman");
+    m_SkeletalModelLoader.Load(m_pDevice, m_pDeviceContext, "../Resource/SkinningTest.fbx", "BoxHuman");
 
     Skybox skybox[] =
     {
