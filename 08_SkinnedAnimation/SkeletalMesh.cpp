@@ -33,6 +33,8 @@ bool SkeletalMesh::ReadSkeletonMeshFile(ID3D11Device* dev, ID3D11DeviceContext* 
 		aiProcess_CalcTangentSpace |  // ÅºÁ¨Æ® º¤ÅÍ »ý¼º
 		aiProcess_ConvertToLeftHanded);
 
+    importer.SetPropertyBool(AI_CONFIG_IMPORT_FBX_PRESERVE_PIVOTS, false);
+
 	if (pScene == nullptr)
 		return false;
 

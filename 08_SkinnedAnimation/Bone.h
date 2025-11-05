@@ -22,12 +22,12 @@ struct Bone
 
 struct BoneMatrixContainer
 {
-    Matrix Array[128];
+    Matrix Array[256];
 };
 
 struct BoneBuffer
 {
-    XMMATRIX Bones[128];
+    XMMATRIX Bones[256];
 };
 
 struct BoneWeightVertex
