@@ -88,10 +88,7 @@ public:
         const Vector4& shininess,
 
         const Vector4& cameraPos,
-        const bool& useLighting,
-
-        BoneMatrixContainer* pBones = nullptr,
-        ID3D11Buffer* boneCB = nullptr
+        const bool& useLighting
 	)
 	{
 		// 특정 부분만 렌더를 할 수 있게 가능하다.
@@ -138,12 +135,6 @@ public:
 
 			devcon->VSSetConstantBuffers(0, 1, &cb);
 			devcon->PSSetConstantBuffers(0, 1, &cb);
-
-            if (pBones && boneCB)
-            {
-                devcon->UpdateSubresource(boneCB, 0, nullptr, pBones->Array , 0, 0);
-                devcon->VSSetConstantBuffers(2, 1, &boneCB);
-            }
 
 			meshes_[i].Draw(devcon);
 		}

@@ -21,6 +21,7 @@
 #include <directxtk/SimpleMath.h>
 
 #include "../Common/Helper.h"
+#include "Bone.h"
 
 using namespace DirectX::SimpleMath;
 
@@ -54,12 +55,12 @@ struct Texture {
 
 class Mesh {
 public:
-    std::vector<Vertex> vertices_;
+    std::vector<BoneWeightVertex> vertices_;
     std::vector<UINT> indices_;
     std::vector<Texture> textures_;
     ID3D11Device* dev_;
 
-    Mesh(ID3D11Device* dev, const std::vector<Vertex>& vertices, const std::vector<UINT>& indices, const std::vector<Texture>& textures) :
+    Mesh(ID3D11Device* dev, const std::vector<BoneWeightVertex>& vertices, const std::vector<UINT>& indices, const std::vector<Texture>& textures) :
         vertices_(vertices),
         indices_(indices),
         textures_(textures),
@@ -70,7 +71,7 @@ public:
     }
 
     void Draw(ID3D11DeviceContext* devcon) {
-        UINT stride = sizeof(Vertex);
+        UINT stride = sizeof(BoneWeightVertex);
         UINT offset = 0;
 
         devcon->IASetVertexBuffers(0, 1, &VertexBuffer_, &stride, &offset);
@@ -110,8 +111,8 @@ private:
         HRESULT hr;
 
         D3D11_BUFFER_DESC vbd;
-        vbd.Usage = D3D11_USAGE_IMMUTABLE;
-        vbd.ByteWidth = static_cast<UINT>(sizeof(Vertex) * vertices_.size());
+        vbd.Usage = D3D11_USAGE_DEFAULT;
+        vbd.ByteWidth = (sizeof(BoneWeightVertex) * vertices_.size());
         vbd.BindFlags = D3D11_BIND_VERTEX_BUFFER;
         vbd.CPUAccessFlags = 0;
         vbd.MiscFlags = 0;

@@ -22,24 +22,38 @@ struct Bone
 
 struct BoneMatrixContainer
 {
-    Matrix Array[256];
+    Matrix Array[128];
 };
 
 struct BoneBuffer
 {
-    XMMATRIX Bones[256];
+    XMMATRIX Bones[128];
 };
 
 struct BoneWeightVertex
 {
     Vector3 Position;
-    Vector3 TexCoord;
+    Vector2 TexCoord;
     Vector3 Normal;
     Vector3 Tangent;
+    Vector3 Bitangent;
 
     // 영향받는 본 수는 최대 4개로 제한
     int boneIndices[4] = { 0, };
     float weights[4] = { 0.f, };
+
+    void AddBoneData(int boneIndex, float weight)
+    {
+        for (int i = 0; i < 4; i++)
+        {
+            if (weights[i] == 0.0f)
+            {
+                boneIndices[i] = boneIndex;
+                weights[i] = weight;
+                return;
+            }
+        }
+    }
 };
 
 struct BoneInfo

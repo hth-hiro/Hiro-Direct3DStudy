@@ -43,18 +43,18 @@ bool ModelLoader::Load(ID3D11Device* dev, ID3D11DeviceContext* devcon, const std
 
 Mesh ModelLoader::processMesh(aiMesh* mesh, const aiScene* scene, Model& model)
 {
-	std::vector<Vertex> vertices;
+	std::vector<BoneWeightVertex> vertices;
 	std::vector<UINT> indices;
 	std::vector<Texture> textures;
 
 	// 서로 다른 메시의 버텍스에 대해 루프를 돌린다.
 	for (UINT i = 0; i < mesh->mNumVertices; i++)
 	{
-		Vertex vertex;
+        BoneWeightVertex vertex;
 
-		vertex.Pos.x = mesh->mVertices[i].x;
-		vertex.Pos.y = mesh->mVertices[i].y;
-		vertex.Pos.z = mesh->mVertices[i].z;
+		vertex.Position.x = mesh->mVertices[i].x;
+		vertex.Position.y = mesh->mVertices[i].y;
+		vertex.Position.z = mesh->mVertices[i].z;
 
 		if (mesh->HasNormals())
 		{
@@ -68,11 +68,11 @@ Mesh ModelLoader::processMesh(aiMesh* mesh, const aiScene* scene, Model& model)
 
 		if (mesh->mTextureCoords[0]) 
 		{
-			vertex.Tex.x = (float)mesh->mTextureCoords[0][i].x;
-			vertex.Tex.y = (float)mesh->mTextureCoords[0][i].y;
+			vertex.TexCoord.x = (float)mesh->mTextureCoords[0][i].x;
+			vertex.TexCoord.y = (float)mesh->mTextureCoords[0][i].y;
 		}
 		else {
-			vertex.Tex = { 0.0f, 0.0f };
+			vertex.TexCoord = { 0.0f, 0.0f };
 		}
 
 		if (mesh->HasTangentsAndBitangents())
@@ -81,13 +81,13 @@ Mesh ModelLoader::processMesh(aiMesh* mesh, const aiScene* scene, Model& model)
 			vertex.Tangent.y = mesh->mTangents[i].y;
 			vertex.Tangent.z = mesh->mTangents[i].z;
 
-			vertex.Bitangent.x = mesh->mBitangents[i].x;
-			vertex.Bitangent.y = mesh->mBitangents[i].y;
-			vertex.Bitangent.z = mesh->mBitangents[i].z;
+			//vertex.Bitangent.x = mesh->mBitangents[i].x;
+			//vertex.Bitangent.y = mesh->mBitangents[i].y;
+			//vertex.Bitangent.z = mesh->mBitangents[i].z;
 		}
 		else {
 			vertex.Tangent = { 0.0f, 0.0f, 0.0f };
-			vertex.Bitangent = { 0.0f, 0.0f, 0.0f };
+			//vertex.Bitangent = { 0.0f, 0.0f, 0.0f };
 		}
 
 		vertices.push_back(vertex);

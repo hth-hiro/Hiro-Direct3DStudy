@@ -96,7 +96,7 @@ void TutorialApp::Update()
         m_pCubeTextureRV = m_pCubeMuseumTextureRV;
     }
 
-    Model* BoxHuman = GetModelByName("BoxHuman");
+    SkeletalModel* BoxHuman = GetSkeletalModelByName("BoxHuman");
     if (BoxHuman)
     {
         Object obj = m_ImGuiManager.object1;
@@ -190,7 +190,6 @@ void TutorialApp::Render()
 
     m_SkeletalModelLoader.Draw(m_pDeviceContext,
         m_pConstantBuffer,
-        m_pBoneBuffer,
         m_View,
         m_Projection,
         m_LightDirsEvaluated,
@@ -436,16 +435,6 @@ bool TutorialApp::InitScene()
     vbDesc.CPUAccessFlags = 0;
     HR_T(m_pDevice->CreateBuffer(&vbDesc, nullptr, &m_pConstantBuffer));
 
-    D3D11_BUFFER_DESC boneDesc = {};
-    boneDesc.Usage = D3D11_USAGE_DEFAULT;
-    boneDesc.ByteWidth = sizeof(BoneBuffer);  // BoneBuffer 구조체 크기
-    boneDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
-    boneDesc.CPUAccessFlags = 0;
-    boneDesc.MiscFlags = 0;
-    boneDesc.StructureByteStride = 0;
-
-    HR_T(m_pDevice->CreateBuffer(&boneDesc, nullptr, &m_pBoneBuffer));
-
     // 여기에 Sampler State 생성, CreateSamplerState 사용
     D3D11_SAMPLER_DESC sampDesc = {};
 
@@ -474,6 +463,9 @@ bool TutorialApp::InitScene()
         {"TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 24, D3D11_INPUT_PER_VERTEX_DATA, 0},
         {"TANGENT", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 32, D3D11_INPUT_PER_VERTEX_DATA, 0},
         {"BITANGENT", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 44, D3D11_INPUT_PER_VERTEX_DATA, 0},
+
+        {"BLENDINDICES", 0, DXGI_FORMAT_R32G32B32A32_SINT,   0, 56, D3D11_INPUT_PER_VERTEX_DATA, 0},
+        {"BLENDWEIGHT",  0, DXGI_FORMAT_R32G32B32A32_FLOAT,  0, 72, D3D11_INPUT_PER_VERTEX_DATA, 0},
     };
 
     HR_T(m_pDevice->CreateInputLayout(bonelayout, ARRAYSIZE(bonelayout), boneShader->GetBufferPointer(),

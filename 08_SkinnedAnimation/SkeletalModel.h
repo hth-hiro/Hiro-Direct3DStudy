@@ -7,7 +7,6 @@
 #include "Model.h"
 #include "SkeletalMesh.h"
 
-class Mesh;
 struct Texture;
 using namespace DirectX;
 
@@ -42,7 +41,6 @@ public:
     {
         for (size_t i = 0; i < meshes_.size(); ++i)
         {
-            int refBoneIndex = -1;
             if (i < skeletalMesh->m_Sections.size())
                 refBoneIndex = skeletalMesh->m_Sections[i].m_RefBoneIndex;
 
@@ -80,6 +78,10 @@ public:
             devcon->UpdateSubresource(cb, 0, nullptr, &cbObj, 0, 0);
             devcon->VSSetConstantBuffers(0, 1, &cb);
             devcon->PSSetConstantBuffers(0, 1, &cb);
+
+            devcon->VSSetConstantBuffers(3, 1, &skeletalMesh->m_pBonePoseBuffer);
+            devcon->VSSetConstantBuffers(4, 1, &skeletalMesh->m_pBoneOffsetBuffer);
+            
 
             mesh.Draw(devcon);
         }

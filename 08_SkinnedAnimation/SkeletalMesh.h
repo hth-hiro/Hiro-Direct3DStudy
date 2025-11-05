@@ -131,10 +131,11 @@ public:
 	SkeletonInfo m_SkeletonInfo;
 	BoneMatrixContainer m_SkeletonPose;
 
-    ID3D11Buffer* m_pBoneBuffer = nullptr;
+    ID3D11Buffer* m_pBonePoseBuffer = nullptr;
+    ID3D11Buffer* m_pBoneOffsetBuffer = nullptr;
 
 	int m_AnimationsIndex;
-	float m_AnimationProcessTime;
+	float m_AnimationProcessTime = 0.0f;
 
     unordered_map<string, shared_ptr<SkeletalMeshSection>> loadedSections;
 
@@ -147,7 +148,6 @@ public:
     void Update(float deltaTime);
     void Draw(ID3D11DeviceContext* devcon,
         ID3D11Buffer* cb,
-        ID3D11Buffer* boneCB,
         const XMMATRIX& view,
         const XMMATRIX& proj,
 

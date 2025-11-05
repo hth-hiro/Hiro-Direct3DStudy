@@ -54,6 +54,16 @@ cbuffer ModelMatrix : register(b2)
     matrix gModelMatrices[256];
 }
 
+cbuffer BonePoseMatrix : register(b3)
+{
+    matrix gBonePose[128];
+}
+
+cbuffer BoneOffsetMatrix : register(b4)
+{
+    matrix gBoneOffset[128];
+}
+
 Texture2D txDiffuse : register(t0);
 TextureCube txCube : register(t1);
 Texture2D normalMap : register(t2);
@@ -99,6 +109,9 @@ struct VS_INPUT_BONED
     float2 Tex : TEXCOORD0;
     float3 Tangent : TANGENT;
     float3 Bitangent : BITANGENT;
+    
+    int4 BlendIndices : BLENDINDICES;
+    float4 BlendWeights : BLENDWEIGHT;
 };
 
 float3 EncodeNormal(float3 N)
