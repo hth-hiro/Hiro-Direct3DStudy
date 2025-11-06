@@ -81,13 +81,13 @@ Mesh ModelLoader::processMesh(aiMesh* mesh, const aiScene* scene, Model& model)
 			vertex.Tangent.y = mesh->mTangents[i].y;
 			vertex.Tangent.z = mesh->mTangents[i].z;
 
-			//vertex.Bitangent.x = mesh->mBitangents[i].x;
-			//vertex.Bitangent.y = mesh->mBitangents[i].y;
-			//vertex.Bitangent.z = mesh->mBitangents[i].z;
+			vertex.Bitangent.x = mesh->mBitangents[i].x;
+			vertex.Bitangent.y = mesh->mBitangents[i].y;
+			vertex.Bitangent.z = mesh->mBitangents[i].z;
 		}
 		else {
 			vertex.Tangent = { 0.0f, 0.0f, 0.0f };
-			//vertex.Bitangent = { 0.0f, 0.0f, 0.0f };
+			vertex.Bitangent = { 0.0f, 0.0f, 0.0f };
 		}
 
 		vertices.push_back(vertex);

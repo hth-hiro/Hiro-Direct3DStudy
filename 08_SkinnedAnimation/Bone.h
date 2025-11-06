@@ -33,8 +33,8 @@ struct BoneBuffer
 struct BoneWeightVertex
 {
     Vector3 Position;
-    Vector2 TexCoord;
     Vector3 Normal;
+    Vector2 TexCoord;
     Vector3 Tangent;
     Vector3 Bitangent;
 

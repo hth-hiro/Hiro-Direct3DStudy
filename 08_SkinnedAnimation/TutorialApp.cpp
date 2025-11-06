@@ -98,7 +98,7 @@ void TutorialApp::Update()
         m_pCubeTextureRV = m_pCubeMuseumTextureRV;
     }
 
-    SkeletalModel* BoxHuman = GetSkeletalModelByName("BoxHuman");
+    SkeletalModel* BoxHuman = GetSkeletalModelByName("SkinningTest");
     if (BoxHuman)
     {
         Object obj = m_ImGuiManager.object1;
@@ -177,18 +177,6 @@ void TutorialApp::Render()
 
     // 투명 오브젝트와 불투명 오브젝트를 따로 렌더해야 한다?
     // 불투명 오브젝트 렌더 -> 알파 소팅 -> 투명 오브젝트 렌더
-
-    //m_ModelLoader.Draw(m_pDeviceContext,
-    //    m_pConstantBuffer,
-    //    m_View,
-    //    m_Projection,
-    //    m_LightDirsEvaluated,
-    //    m_AmbientColor,
-    //    m_DiffuseColor,
-    //    m_SpecularColor,
-    //    m_shininess,
-    //    m_cameraPos,
-    //    m_ImGuiManager.useLighting);
 
     m_SkeletalModelLoader.Draw(m_pDeviceContext,
         m_pConstantBuffer,
@@ -368,9 +356,7 @@ bool TutorialApp::InitScene()
     HRESULT hr = 0;
     ID3D10Blob* errorMessage = nullptr;
 
-    //m_ModelLoader.Load(m_pDevice, m_pDeviceContext, "../Resource/BoxHuman.fbx", "BoxHuman");
-    //m_SkeletalModelLoader.Load(m_pDevice, m_pDeviceContext, "../Resource/BoxHuman.fbx", "BoxHuman");
-    m_SkeletalModelLoader.Load(m_pDevice, m_pDeviceContext, "../Resource/Character.fbx", "BoxHuman");
+    m_SkeletalModelLoader.Load(m_pDevice, m_pDeviceContext, "../Resource/SkinningTest.fbx", "SkinningTest");
 
     Skybox skybox[] =
     {

@@ -169,7 +169,7 @@ void SkeletalMesh::Update(float deltaTime)
 {
 	if (!m_Animations.empty())
 	{
-		//m_AnimationProcessTime += deltaTime;
+		m_AnimationProcessTime += deltaTime;
 		m_AnimationProcessTime = fmod(m_AnimationProcessTime, m_Animations[m_AnimationsIndex].Duration);
 	}
 
@@ -251,7 +251,7 @@ void SkeletalMesh::Draw(
             shininess,
             cameraPos,
             useLighting,
-            nullptr,
+            &m_SkeletonPose,
             m_pBonePoseBuffer
         );
     }
@@ -406,6 +406,11 @@ Mesh SkeletalMesh::processMesh(aiMesh* mesh, const aiScene* scene, SkeletalModel
             mesh->mTangents[i].x,
             mesh->mTangents[i].y,
             mesh->mTangents[i].z);
+
+        section.m_BoneWeights[i].Bitangent = Vector3(
+            mesh->mBitangents[i].x,
+            mesh->mBitangents[i].y,
+            mesh->mBitangents[i].z);
     }
 
     for (unsigned int i = 0; i < mesh->mNumBones; ++i)
