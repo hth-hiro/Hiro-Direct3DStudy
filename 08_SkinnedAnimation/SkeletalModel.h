@@ -74,10 +74,13 @@ public:
             devcon->VSSetConstantBuffers(0, 1, &cb);
             devcon->PSSetConstantBuffers(0, 1, &cb);
 
-            devcon->VSSetConstantBuffers(3, 1, &skeletalMesh->m_pBonePoseBuffer);
-            devcon->VSSetConstantBuffers(4, 1, &skeletalMesh->m_pBoneOffsetBuffer);
+            if (boneCB)
+            {
+                //devcon->UpdateSubresource(boneCB, 0, nullptr, &boneCB, 0, 0);
+                devcon->VSSetConstantBuffers(3, 1, &skeletalMesh->m_pBonePoseBuffer);
+                devcon->VSSetConstantBuffers(4, 1, &skeletalMesh->m_pBoneOffsetBuffer);
+            }
             
-
             mesh.Draw(devcon);
         }
     }

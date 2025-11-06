@@ -169,7 +169,7 @@ void SkeletalMesh::Update(float deltaTime)
 {
 	if (!m_Animations.empty())
 	{
-		m_AnimationProcessTime += deltaTime;
+		//m_AnimationProcessTime += deltaTime;
 		m_AnimationProcessTime = fmod(m_AnimationProcessTime, m_Animations[m_AnimationsIndex].Duration);
 	}
 
@@ -198,10 +198,7 @@ void SkeletalMesh::Update(float deltaTime)
 			bone.m_Model = bone.m_Local;
 		}
 
-        const BoneInfo& info = m_SkeletonInfo.m_Bones[bone.m_Index];
-        Matrix finalTransform = bone.m_Model;
-
-		m_SkeletonPose.Array[bone.m_Index] = finalTransform.Transpose();
+		m_SkeletonPose.Array[bone.m_Index] = (bone.m_Model).Transpose();
 	}
 
     BoneBuffer bonePoseData{};
