@@ -177,7 +177,6 @@ void TutorialApp::Render()
 
     // 투명 오브젝트와 불투명 오브젝트를 따로 렌더해야 한다?
     // 불투명 오브젝트 렌더 -> 알파 소팅 -> 투명 오브젝트 렌더
-
     m_SkeletalModelLoader.Draw(m_pDeviceContext,
         m_pConstantBuffer,
         m_View,
@@ -355,6 +354,7 @@ bool TutorialApp::InitScene()
 {
     HRESULT hr = 0;
     ID3D10Blob* errorMessage = nullptr;
+
 
     m_SkeletalModelLoader.Load(m_pDevice, m_pDeviceContext, "../Resource/SkinningTest.fbx", "SkinningTest");
 
