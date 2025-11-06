@@ -18,7 +18,7 @@ PS_INPUT main(VS_INPUT_BONED input)
     WeightedOffsetPose += mul(input.BlendWeights.z, OffsetPose[2]);
     WeightedOffsetPose += mul(input.BlendWeights.w, OffsetPose[3]);
     
-    Matrix ModelToWorld = mul(WeightedOffsetPose, World);
+    float4x4 ModelToWorld = mul(WeightedOffsetPose, World);
     
     pos = mul(pos, ModelToWorld);
     

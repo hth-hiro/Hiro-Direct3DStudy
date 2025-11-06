@@ -45,6 +45,112 @@ void ImGuiManager::RenderObjectUI(const char* label, Object& obj)
 	ImGui::Text("");
 }
 
+void ImGuiManager::Update()
+{
+    ImGuiIO& io = ImGui::GetIO();
+
+    static ImVec2 lastMousePosBeforeWarp = ImVec2(-1, 1);
+
+    // 드래그 중이 아니면 리셋
+    if (!ImGui::IsMouseDown(ImGuiMouseButton_Left))
+    {
+        lastMousePosBeforeWarp = ImVec2(-1, -1);
+        return;
+    }
+
+    // 현재 윈도우 핸들 가져오기
+    HWND hwnd = GetActiveWindow(); // 또는 메인 윈도우 핸들 저장해두기
+    if (!hwnd) return;
+
+    // 현재 마우스 위치 (스크린 좌표)
+    POINT screenPos;
+    GetCursorPos(&screenPos);
+
+    // 윈도우 클라이언트 영역 정보
+    RECT clientRect;
+    GetClientRect(hwnd, &clientRect);
+    POINT clientOrigin = { 0, 0 };
+    ClientToScreen(hwnd, &clientOrigin);
+
+    int clientW = clientRect.right - clientRect.left;
+    int clientH = clientRect.bottom - clientRect.top;
+
+    // 클라이언트 영역 기준으로 변환
+    int localX = screenPos.x - clientOrigin.x;
+    int localY = screenPos.y - clientOrigin.y;
+
+    // 워프 직전 델타 저장
+    ImVec2 currentDelta = io.MouseDelta;
+
+    // 경계 체크 및 워프 (여유 공간 10px)
+    const int margin = 10;
+    bool wrapped = false;
+    POINT newScreenPos = screenPos;
+
+    if (localX <= margin)
+    {
+        newScreenPos.x = clientOrigin.x + clientW - margin - 1;
+        wrapped = true;
+    }
+    else if (localX >= clientW - margin)
+    {
+        newScreenPos.x = clientOrigin.x + margin + 1;
+        wrapped = true;
+    }
+
+    if (localY <= margin)
+    {
+        newScreenPos.y = clientOrigin.y + clientH - margin - 1;
+        wrapped = true;
+    }
+    else if (localY >= clientH - margin)
+    {
+        newScreenPos.y = clientOrigin.y + margin + 1;
+        wrapped = true;
+    }
+
+    if (wrapped)
+    {
+        // 워프 직전 위치 저장
+        lastMousePosBeforeWarp = io.MousePos;
+
+        // 커서 워프
+        SetCursorPos(newScreenPos.x, newScreenPos.y);
+
+        // ImGui에게 새 위치 알리기 (클라이언트 좌표로)
+        io.MousePos = ImVec2(
+            (float)(newScreenPos.x - clientOrigin.x),
+            (float)(newScreenPos.y - clientOrigin.y)
+        );
+
+        // 중요: Delta는 유지! 워프는 화면상 위치만 바꿀 뿐
+        // 실제 마우스 이동량은 그대로 전달되어야 함
+        io.MouseDelta = currentDelta;
+
+        // WantSetMousePos로 ImGui에게 위치 변경 알림
+        io.WantSetMousePos = true;
+    }
+    else if (lastMousePosBeforeWarp.x >= 0)
+    {
+        // 워프 직후 첫 프레임
+        // 이때 Delta가 비정상적으로 클 수 있으므로 보정
+        ImVec2 expectedDelta = ImVec2(
+            io.MousePos.x - lastMousePosBeforeWarp.x,
+            io.MousePos.y - lastMousePosBeforeWarp.y
+        );
+
+        // Delta가 비정상적으로 크면 (화면 반대편으로 점프) 무시
+        float deltaLen = sqrtf(expectedDelta.x * expectedDelta.x +
+            expectedDelta.y * expectedDelta.y);
+        if (deltaLen > 100.0f) // threshold
+        {
+            io.MouseDelta = ImVec2(0, 0);
+        }
+
+        lastMousePosBeforeWarp = ImVec2(-1, -1);
+    }
+}
+
 void ImGuiManager::Render()
 {
 	ImGuiIO& io = ImGui::GetIO(); (void)io;

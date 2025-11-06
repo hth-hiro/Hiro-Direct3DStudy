@@ -35,15 +35,11 @@ public:
         const bool& useLighting,
 
         BoneMatrixContainer* pBones = nullptr,
-        ID3D11Buffer* boneCB = nullptr,
-        int refBoneIndex = -1
+        ID3D11Buffer* boneCB = nullptr
     )
     {
         for (size_t i = 0; i < meshes_.size(); ++i)
         {
-            if (i < skeletalMesh->m_Sections.size())
-                refBoneIndex = skeletalMesh->m_Sections[i].m_RefBoneIndex;
-
             ConstantBuffer cbObj{};
             cbObj.mWorld = XMMatrixTranspose(transform.GetMatrix());
             cbObj.mView = XMMatrixTranspose(view);
@@ -61,7 +57,6 @@ public:
 
             cbObj.cameraPos = cameraPos;
             cbObj.UseLighting = useLighting ? 1 : 0;
-            cbObj.RefBoneIndex = refBoneIndex;
 
             auto& mesh = meshes_[i];
             cbObj.hasTexture = 0;
@@ -86,6 +81,5 @@ public:
             mesh.Draw(devcon);
         }
     }
-
 };
 

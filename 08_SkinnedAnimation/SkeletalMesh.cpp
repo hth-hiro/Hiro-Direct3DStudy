@@ -199,7 +199,7 @@ void SkeletalMesh::Update(float deltaTime)
 		}
 
         const BoneInfo& info = m_SkeletonInfo.m_Bones[bone.m_Index];
-        Matrix finalTransform = bone.m_Model;// * info.m_OffsetMatrix;
+        Matrix finalTransform = bone.m_Model;
 
 		m_SkeletonPose.Array[bone.m_Index] = finalTransform.Transpose();
 	}
@@ -237,8 +237,8 @@ void SkeletalMesh::Draw(
 
     // 본 행렬 업데이트
     
-    devcon->VSSetConstantBuffers(3, 1, &m_pBonePoseBuffer);
-    devcon->VSSetConstantBuffers(4, 1, &m_pBoneOffsetBuffer);
+    //devcon->VSSetConstantBuffers(3, 1, &m_pBonePoseBuffer);
+    //devcon->VSSetConstantBuffers(4, 1, &m_pBoneOffsetBuffer);
 
     for (auto& model : models_)
     {

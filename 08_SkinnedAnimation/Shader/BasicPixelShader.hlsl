@@ -15,14 +15,17 @@ float4 main(PS_INPUT input) : SV_Target
     float3 txNormal = normalMap.Sample(samLinear, input.Tex).xyz;
     // 탄젠트 공간에서 정의된 노멀벡터는 -1~ 1값을 가진다.
     float3 VTS = DecodeNormal(txNormal);
+    float3 tangent = normalize(input.Tangent);
+    float3 bitangent = normalize(input.Bitangent);
+    float3 normal = normalize(input.Norm);
     // Wordl Space로 변환하기 위한 TBN 행렬
-    float3x3 TBN = { input.Tangent, input.Bitangent, input.Norm };
+    float3x3 TBN = { tangent, bitangent, normal };
     float3 worldNormal = normalize(mul(VTS.xyz, TBN));
     
     float4 txSpecular = hasSpecularMap > 0 ? specularMap.Sample(samLinear, input.Tex) : float4(1, 1, 1, 1);
     float4 txEmissive = hasEmissiveMap > 0 ? emissiveMap.Sample(samLinear, input.Tex) : float4(0, 0, 0, 0);
     
-    float3 normalVector = hasNormalMap > 0 ? worldNormal : normalize(input.Norm); // 노멀 벡터 (N)      
+    float3 normalVector = hasNormalMap > 0 ? worldNormal : normal; // 노멀 벡터 (N)      
     //float3 normalVector = - worldNormal;
     float3 lightVector = normalize(vLightDir.xyz);                                    // 빛의 방향 (L)
     float3 reflectVector = normalize(reflect(lightVector, normalVector));             // 반사 벡터 (R)

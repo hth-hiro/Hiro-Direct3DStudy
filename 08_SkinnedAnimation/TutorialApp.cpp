@@ -59,6 +59,8 @@ void TutorialApp::Update()
 {
     __super::Update();
 
+    m_ImGuiManager.Update();
+
     // Light
     m_InitialLightDirs = { m_ImGuiManager.lightDir.x, m_ImGuiManager.lightDir.y, m_ImGuiManager.lightDir.z, 0.0f };
     m_LightDirsEvaluated = m_InitialLightDirs;
