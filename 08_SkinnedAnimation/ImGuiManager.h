@@ -51,6 +51,7 @@ public:
 	void Initialize();
 	void BeginFrame(ID3D11Device* _Device, ID3D11DeviceContext* _DeviceContext);
 	void Release() { EndFrame(); }
+    void Update();
 	void Render();
 
 	Object object1 = { Vector3(0,0,0)};

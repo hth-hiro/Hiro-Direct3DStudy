@@ -19,6 +19,17 @@ bool SkeletalMesh::Load(ID3D11Device* dev, ID3D11DeviceContext* devcon, const st
 	if (!ReadSkeletonMeshFile(dev, devcon, filePath, name))
 		return false;
 
+    D3D11_BUFFER_DESC boneDesc = {};
+    boneDesc.Usage = D3D11_USAGE_DEFAULT;
+    boneDesc.ByteWidth = sizeof(BoneBuffer);  // BoneBuffer 구조체 크기
+    boneDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+    boneDesc.CPUAccessFlags = 0;
+    boneDesc.MiscFlags = 0;
+    boneDesc.StructureByteStride = 0;
+
+    HR_T(dev->CreateBuffer(&boneDesc, nullptr, &m_pBonePoseBuffer));
+    HR_T(dev->CreateBuffer(&boneDesc, nullptr, &m_pBoneOffsetBuffer));
+
 	return true;
 }
 
@@ -26,14 +37,15 @@ bool SkeletalMesh::ReadSkeletonMeshFile(ID3D11Device* dev, ID3D11DeviceContext* 
 {
 	Assimp::Importer importer;
 
-	const aiScene* pScene = importer.ReadFile(filePath,
-		aiProcess_Triangulate |    // vertex 삼각형 으로 출력
-		aiProcess_GenNormals |        // Normal 정보 생성  
-		aiProcess_GenUVCoords |      // 텍스처 좌표 생성
-		aiProcess_CalcTangentSpace |  // 탄젠트 벡터 생성
-		aiProcess_ConvertToLeftHanded);
-
     importer.SetPropertyBool(AI_CONFIG_IMPORT_FBX_PRESERVE_PIVOTS, false);
+
+	const aiScene* pScene = importer.ReadFile(filePath,
+		aiProcess_Triangulate |         // vertex 삼각형 으로 출력
+		aiProcess_GenNormals |          // Normal 정보 생성  
+		aiProcess_GenUVCoords |         // 텍스처 좌표 생성
+		aiProcess_CalcTangentSpace |    // 탄젠트 벡터 생성
+        aiProcess_LimitBoneWeights |    // 본의 영향을 받는 정점의 개수 제한
+		aiProcess_ConvertToLeftHanded);
 
 	if (pScene == nullptr)
 		return false;
@@ -188,12 +200,23 @@ void SkeletalMesh::Update(float deltaTime)
 
 		m_SkeletonPose.Array[bone.m_Index] = (bone.m_Model).Transpose();
 	}
+
+    BoneBuffer bonePoseData{};
+    BoneBuffer boneOffsetData{};
+
+    for (int i = 0; i < m_Skeleton.size(); ++i)
+    {
+        bonePoseData.Bones[i] = m_SkeletonPose.Array[i];
+        boneOffsetData.Bones[i] = m_SkeletonInfo.m_Bones[i].m_OffsetMatrix.Transpose();
+    }
+
+    devcon_->UpdateSubresource(m_pBonePoseBuffer, 0, nullptr, &bonePoseData, 0, 0);
+    devcon_->UpdateSubresource(m_pBoneOffsetBuffer, 0, nullptr, &boneOffsetData, 0, 0);
 }
 
 void SkeletalMesh::Draw(
     ID3D11DeviceContext* devcon,
     ID3D11Buffer* cb,
-    ID3D11Buffer* boneCB,
     const XMMATRIX& view,
     const XMMATRIX& proj,
 
@@ -210,8 +233,9 @@ void SkeletalMesh::Draw(
     if (m_Skeleton.empty()) return;
 
     // 본 행렬 업데이트
-    devcon->UpdateSubresource(boneCB, 0, nullptr, &m_SkeletonPose.Array, 0, 0);
-    devcon->VSSetConstantBuffers(2, 1, &boneCB);
+    
+    //devcon->VSSetConstantBuffers(3, 1, &m_pBonePoseBuffer);
+    //devcon->VSSetConstantBuffers(4, 1, &m_pBoneOffsetBuffer);
 
     for (auto& model : models_)
     {
@@ -226,7 +250,9 @@ void SkeletalMesh::Draw(
             specular,
             shininess,
             cameraPos,
-            useLighting
+            useLighting,
+            &m_SkeletonPose,
+            m_pBonePoseBuffer
         );
     }
 }
@@ -358,17 +384,75 @@ Mesh SkeletalMesh::processMesh(aiMesh* mesh, const aiScene* scene, SkeletalModel
 
     model.textures_loaded_.insert(model.textures_loaded_.end(), section.m_Textures.begin(), section.m_Textures.end());
 
+    section.m_BoneWeights.resize(mesh->mNumVertices);
+
+    for (UINT i = 0; i < mesh->mNumVertices; ++i)
+    {
+        section.m_BoneWeights[i].Position = Vector3(
+            mesh->mVertices[i].x,
+            mesh->mVertices[i].y, 
+            mesh->mVertices[i].z);
+
+        section.m_BoneWeights[i].Normal = Vector3(
+            mesh->mNormals[i].x,
+            mesh->mNormals[i].y,
+            mesh->mNormals[i].z);
+
+        section.m_BoneWeights[i].TexCoord = Vector2(
+            mesh->mTextureCoords[0][i].x,
+            mesh->mTextureCoords[0][i].y);
+
+        section.m_BoneWeights[i].Tangent = Vector3(
+            mesh->mTangents[i].x,
+            mesh->mTangents[i].y,
+            mesh->mTangents[i].z);
+
+        section.m_BoneWeights[i].Bitangent = Vector3(
+            mesh->mBitangents[i].x,
+            mesh->mBitangents[i].y,
+            mesh->mBitangents[i].z);
+    }
+
+    for (unsigned int i = 0; i < mesh->mNumBones; ++i)
+    {
+        aiBone* pAiBone = mesh->mBones[i];
+        string boneName = pAiBone->mName.C_Str();
+
+        int boneIndex = m_SkeletonInfo.GetBoneIndexByBoneName(boneName);
+
+        aiMatrix4x4 m = pAiBone->mOffsetMatrix;
+
+        m_SkeletonInfo.m_Bones[boneIndex].m_OffsetMatrix = Matrix(
+            m.a1, m.b1, m.c1, m.d1,
+            m.a2, m.b2, m.c2, m.d2,
+            m.a3, m.b3, m.c3, m.d3,
+            m.a4, m.b4, m.c4, m.d4
+        );
+
+        for (unsigned int w = 0; w < pAiBone->mNumWeights; ++w)
+        {
+            const aiVertexWeight& weight = pAiBone->mWeights[w];
+            UINT vertexId = weight.mVertexId;
+
+            if (vertexId >= section.m_BoneWeights.size()) continue;
+
+            section.m_BoneWeights[vertexId].AddBoneData(boneIndex, weight.mWeight);
+        }
+    }
+
     m_Sections.push_back(section);
     int newIndex = static_cast<int>(m_Sections.size() - 1);
     m_SkeletonInfo.m_MeshMappingTable[mesh->mName.C_Str()] = newIndex;
 
     SkeletalMeshSection& storedSection = m_Sections.back();
-    storedSection.CreateVertexBuffer(dev_);
-    storedSection.CreateIndexBuffer(dev_);
+    //storedSection.CreateVertexBuffer(dev_);
     storedSection.CreateBoneWeightedVertex(dev_);
+    storedSection.CreateIndexBuffer(dev_);
     storedSection.SetSkeletonInfo();
 
-    return Mesh(dev_, storedSection.m_Vertices, storedSection.m_Indices, storedSection.m_Textures);
+
+
+    return Mesh(dev_, storedSection.m_BoneWeights, storedSection.m_Indices, storedSection.m_Textures);
 }
 
 std::vector<Texture> SkeletalMesh::loadMaterialTextures(aiMaterial* mat, aiTextureType type, std::string typeName, const aiScene* scene, Model& model)

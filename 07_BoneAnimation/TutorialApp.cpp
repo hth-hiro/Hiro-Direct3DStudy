@@ -190,7 +190,7 @@ void TutorialApp::Render()
 
     m_SkeletalModelLoader.Draw(m_pDeviceContext,
         m_pConstantBuffer,
-        m_pBoneBuffer,
+        m_pBonePoseBuffer,
         m_View,
         m_Projection,
         m_LightDirsEvaluated,
@@ -443,7 +443,7 @@ bool TutorialApp::InitScene()
     boneDesc.MiscFlags = 0;
     boneDesc.StructureByteStride = 0;
 
-    HR_T(m_pDevice->CreateBuffer(&boneDesc, nullptr, &m_pBoneBuffer));
+    HR_T(m_pDevice->CreateBuffer(&boneDesc, nullptr, &m_pBonePoseBuffer));
 
     // 여기에 Sampler State 생성, CreateSamplerState 사용
     D3D11_SAMPLER_DESC sampDesc = {};

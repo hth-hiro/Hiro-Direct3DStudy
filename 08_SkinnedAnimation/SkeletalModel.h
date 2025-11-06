@@ -7,7 +7,6 @@
 #include "Model.h"
 #include "SkeletalMesh.h"
 
-class Mesh;
 struct Texture;
 using namespace DirectX;
 
@@ -36,16 +35,11 @@ public:
         const bool& useLighting,
 
         BoneMatrixContainer* pBones = nullptr,
-        ID3D11Buffer* boneCB = nullptr,
-        int refBoneIndex = -1
+        ID3D11Buffer* boneCB = nullptr
     )
     {
         for (size_t i = 0; i < meshes_.size(); ++i)
         {
-            int refBoneIndex = -1;
-            if (i < skeletalMesh->m_Sections.size())
-                refBoneIndex = skeletalMesh->m_Sections[i].m_RefBoneIndex;
-
             ConstantBuffer cbObj{};
             cbObj.mWorld = XMMatrixTranspose(transform.GetMatrix());
             cbObj.mView = XMMatrixTranspose(view);
@@ -63,7 +57,6 @@ public:
 
             cbObj.cameraPos = cameraPos;
             cbObj.UseLighting = useLighting ? 1 : 0;
-            cbObj.RefBoneIndex = refBoneIndex;
 
             auto& mesh = meshes_[i];
             cbObj.hasTexture = 0;
@@ -81,9 +74,15 @@ public:
             devcon->VSSetConstantBuffers(0, 1, &cb);
             devcon->PSSetConstantBuffers(0, 1, &cb);
 
+            if (pBones && boneCB)
+            {
+                devcon->UpdateSubresource(skeletalMesh->m_pBonePoseBuffer, 0, nullptr, pBones, 0, 0);
+                devcon->VSSetConstantBuffers(3, 1, &skeletalMesh->m_pBonePoseBuffer);
+                devcon->VSSetConstantBuffers(4, 1, &skeletalMesh->m_pBoneOffsetBuffer);
+            }
+            
             mesh.Draw(devcon);
         }
     }
-
 };
 

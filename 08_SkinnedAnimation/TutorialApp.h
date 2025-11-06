@@ -27,7 +27,6 @@ public:
 	ID3D11DeviceContext* m_pDeviceContext = nullptr;				// 즉시 디바이스 컨텍스트
 	IDXGISwapChain* m_pSwapChain = nullptr;							// 스왑체인
 	ID3D11Buffer* m_pConstantBuffer;								// 상수 버퍼.
-    ID3D11Buffer* m_pBoneBuffer;								    // 상수 버퍼.
 
 	ComPtr<ID3D11RenderTargetView> m_pRenderTargetView;				// 렌더링 타겟뷰
 	ComPtr<ID3D11DepthStencilView> m_pDepthStencilView;				// 깊이값 처리를 위한 뎊스스텐실 뷰
@@ -89,6 +88,17 @@ public:
 
 		return nullptr;
 	}
+
+    SkeletalModel* GetSkeletalModelByName(const std::string& name)
+    {
+        for (auto& model : m_SkeletalModelLoader.models_)
+        {
+            if (model.name == name) return &model;
+        }
+
+        return nullptr;
+    }
+
 	//float m_Angle = 0.0f;
 
 	// 라이트 관련
