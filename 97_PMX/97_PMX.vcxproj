@@ -24,6 +24,7 @@
     <ProjectGuid>{e0b6a014-c01d-468e-bd9e-ff475423abf3}</ProjectGuid>
     <RootNamespace>My97PMX</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+    <ProjectName>97_PMX(Test3)</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
