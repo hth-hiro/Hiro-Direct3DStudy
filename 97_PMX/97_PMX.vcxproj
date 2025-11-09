@@ -136,6 +136,7 @@
     <ClInclude Include="Mesh.h" />
     <ClInclude Include="Model.h" />
     <ClInclude Include="ModelLoader.h" />
+    <ClInclude Include="PMXManager.h" />
     <ClInclude Include="Resource.h" />
     <ClInclude Include="SkeletalMesh.h" />
     <ClInclude Include="SkeletalModel.h" />
@@ -149,6 +150,7 @@
     <ClCompile Include="ImGuiManager.cpp" />
     <ClCompile Include="Model.cpp" />
     <ClCompile Include="ModelLoader.cpp" />
+    <ClCompile Include="PMXManager.cpp" />
     <ClCompile Include="SkeletalMesh.cpp" />
     <ClCompile Include="SkeletalModel.cpp" />
     <ClCompile Include="TextureLoader.cpp" />
