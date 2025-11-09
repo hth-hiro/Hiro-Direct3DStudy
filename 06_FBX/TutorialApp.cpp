@@ -137,6 +137,12 @@ void TutorialApp::Update()
         Character->material.specular = { obj.specular };;
         Character->material.shininess = { obj.shininess };
     }
+
+    Model* Teapot = GetModelByName("Teapot");
+    {
+        Teapot->transform.position = { 0,50, -200 };
+        Teapot->material.diffuse = { 1,1,1 };
+    }
 }
 
 void TutorialApp::Render()
@@ -384,6 +390,7 @@ bool TutorialApp::InitScene()
     m_ModelLoader.Load(m_pDevice, m_pDeviceContext, "../Resource/Character.fbx", "Character");
     m_ModelLoader.Load(m_pDevice, m_pDeviceContext, "../Resource/zeldaPosed001.fbx", "Zelda");
     m_ModelLoader.Load(m_pDevice, m_pDeviceContext, "../Resource/Tree.fbx", "Tree");
+    m_ModelLoader.Load(m_pDevice, m_pDeviceContext, "../Resource/Teapot.fbx", "Teapot");
 
     Skybox skybox[] =
     {

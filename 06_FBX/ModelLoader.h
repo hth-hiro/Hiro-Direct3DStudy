@@ -53,8 +53,8 @@ struct ConstantBuffer
 struct Material
 {
 	Vector4 ambient = { 0.1f, 0.1f, 0.1f, 0.1f };
-	Vector4 diffuse = { 0.0f, 0.0f, 0.0f, 0.0f };
-	Vector4 specular = { 0.0f, 0.0f, 0.0f, 0.0f };
+	Vector4 diffuse = { 1.0f, 1.0f, 1.0f, 1.0f };
+	Vector4 specular = { 1.0f, 1.0f, 1.0f, 1.0f };
 	Vector4 shininess = { 1.0f, 0, 0, 0 };
 };
 
