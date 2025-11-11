@@ -12,6 +12,19 @@
 #pragma comment(lib, "dxgi.lib")
 #pragma comment(lib, "d3dcompiler.lib") // 셰이더 컴파일 시 필요
 
+struct Ground
+{
+    Vector3 Pos;
+    Vector4 Color;
+};
+
+struct GroundCB
+{
+    Matrix mWorld;
+    Matrix mView;
+    Matrix mProjection;
+};
+
 struct Skybox
 {
     Vector3 Pos;       // 스카이박스는 위치만 필요
@@ -381,6 +394,14 @@ bool TutorialApp::InitScene()
         3, 2, 6, 3, 6, 7,
     };
 
+    Ground ground[] =
+    {
+        { Vector3(-10, 0, -10), Vector4(1, 1, 1, 1)},
+        { Vector3(10, 0, -10), Vector4(1, 1, 1, 1)},
+        { Vector3(10, 0, 10), Vector4(1, 1, 1, 1)},
+        { Vector3(-10, 0, 10), Vector4(1, 1, 1, 1)}
+    };
+
     // Create Vertex Buffer
     D3D11_BUFFER_DESC vbDesc = {};
 
@@ -522,7 +543,32 @@ bool TutorialApp::InitScene()
     HR_T(CreateDDSTextureFromFile(m_pDevice, L"../Resource/Daylight.dds", nullptr, &m_pCubeDaylightTextureRV));
     HR_T(CreateDDSTextureFromFile(m_pDevice, L"../Resource/Hanako.dds", nullptr, &m_pCubeHanakoTextureRV));
 
-    // 투영 변환(절두체를 이해하면 된다.)
+
+    // ShadowMap
+    // Texture 생성
+    D3D11_TEXTURE2D_DESC texDesc = {};
+    //texDesc.Width = 
+    texDesc.MipLevels = 1;
+    texDesc.ArraySize = 1;
+    texDesc.Usage = D3D11_USAGE_DEFAULT;
+    texDesc.Format = DXGI_FORMAT_R32_TYPELESS;
+    texDesc.BindFlags = D3D11_BIND_DEPTH_STENCIL | D3D11_BIND_SHADER_RESOURCE;
+    HR_T(m_pDevice->CreateTexture2D(&texDesc, NULL, m_pShadowMap.GetAddressOf()));
+
+    // DSV 생성
+    D3D11_DEPTH_STENCIL_VIEW_DESC descDSV = {};
+    descDSV.Format = DXGI_FORMAT_D32_FLOAT;
+    descDSV.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
+    HR_T(m_pDevice->CreateDepthStencilView(m_pShadowMap.Get(), &descDSV, m_pShadowMapDSV.GetAddressOf()));
+
+    // SRV 생성
+    D3D11_SHADER_RESOURCE_VIEW_DESC srvDesc = {};
+    srvDesc.Format = DXGI_FORMAT_R32_FLOAT;
+    srvDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
+    srvDesc.Texture2D.MipLevels = 1;
+    HR_T(m_pDevice->CreateShaderResourceView(m_pShadowMap.Get(), &srvDesc, m_pShadowMapSRV.GetAddressOf()));
+
+
     // 그려지는 범위 NearZ, FarZ값으로 설정
     m_Projection = XMMatrixPerspectiveFovLH(XM_PIDIV2, m_ClientWidth / (FLOAT)m_ClientHeight, 0.01f, 100.0f);
 

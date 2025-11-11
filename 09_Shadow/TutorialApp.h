@@ -55,12 +55,16 @@ public:
 	int m_nSkyboxIndices = 0;										// 인덱스 개수
 	ID3D11Buffer* m_pSkyboxConstantBuffer = nullptr;				// 상수 버퍼
 	ID3D11DepthStencilState* m_pSkyboxDepthStencilState = nullptr;	// 뎊스 스텐실 스테이트
-
+    
 	ID3D11ShaderResourceView* m_pCubeTextureRV = nullptr;			// 텍스처 파일(큐브맵, 현재 큐브맵)
 	ID3D11ShaderResourceView* m_pCubeMuseumTextureRV = nullptr;		// 텍스처 파일1(큐브맵, 실내)
 	ID3D11ShaderResourceView* m_pCubeDaylightTextureRV = nullptr;	// 텍스처 파일2(큐브맵, 실외)
 	ID3D11ShaderResourceView* m_pCubeHanakoTextureRV = nullptr;		// 텍스처 파일3(큐브맵, 디버그)
 
+    /*-----Shadow Map-----*/
+    ComPtr<ID3D11Texture2D> m_pShadowMap;
+    ComPtr<ID3D11DepthStencilView> m_pShadowMapDSV;
+    ComPtr<ID3D11ShaderResourceView> m_pShadowMapSRV;
 
 	Matrix m_World;
 	Matrix m_View;
