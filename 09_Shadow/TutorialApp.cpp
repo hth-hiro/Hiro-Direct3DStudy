@@ -546,27 +546,27 @@ bool TutorialApp::InitScene()
 
     // ShadowMap
     // Texture 积己
-    D3D11_TEXTURE2D_DESC texDesc = {};
-    //texDesc.Width = 
-    texDesc.MipLevels = 1;
-    texDesc.ArraySize = 1;
-    texDesc.Usage = D3D11_USAGE_DEFAULT;
-    texDesc.Format = DXGI_FORMAT_R32_TYPELESS;
-    texDesc.BindFlags = D3D11_BIND_DEPTH_STENCIL | D3D11_BIND_SHADER_RESOURCE;
-    HR_T(m_pDevice->CreateTexture2D(&texDesc, NULL, m_pShadowMap.GetAddressOf()));
+    //D3D11_TEXTURE2D_DESC texDesc = {};
+    ////texDesc.Width = 
+    //texDesc.MipLevels = 1;
+    //texDesc.ArraySize = 1;
+    //texDesc.Usage = D3D11_USAGE_DEFAULT;
+    //texDesc.Format = DXGI_FORMAT_R32_TYPELESS;
+    //texDesc.BindFlags = D3D11_BIND_DEPTH_STENCIL | D3D11_BIND_SHADER_RESOURCE;
+    //HR_T(m_pDevice->CreateTexture2D(&texDesc, NULL, m_pShadowMap.GetAddressOf()));
 
-    // DSV 积己
-    D3D11_DEPTH_STENCIL_VIEW_DESC descDSV = {};
-    descDSV.Format = DXGI_FORMAT_D32_FLOAT;
-    descDSV.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
-    HR_T(m_pDevice->CreateDepthStencilView(m_pShadowMap.Get(), &descDSV, m_pShadowMapDSV.GetAddressOf()));
+    //// DSV 积己
+    //D3D11_DEPTH_STENCIL_VIEW_DESC descDSV = {};
+    //descDSV.Format = DXGI_FORMAT_D32_FLOAT;
+    //descDSV.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
+    //HR_T(m_pDevice->CreateDepthStencilView(m_pShadowMap.Get(), &descDSV, m_pShadowMapDSV.GetAddressOf()));
 
-    // SRV 积己
-    D3D11_SHADER_RESOURCE_VIEW_DESC srvDesc = {};
-    srvDesc.Format = DXGI_FORMAT_R32_FLOAT;
-    srvDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
-    srvDesc.Texture2D.MipLevels = 1;
-    HR_T(m_pDevice->CreateShaderResourceView(m_pShadowMap.Get(), &srvDesc, m_pShadowMapSRV.GetAddressOf()));
+    //// SRV 积己
+    //D3D11_SHADER_RESOURCE_VIEW_DESC srvDesc = {};
+    //srvDesc.Format = DXGI_FORMAT_R32_FLOAT;
+    //srvDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
+    //srvDesc.Texture2D.MipLevels = 1;
+    //HR_T(m_pDevice->CreateShaderResourceView(m_pShadowMap.Get(), &srvDesc, m_pShadowMapSRV.GetAddressOf()));
 
 
     // 弊妨瘤绰 裹困 NearZ, FarZ蔼栏肺 汲沥
