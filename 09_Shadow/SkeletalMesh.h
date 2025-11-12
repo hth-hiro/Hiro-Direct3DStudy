@@ -161,6 +161,8 @@ public:
         const Vector4& cameraPos,
         const bool& useLighting);
 
+    void Reset();
+
 	void Close();
 
 	std::vector<SkeletalModel> models_;

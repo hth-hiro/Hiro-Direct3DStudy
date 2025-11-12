@@ -16,6 +16,8 @@ SkeletalMesh::~SkeletalMesh()
 
 bool SkeletalMesh::Load(ID3D11Device* dev, ID3D11DeviceContext* devcon, const std::string& filePath, const std::string& name)
 {
+    Reset();
+
 	if (!ReadSkeletonMeshFile(dev, devcon, filePath, name))
 		return false;
 
@@ -254,6 +256,17 @@ void SkeletalMesh::Draw(
             &m_SkeletonPose,
             m_pBonePoseBuffer
         );
+    }
+}
+
+void SkeletalMesh::Reset()
+{
+    m_Skeleton.clear();
+    m_SkeletonInfo.m_Bones.clear();
+
+    for (int i = 0; i < 128; ++i)
+    {
+        m_SkeletonPose.Array[i] = XMMatrixIdentity();
     }
 }
 

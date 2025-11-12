@@ -378,7 +378,7 @@ bool TutorialApp::InitScene()
     ID3D10Blob* errorMessage = nullptr;
 
     m_SkeletalModelLoader.Load(m_pDevice, m_pDeviceContext, "../Resource/SkinningTest.fbx", "SkinningTest");
-    m_SkeletalModelLoader.Load(m_pDevice, m_pDeviceContext, "../Resource/SkinningTest.fbx", "model");
+    //m_SkeletalModelLoader.Load(m_pDevice, m_pDeviceContext, "../Resource/SkinningTest.fbx", "model");
 
     Skybox skybox[] =
     {
@@ -583,13 +583,6 @@ bool TutorialApp::InitScene()
     m_LightDirsEvaluated = m_InitialLightDirs;
 
     //m_ShadowProjection = XMMatrixPerspectiveFovLH(XM_PIDIV4, )
-
-
-
-
-
-
-
 
 
     return true;
