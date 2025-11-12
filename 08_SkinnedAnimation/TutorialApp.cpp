@@ -357,6 +357,7 @@ bool TutorialApp::InitScene()
 
 
     m_SkeletalModelLoader.Load(m_pDevice, m_pDeviceContext, "../Resource/SkinningTest.fbx", "SkinningTest");
+    //m_SkeletalModelLoader.Load(m_pDevice, m_pDeviceContext, "../Resource/Zombie_Run.fbx", "model");
 
     Skybox skybox[] =
     {

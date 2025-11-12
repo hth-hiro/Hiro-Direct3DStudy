@@ -163,6 +163,8 @@ public:
 
 	void Close();
 
+    void Reset();
+
 	std::vector<SkeletalModel> models_;
 
 private:
