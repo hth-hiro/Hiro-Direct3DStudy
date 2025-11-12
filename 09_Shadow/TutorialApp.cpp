@@ -378,7 +378,11 @@ bool TutorialApp::InitScene()
     ID3D10Blob* errorMessage = nullptr;
 
     m_SkeletalModelLoader.Load(m_pDevice, m_pDeviceContext, "../Resource/SkinningTest.fbx", "SkinningTest");
-    //m_SkeletalModelLoader.Load(m_pDevice, m_pDeviceContext, "../Resource/SkinningTest.fbx", "model");
+    m_SkeletalModelLoader.Load(m_pDevice, m_pDeviceContext, "../Resource/Character.fbx", "model");
+
+    SkeletalMesh loader1;
+
+    //loader1.Load(m_pDevice, m_pDeviceContext, "../Resource/Zombie_Run.fbx", "model");
 
     Skybox skybox[] =
     {

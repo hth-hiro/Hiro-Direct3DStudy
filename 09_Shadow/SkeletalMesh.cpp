@@ -172,7 +172,7 @@ void SkeletalMesh::Update(float deltaTime)
 	if (!m_Animations.empty())
 	{
 		m_AnimationProcessTime += deltaTime;
-		//m_AnimationProcessTime = fmod(m_AnimationProcessTime, m_Animations[m_AnimationsIndex].Duration);
+		m_AnimationProcessTime = fmod(m_AnimationProcessTime, m_Animations[m_AnimationsIndex].Duration);
 	}
 
 	for (auto& bone : m_Skeleton)
@@ -263,6 +263,8 @@ void SkeletalMesh::Reset()
 {
     m_Skeleton.clear();
     m_SkeletonInfo.m_Bones.clear();
+    m_SkeletonPose = {};
+    m_Animations.clear();
 
     for (int i = 0; i < 128; ++i)
     {
