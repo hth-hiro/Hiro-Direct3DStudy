@@ -12,12 +12,6 @@
 #pragma comment(lib, "dxgi.lib")
 #pragma comment(lib, "d3dcompiler.lib") // 셰이더 컴파일 시 필요
 
-struct Ground
-{
-    Vector3 Pos;
-    Vector4 Color;
-};
-
 struct GroundCB
 {
     Matrix mWorld;
@@ -125,6 +119,21 @@ void TutorialApp::Update()
         BoxHuman->material.specular = { obj.specular };
         BoxHuman->material.shininess = { obj.shininess };
     }
+
+    //SkeletalModel* model = GetSkeletalModelByName("model");
+    //if (model)
+    //{
+    //    Object obj = m_ImGuiManager.object2;
+
+    //    model->transform.position = { obj.transform.GetPosition() };
+    //    model->transform.scale = { obj.transform.GetScale() };
+    //    model->transform.rotation = { obj.transform.GetRotation() };
+
+    //    model->material.ambient = { obj.ambient };
+    //    model->material.diffuse = { obj.diffuse };
+    //    model->material.specular = { obj.specular };
+    //    model->material.shininess = { obj.shininess };
+    //}
 
     m_SkeletalModelLoader.Update(m_Time.GetDeltaTime());
 }
@@ -368,8 +377,8 @@ bool TutorialApp::InitScene()
     HRESULT hr = 0;
     ID3D10Blob* errorMessage = nullptr;
 
-
     m_SkeletalModelLoader.Load(m_pDevice, m_pDeviceContext, "../Resource/SkinningTest.fbx", "SkinningTest");
+    m_SkeletalModelLoader.Load(m_pDevice, m_pDeviceContext, "../Resource/SkinningTest.fbx", "model");
 
     Skybox skybox[] =
     {
@@ -392,14 +401,6 @@ bool TutorialApp::InitScene()
         1, 5, 6, 1, 6, 2,
         4, 5, 1, 4, 1, 0,
         3, 2, 6, 3, 6, 7,
-    };
-
-    Ground ground[] =
-    {
-        { Vector3(-10, 0, -10), Vector4(1, 1, 1, 1)},
-        { Vector3(10, 0, -10), Vector4(1, 1, 1, 1)},
-        { Vector3(10, 0, 10), Vector4(1, 1, 1, 1)},
-        { Vector3(-10, 0, 10), Vector4(1, 1, 1, 1)}
     };
 
     // Create Vertex Buffer
@@ -580,6 +581,16 @@ bool TutorialApp::InitScene()
     m_Projection = XMMatrixPerspectiveFovLH(XM_PIDIV2 / 2.0f, m_ClientWidth / (FLOAT)m_ClientHeight, 0.01f, 100.0f);
 
     m_LightDirsEvaluated = m_InitialLightDirs;
+
+    //m_ShadowProjection = XMMatrixPerspectiveFovLH(XM_PIDIV4, )
+
+
+
+
+
+
+
+
 
     return true;
 }

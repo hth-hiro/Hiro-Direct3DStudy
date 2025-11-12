@@ -61,14 +61,21 @@ public:
 	ID3D11ShaderResourceView* m_pCubeDaylightTextureRV = nullptr;	// 텍스처 파일2(큐브맵, 실외)
 	ID3D11ShaderResourceView* m_pCubeHanakoTextureRV = nullptr;		// 텍스처 파일3(큐브맵, 디버그)
 
+	Matrix m_World;
+	Matrix m_View;
+	Matrix m_Projection;
+
     /*-----Shadow Map-----*/
     ComPtr<ID3D11Texture2D> m_pShadowMap;
     ComPtr<ID3D11DepthStencilView> m_pShadowMapDSV;
     ComPtr<ID3D11ShaderResourceView> m_pShadowMapSRV;
 
-	Matrix m_World;
-	Matrix m_View;
-	Matrix m_Projection;
+    Matrix m_ShadowPos;
+    Matrix m_ShadowView;
+    Matrix m_ShadowLookAt;
+    Matrix m_ShadowProjection;
+
+    
 
 	// Manager
 	ImGuiManager m_ImGuiManager;

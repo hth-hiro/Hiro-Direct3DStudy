@@ -55,7 +55,7 @@ public:
 	void Render();
 
 	Object object1 = { Vector3(0,0,0)};
-	Object object2 = { Vector3(0,0,0) };
+	Object object2 = { Vector3(-100,0,0) };
 	Object object3 = { Vector3(100,0,0) };
 
 	float FOV = 1.0f;
