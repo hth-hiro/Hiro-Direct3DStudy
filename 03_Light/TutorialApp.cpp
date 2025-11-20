@@ -139,7 +139,7 @@ void TutorialApp::Render()
     cb.vLightDir = m_LightDirsEvaluated;
     cb.vDiffuseColor = m_DiffuseColor;
     cb.vOutputColor = XMFLOAT4(1, 1, 1, 1); // Parent Obj
-    m_pDeviceContext->UpdateSubresource(m_pConstantBuffer, 0, nullptr, &cb, 0, 0);
+    m_pDeviceContext->UpdateSubresource(m_pStaticMeshConstantBuffer, 0, nullptr, &cb, 0, 0);
 
     // Render the cube
     // Input Assembler
@@ -148,9 +148,9 @@ void TutorialApp::Render()
     m_pDeviceContext->IASetInputLayout(m_pInputLayout);
     m_pDeviceContext->IASetIndexBuffer(m_pIndexBuffer, DXGI_FORMAT_R16_UINT, 0);
     m_pDeviceContext->VSSetShader(m_pVertexShader, nullptr, 0);
-    m_pDeviceContext->VSSetConstantBuffers(0, 1, &m_pConstantBuffer);
+    m_pDeviceContext->VSSetConstantBuffers(0, 1, &m_pStaticMeshConstantBuffer);
     m_pDeviceContext->PSSetShader(m_pPixelShader, nullptr, 0);
-    m_pDeviceContext->PSSetConstantBuffers(0, 1, &m_pConstantBuffer);
+    m_pDeviceContext->PSSetConstantBuffers(0, 1, &m_pStaticMeshConstantBuffer);
 
     m_pDeviceContext->DrawIndexed(m_nIndices, 0, 0);
 
@@ -395,7 +395,7 @@ bool TutorialApp::InitScene()
     vbDesc.ByteWidth = sizeof(ConstantBuffer);
     vbDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
     vbDesc.CPUAccessFlags = 0;
-    HR_T(m_pDevice->CreateBuffer(&vbDesc, nullptr, &m_pConstantBuffer));
+    HR_T(m_pDevice->CreateBuffer(&vbDesc, nullptr, &m_pStaticMeshConstantBuffer));
 
     //m_World = XMMatrixIdentity();
 
@@ -428,5 +428,5 @@ void TutorialApp::UninitScene()
     SAFE_RELEASE(m_pInputLayout);
     SAFE_RELEASE(m_pVertexShader);
     SAFE_RELEASE(m_pPixelShader);
-    SAFE_RELEASE(m_pConstantBuffer);
+    SAFE_RELEASE(m_pStaticMeshConstantBuffer);
 }

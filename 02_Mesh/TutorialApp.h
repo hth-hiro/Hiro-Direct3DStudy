@@ -96,7 +96,7 @@ public:
 	UINT m_IndexBufferOffset = 0;
 	//UINT m_IndexCount = 0;
 
-	ID3D11Buffer* m_pConstantBuffer = nullptr;
+	ID3D11Buffer* m_pStaticMeshConstantBuffer = nullptr;
 
 	ID3D11DepthStencilView* m_pDepthStencilView = nullptr;
 
@@ -153,7 +153,7 @@ public:
 		cb.mView = XMMatrixTranspose(m_View);
 		cb.mProjection = XMMatrixTranspose(m_Projection);
 
-		context->UpdateSubresource(m_pConstantBuffer, 0, nullptr, &cb, 0, 0);
+		context->UpdateSubresource(m_pStaticMeshConstantBuffer, 0, nullptr, &cb, 0, 0);
 
 		context->IASetVertexBuffers(0, 1, &obj.m_pVertexBuffer, &m_VertexBufferStride, &m_VertexBufferOffset);
 		context->IASetIndexBuffer(obj.m_pIndexBuffer, DXGI_FORMAT_R16_UINT, m_IndexBufferOffset);

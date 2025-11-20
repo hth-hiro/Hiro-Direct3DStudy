@@ -9,6 +9,10 @@
 #include "SkeletalMesh.h"
 #include "SkeletalModel.h"
 
+// refactoring
+#include "StaticMesh.h"
+#include "../Common/ConstantBuffer.h"
+
 using namespace DirectX::SimpleMath;
 using namespace DirectX;
 
@@ -26,7 +30,6 @@ public:
 	ID3D11Device* m_pDevice = nullptr;								// 디바이스	
 	ID3D11DeviceContext* m_pDeviceContext = nullptr;				// 즉시 디바이스 컨텍스트
 	IDXGISwapChain* m_pSwapChain = nullptr;							// 스왑체인
-	ID3D11Buffer* m_pConstantBuffer;								// 상수 버퍼.
 
 	ComPtr<ID3D11RenderTargetView> m_pRenderTargetView;				// 렌더링 타겟뷰
 	ComPtr<ID3D11DepthStencilView> m_pDepthStencilView;				// 깊이값 처리를 위한 뎊스스텐실 뷰
@@ -61,6 +64,10 @@ public:
 	ID3D11ShaderResourceView* m_pCubeDaylightTextureRV = nullptr;	// 텍스처 파일2(큐브맵, 실외)
 	ID3D11ShaderResourceView* m_pCubeHanakoTextureRV = nullptr;		// 텍스처 파일3(큐브맵, 디버그)
 
+    /*-----땅-----*/
+    ID3D11Buffer* m_pGroundVertexBuffer = nullptr;
+    ID3D11Buffer* m_pGroundIndexBuffer = nullptr;
+
 	Matrix m_World;
 	Matrix m_View;
 	Matrix m_Projection;
@@ -83,6 +90,12 @@ public:
 	SkeletalMesh m_SkeletalModelLoader;
 
 	TimeSystem m_TimeSystem;
+
+
+    ID3D11Buffer* m_pStaticMeshConstantBuffer;						// 상수 버퍼.
+    StaticMesh m_StaticMesh;
+    StaticMesh ground;
+
 
 	// ModelLoad
 	Model* GetModelByName(const std::string& name)

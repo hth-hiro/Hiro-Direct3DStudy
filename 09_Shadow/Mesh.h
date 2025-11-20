@@ -23,18 +23,11 @@
 #include "../Common/Helper.h"
 #include "Bone.h"
 
+#include "VertexTypes.h"
+
 using namespace DirectX::SimpleMath;
 
 using Microsoft::WRL::ComPtr;
-
-struct Vertex
-{
-    Vector3 Pos;
-    Vector3 Normal;
-    Vector2 Tex; 
-    Vector3 Tangent;
-    Vector3 Bitangent;
-};
 
 struct Texture {
     std::string type;

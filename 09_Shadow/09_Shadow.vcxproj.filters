@@ -16,6 +16,9 @@
     <Filter Include="Shader">
       <UniqueIdentifier>{c953bd43-2e49-4901-b341-93df6a080ba8}</UniqueIdentifier>
     </Filter>
+    <Filter Include="StaticMesh">
+      <UniqueIdentifier>{a7510805-d69b-4c11-8443-6293779476c8}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="framework.h">
@@ -60,6 +63,18 @@
     <ClInclude Include="TutorialApp.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
+    <ClInclude Include="Material.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="VertexTypes.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="StaticMesh.h">
+      <Filter>StaticMesh</Filter>
+    </ClInclude>
+    <ClInclude Include="StaticMeshSection.h">
+      <Filter>StaticMesh</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="09_Shadow.cpp">
@@ -88,6 +103,12 @@
     </ClCompile>
     <ClCompile Include="TutorialApp.cpp">
       <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="StaticMesh.cpp">
+      <Filter>StaticMesh</Filter>
+    </ClCompile>
+    <ClCompile Include="StaticMeshSection.cpp">
+      <Filter>StaticMesh</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

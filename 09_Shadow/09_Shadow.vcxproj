@@ -132,15 +132,19 @@
     <ClInclude Include="Bone.h" />
     <ClInclude Include="framework.h" />
     <ClInclude Include="ImGuiManager.h" />
+    <ClInclude Include="Material.h" />
     <ClInclude Include="Mesh.h" />
     <ClInclude Include="Model.h" />
     <ClInclude Include="ModelLoader.h" />
     <ClInclude Include="Resource.h" />
     <ClInclude Include="SkeletalMesh.h" />
     <ClInclude Include="SkeletalModel.h" />
+    <ClInclude Include="StaticMesh.h" />
+    <ClInclude Include="StaticMeshSection.h" />
     <ClInclude Include="targetver.h" />
     <ClInclude Include="TextureLoader.h" />
     <ClInclude Include="TutorialApp.h" />
+    <ClInclude Include="VertexTypes.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="09_Shadow.cpp" />
@@ -150,6 +154,8 @@
     <ClCompile Include="ModelLoader.cpp" />
     <ClCompile Include="SkeletalMesh.cpp" />
     <ClCompile Include="SkeletalModel.cpp" />
+    <ClCompile Include="StaticMesh.cpp" />
+    <ClCompile Include="StaticMeshSection.cpp" />
     <ClCompile Include="TextureLoader.cpp" />
     <ClCompile Include="TutorialApp.cpp" />
   </ItemGroup>

@@ -12,13 +12,6 @@
 #pragma comment(lib, "dxgi.lib")
 #pragma comment(lib, "d3dcompiler.lib") // 셰이더 컴파일 시 필요
 
-struct GroundCB
-{
-    Matrix mWorld;
-    Matrix mView;
-    Matrix mProjection;
-};
-
 struct Skybox
 {
     Vector3 Pos;       // 스카이박스는 위치만 필요
@@ -105,20 +98,20 @@ void TutorialApp::Update()
         m_pCubeTextureRV = m_pCubeMuseumTextureRV;
     }
 
-    SkeletalModel* BoxHuman = GetSkeletalModelByName("SkinningTest");
-    if (BoxHuman)
-    {
-        Object obj = m_ImGuiManager.object1;
+    //SkeletalModel* BoxHuman = GetSkeletalModelByName("SkinningTest");
+    //if (BoxHuman)
+    //{
+    //    Object obj = m_ImGuiManager.object1;
 
-        BoxHuman->transform.position = { obj.transform.GetPosition() };
-        BoxHuman->transform.scale = { obj.transform.GetScale() };
-        BoxHuman->transform.rotation = { obj.transform.GetRotation() };
+    //    BoxHuman->transform.position = { obj.transform.GetPosition() };
+    //    BoxHuman->transform.scale = { obj.transform.GetScale() };
+    //    BoxHuman->transform.rotation = { obj.transform.GetRotation() };
 
-        BoxHuman->material.ambient = { obj.ambient };
-        BoxHuman->material.diffuse = { obj.diffuse };
-        BoxHuman->material.specular = { obj.specular };
-        BoxHuman->material.shininess = { obj.shininess };
-    }
+    //    BoxHuman->material.ambient = { obj.ambient };
+    //    BoxHuman->material.diffuse = { obj.diffuse };
+    //    BoxHuman->material.specular = { obj.specular };
+    //    BoxHuman->material.shininess = { obj.shininess };
+    //}
 
     //SkeletalModel* model = GetSkeletalModelByName("model");
     //if (model)
@@ -135,7 +128,7 @@ void TutorialApp::Update()
     //    model->material.shininess = { obj.shininess };
     //}
 
-    m_SkeletalModelLoader.Update(m_Time.GetDeltaTime());
+    //m_SkeletalModelLoader.Update(m_Time.GetDeltaTime());
 }
 
 void TutorialApp::Render()
@@ -146,7 +139,7 @@ void TutorialApp::Render()
     float blendFactor[4] = { 0.f, 0.f, 0.f, 0.f }; // 일반적으로 0,0,0,0
     UINT sampleMask = 0xffffffff; // 모든 샘플 사용
 
-    m_pDeviceContext->OMSetBlendState(m_pBlendState.Get(), blendFactor, sampleMask);
+    //m_pDeviceContext->OMSetBlendState(m_pBlendState.Get(), blendFactor, sampleMask);
 
     ID3D11RenderTargetView* rtv = m_pRenderTargetView.Get(); // 내부 포인터
     m_pDeviceContext->OMSetRenderTargets(1, &rtv, m_pDepthStencilView.Get());
@@ -171,7 +164,6 @@ void TutorialApp::Render()
     cbSky.mProjection = XMMatrixTranspose(m_Projection);
 
     m_pDeviceContext->VSSetConstantBuffers(1, 1, &m_pSkyboxConstantBuffer);
-    m_pDeviceContext->PSSetConstantBuffers(1, 1, &m_pConstantBuffer);
     m_pDeviceContext->UpdateSubresource(m_pSkyboxConstantBuffer, 0, nullptr, &cbSky, 0, 0);
 
     m_pDeviceContext->PSSetShaderResources(1, 1, &m_pCubeTextureRV);
@@ -186,32 +178,158 @@ void TutorialApp::Render()
     m_pDeviceContext->IASetInputLayout(m_pInputLayout.Get());
     m_pDeviceContext->VSSetShader(m_pVertexShader.Get(), nullptr, 0);
 
-    m_pDeviceContext->IASetInputLayout(m_pSkeletalInputLayout.Get());
-    m_pDeviceContext->VSSetShader(m_pSkeletalVS.Get(), nullptr, 0);
+    //m_pDeviceContext->IASetInputLayout(m_pSkeletalInputLayout.Get());
+    //m_pDeviceContext->VSSetShader(m_pSkeletalVS.Get(), nullptr, 0);
 
     m_pDeviceContext->PSSetShader(m_pPixelShader.Get(), nullptr, 0);
 
-    // 특정 모델마다 다르게 설정한다면, 렌더에서 새로 모델 드로우 할때마다 설정을 바꿔주면 됨
-    // 렌더링 전에 상태 적용
+    //// 특정 모델마다 다르게 설정한다면, 렌더에서 새로 모델 드로우 할때마다 설정을 바꿔주면 됨
+    //// 렌더링 전에 상태 적용
     m_pDeviceContext->RSSetState(m_pRasterStateNoCull.Get());
 
     //RSSetState(None);
 
     // 투명 오브젝트와 불투명 오브젝트를 따로 렌더해야 한다?
     // 불투명 오브젝트 렌더 -> 알파 소팅 -> 투명 오브젝트 렌더
-    m_SkeletalModelLoader.Draw(m_pDeviceContext,
-        m_pConstantBuffer,
-        m_View,
-        m_Projection,
-        m_LightDirsEvaluated,
-        m_AmbientColor,
-        m_DiffuseColor,
-        m_SpecularColor,
-        m_shininess,
-        m_cameraPos,
-        m_ImGuiManager.useLighting);
+    //m_SkeletalModelLoader.Draw(m_pDeviceContext,
+    //    m_pConstantBuffer,
+    //    m_View,
+    //    m_Projection,
+    //    m_LightDirsEvaluated,
+    //    m_AmbientColor,
+    //    m_DiffuseColor,
+    //    m_SpecularColor,
+    //    m_shininess,
+    //    m_cameraPos,
+    //    m_ImGuiManager.useLighting);
 
     m_pDeviceContext->PSSetSamplers(0, 1, &m_pSamplerLinear);
+
+    for (auto& section : m_StaticMesh.m_StaticMeshSection)
+    {
+        int matIdx = section.materialIndex;
+        if (matIdx < 0 || matIdx >= m_StaticMesh.m_Materials.size())
+            continue;
+
+        Material& mat = m_StaticMesh.m_Materials[matIdx];
+
+        ConstantBuffer cb;
+        cb.mWorld = XMMatrixTranspose(m_StaticMesh.m_World);
+        cb.mView = XMMatrixTranspose(m_View);
+        cb.mProjection = XMMatrixTranspose(m_Projection);
+        cb.vLightDir = m_LightDirsEvaluated;
+
+        // 머티리얼 정보
+        cb.vMaterialAmbient = mat.ambient;
+        cb.vMaterialDiffuse = mat.diffuse;
+        cb.vMaterialSpecular = mat.specular;
+        cb.vShininess = mat.shininess;
+
+        cb.vAmbientColor = m_AmbientColor;
+        cb.vDiffuseColor = m_DiffuseColor;
+        cb.vSpecularColor = m_SpecularColor;
+        cb.cameraPos = m_cameraPos;
+        cb.UseLighting = m_ImGuiManager.useLighting;
+
+        // 텍스처 관련
+        cb.hasTexture = mat.hasTexture ? 1 : 0;
+        cb.solidColor = mat.hasTexture ? XMFLOAT4(1, 1, 1, 1) : mat.solidColor;
+        cb.hasNormalMap = mat.hasNormalMap ? 1 : 0;
+        cb.hasSpecularMap = mat.hasSpecularMap ? 1 : 0;
+        cb.hasEmissiveMap = mat.hasEmissiveMap ? 1 : 0;
+
+        // 상수버퍼 업데이트
+        m_pDeviceContext->VSSetConstantBuffers(0, 1, &m_pStaticMeshConstantBuffer);
+        m_pDeviceContext->PSSetConstantBuffers(0, 1, &m_pStaticMeshConstantBuffer);
+        m_pDeviceContext->UpdateSubresource(m_pStaticMeshConstantBuffer, 0, nullptr, &cb, 0, 0);
+
+        // Vertex/Index Buffer
+        UINT stride = sizeof(Vertex);
+        UINT offset = 0;
+        m_pDeviceContext->IASetVertexBuffers(0, 1, &section.VertexBuffer, &stride, &offset);
+        m_pDeviceContext->IASetIndexBuffer(section.IndexBuffer, DXGI_FORMAT_R16_UINT, 0);
+        m_pDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+
+        // PS 텍스처 바인딩
+        ID3D11ShaderResourceView* nullSRV[1] = { nullptr };
+        for (int i = 0; i <= 4; i++)
+            m_pDeviceContext->PSSetShaderResources(i, 1, nullSRV);
+
+        if (mat.hasTexture && mat.diffuseSRV)
+            m_pDeviceContext->PSSetShaderResources(0, 1, &mat.diffuseSRV);
+        if (mat.hasNormalMap && mat.normalSRV)
+            m_pDeviceContext->PSSetShaderResources(2, 1, &mat.normalSRV);
+        if (mat.hasSpecularMap && mat.specularSRV)
+            m_pDeviceContext->PSSetShaderResources(3, 1, &mat.specularSRV);
+        if (mat.hasEmissiveMap && mat.emissiveSRV)
+            m_pDeviceContext->PSSetShaderResources(4, 1, &mat.emissiveSRV);
+
+        // Draw 호출
+        m_pDeviceContext->DrawIndexed(static_cast<UINT>(section.Indices.size()), 0, 0);
+    }
+
+    for (auto& section : ground.m_StaticMeshSection)
+    {
+        int matIdx = section.materialIndex;
+        if (matIdx < 0 || matIdx >= ground.m_Materials.size())
+            continue;
+
+        Material& mat = ground.m_Materials[matIdx];
+
+        ConstantBuffer cb;
+        cb.mWorld = XMMatrixTranspose(ground.m_World);
+        cb.mView = XMMatrixTranspose(m_View);
+        cb.mProjection = XMMatrixTranspose(m_Projection);
+        cb.vLightDir = m_LightDirsEvaluated;
+
+        // 머티리얼 정보
+        cb.vMaterialAmbient = mat.ambient;
+        cb.vMaterialDiffuse = mat.diffuse;
+        cb.vMaterialSpecular = mat.specular;
+        cb.vShininess = mat.shininess;
+
+        cb.vAmbientColor = m_AmbientColor;
+        cb.vDiffuseColor = m_DiffuseColor;
+        cb.vSpecularColor = m_SpecularColor;
+        cb.cameraPos = m_cameraPos;
+        cb.UseLighting = m_ImGuiManager.useLighting;
+
+        // 텍스처 관련
+        cb.hasTexture = mat.hasTexture ? 1 : 0;
+        cb.solidColor = mat.hasTexture ? XMFLOAT4(1, 1, 1, 1) : mat.solidColor;
+        cb.hasNormalMap = mat.hasNormalMap ? 1 : 0;
+        cb.hasSpecularMap = mat.hasSpecularMap ? 1 : 0;
+        cb.hasEmissiveMap = mat.hasEmissiveMap ? 1 : 0;
+
+        // 상수버퍼 업데이트
+        m_pDeviceContext->VSSetConstantBuffers(0, 1, &m_pStaticMeshConstantBuffer);
+        m_pDeviceContext->PSSetConstantBuffers(0, 1, &m_pStaticMeshConstantBuffer);
+        m_pDeviceContext->UpdateSubresource(m_pStaticMeshConstantBuffer, 0, nullptr, &cb, 0, 0);
+
+        // Vertex/Index Buffer
+        UINT stride = sizeof(Vertex);
+        UINT offset = 0;
+        m_pDeviceContext->IASetVertexBuffers(0, 1, &section.VertexBuffer, &stride, &offset);
+        m_pDeviceContext->IASetIndexBuffer(section.IndexBuffer, DXGI_FORMAT_R16_UINT, 0);
+        m_pDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+
+        // PS 텍스처 바인딩
+        ID3D11ShaderResourceView* nullSRV[1] = { nullptr };
+        for (int i = 0; i <= 4; i++)
+            m_pDeviceContext->PSSetShaderResources(i, 1, nullSRV);
+
+        if (mat.hasTexture && mat.diffuseSRV)
+            m_pDeviceContext->PSSetShaderResources(0, 1, &mat.diffuseSRV);
+        if (mat.hasNormalMap && mat.normalSRV)
+            m_pDeviceContext->PSSetShaderResources(2, 1, &mat.normalSRV);
+        if (mat.hasSpecularMap && mat.specularSRV)
+            m_pDeviceContext->PSSetShaderResources(3, 1, &mat.specularSRV);
+        if (mat.hasEmissiveMap && mat.emissiveSRV)
+            m_pDeviceContext->PSSetShaderResources(4, 1, &mat.emissiveSRV);
+
+        // Draw 호출
+        m_pDeviceContext->DrawIndexed(static_cast<UINT>(section.Indices.size()), 0, 0);
+    }
 
     // 4. GUI 렌더
     m_ImGuiManager.Render();
@@ -296,7 +414,7 @@ bool TutorialApp::InitD3D()
     m_pDeviceContext->OMSetDepthStencilState(depthStencilState, 0);
 
     D3D11_DEPTH_STENCIL_DESC skyDesc = {};
-    skyDesc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ALL;
+    skyDesc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ZERO;
     // Skybox는 Depth를 기록하지 않으므로 Enable false
     //skyDesc.DepthEnable = false;
     skyDesc.DepthFunc = D3D11_COMPARISON_LESS_EQUAL;
@@ -377,12 +495,8 @@ bool TutorialApp::InitScene()
     HRESULT hr = 0;
     ID3D10Blob* errorMessage = nullptr;
 
-    m_SkeletalModelLoader.Load(m_pDevice, m_pDeviceContext, "../Resource/SkinningTest.fbx", "SkinningTest");
-    m_SkeletalModelLoader.Load(m_pDevice, m_pDeviceContext, "../Resource/Character.fbx", "model");
-
-    SkeletalMesh loader1;
-
-    //loader1.Load(m_pDevice, m_pDeviceContext, "../Resource/Zombie_Run.fbx", "model");
+    //m_SkeletalModelLoader.Load(m_pDevice, m_pDeviceContext, "../Resource/Vampire_SkinningTest.fbx", "model");
+    //m_SkeletalModelLoader.Load(m_pDevice, m_pDeviceContext, "../Resource/SkinningTest.fbx", "SkinningTest");
 
     Skybox skybox[] =
     {
@@ -447,7 +561,7 @@ bool TutorialApp::InitScene()
     vbDesc.ByteWidth = (sizeof(ConstantBuffer) + 15) / 16 * 16; // 16바이트 정렬
     vbDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
     vbDesc.CPUAccessFlags = 0;
-    HR_T(m_pDevice->CreateBuffer(&vbDesc, nullptr, &m_pConstantBuffer));
+    HR_T(m_pDevice->CreateBuffer(&vbDesc, nullptr, &m_pStaticMeshConstantBuffer));
 
     // 여기에 Sampler State 생성, CreateSamplerState 사용
     D3D11_SAMPLER_DESC sampDesc = {};
@@ -461,6 +575,15 @@ bool TutorialApp::InitScene()
     sampDesc.MinLOD = 0;                                    // 밉맵 최솟값
     sampDesc.MaxLOD = D3D11_FLOAT32_MAX;                    // 밉맵 최대값
     HR_T(m_pDevice->CreateSamplerState(&sampDesc, &m_pSamplerLinear));
+
+    // 리팩토링
+    m_StaticMesh.ReadFile(m_pDevice, "../Resource/zeldaPosed001.fbx");
+    ground.ReadFile(m_pDevice, "../Resource/Ground.fbx");
+
+    for (auto& section : m_StaticMesh.m_StaticMeshSection)
+    {
+        section.Create(m_pDevice);
+    }
 
     /*--------Vertex Shader--------*/
     ID3DBlob* boneShader = nullptr;
@@ -548,7 +671,6 @@ bool TutorialApp::InitScene()
     HR_T(CreateDDSTextureFromFile(m_pDevice, L"../Resource/Daylight.dds", nullptr, &m_pCubeDaylightTextureRV));
     HR_T(CreateDDSTextureFromFile(m_pDevice, L"../Resource/Hanako.dds", nullptr, &m_pCubeHanakoTextureRV));
 
-
     // ShadowMap
     // Texture 생성
     //D3D11_TEXTURE2D_DESC texDesc = {};
@@ -579,7 +701,7 @@ bool TutorialApp::InitScene()
 
     m_World = XMMatrixIdentity();
     XMVECTOR Eye = XMVectorSet(0.0f, 4.0f, -10.0f, 0.0f);
-    XMVECTOR At = XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);
+    XMVECTOR At = XMVectorSet(0.0f, 0.0f, 1.0f, 0.0f);
     XMVECTOR Up = XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);
     m_View = XMMatrixLookAtLH(Eye, At, Up);
     m_Projection = XMMatrixPerspectiveFovLH(XM_PIDIV2 / 2.0f, m_ClientWidth / (FLOAT)m_ClientHeight, 0.01f, 100.0f);
@@ -594,7 +716,7 @@ bool TutorialApp::InitScene()
 
 void TutorialApp::UninitScene()
 {
-    SAFE_RELEASE(m_pConstantBuffer);
+    SAFE_RELEASE(m_pStaticMeshConstantBuffer);
 
     SAFE_RELEASE(m_pCubeMuseumTextureRV);
     SAFE_RELEASE(m_pCubeDaylightTextureRV);

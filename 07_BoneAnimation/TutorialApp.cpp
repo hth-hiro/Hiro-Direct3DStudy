@@ -147,7 +147,7 @@ void TutorialApp::Render()
     cbSky.mProjection = XMMatrixTranspose(m_Projection);
 
     m_pDeviceContext->VSSetConstantBuffers(1, 1, &m_pSkyboxConstantBuffer);
-    m_pDeviceContext->PSSetConstantBuffers(1, 1, &m_pConstantBuffer);
+    m_pDeviceContext->PSSetConstantBuffers(1, 1, &m_pStaticMeshConstantBuffer);
     m_pDeviceContext->UpdateSubresource(m_pSkyboxConstantBuffer, 0, nullptr, &cbSky, 0, 0);
 
     m_pDeviceContext->PSSetShaderResources(1, 1, &m_pCubeTextureRV);
@@ -189,7 +189,7 @@ void TutorialApp::Render()
     //    m_ImGuiManager.useLighting);
 
     m_SkeletalModelLoader.Draw(m_pDeviceContext,
-        m_pConstantBuffer,
+        m_pStaticMeshConstantBuffer,
         m_pBonePoseBuffer,
         m_View,
         m_Projection,
@@ -433,7 +433,7 @@ bool TutorialApp::InitScene()
     vbDesc.ByteWidth = (sizeof(ConstantBuffer) + 15) / 16 * 16; // 16바이트 정렬
     vbDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
     vbDesc.CPUAccessFlags = 0;
-    HR_T(m_pDevice->CreateBuffer(&vbDesc, nullptr, &m_pConstantBuffer));
+    HR_T(m_pDevice->CreateBuffer(&vbDesc, nullptr, &m_pStaticMeshConstantBuffer));
 
     D3D11_BUFFER_DESC boneDesc = {};
     boneDesc.Usage = D3D11_USAGE_DEFAULT;
@@ -559,7 +559,7 @@ bool TutorialApp::InitScene()
 
 void TutorialApp::UninitScene()
 {
-    SAFE_RELEASE(m_pConstantBuffer);
+    SAFE_RELEASE(m_pStaticMeshConstantBuffer);
 
     SAFE_RELEASE(m_pCubeMuseumTextureRV);
     SAFE_RELEASE(m_pCubeDaylightTextureRV);

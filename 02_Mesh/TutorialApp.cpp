@@ -135,7 +135,7 @@ void TutorialApp::Render()
     // 셰이더 설정
     m_pDeviceContext->VSSetShader(m_pVertexShader, nullptr, 0);
     m_pDeviceContext->PSSetShader(m_pPixelShader, nullptr, 0);
-    m_pDeviceContext->VSSetConstantBuffers(0, 1, &m_pConstantBuffer);
+    m_pDeviceContext->VSSetConstantBuffers(0, 1, &m_pStaticMeshConstantBuffer);
 
     // 렌더 오브젝트에서 적용되도록 하였다.
     //m_pDeviceContext->Draw(m_VertexCount, 0);
@@ -433,7 +433,7 @@ bool TutorialApp::InitScene()
     vbDesc.ByteWidth = sizeof(ConstantBuffer);
     vbDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
     vbDesc.CPUAccessFlags = 0;
-    HR_T(m_pDevice->CreateBuffer(&vbDesc, nullptr, &m_pConstantBuffer));
+    HR_T(m_pDevice->CreateBuffer(&vbDesc, nullptr, &m_pStaticMeshConstantBuffer));
     m_World = XMMatrixIdentity();
 
     XMVECTOR Eye = XMVectorSet(0, 1, -15, 0);
@@ -462,5 +462,5 @@ void TutorialApp::UninitScene()
     SAFE_RELEASE(m_pInputLayout);
     SAFE_RELEASE(m_pVertexShader);
     SAFE_RELEASE(m_pPixelShader);
-    SAFE_RELEASE(m_pConstantBuffer);
+    SAFE_RELEASE(m_pStaticMeshConstantBuffer);
 }

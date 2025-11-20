@@ -7,59 +7,16 @@
 #include "Bone.h"
 //#include "SkeletalMesh.h"
 
+#include "Material.h"
+
 #include "../Common/Transform.h"
+
+#include "../Common/ConstantBuffer.h"
 
 class Mesh;
 struct Texture;
 
 using namespace DirectX;
-
-// 상수 버퍼를 생성한다. 근데 라이트를 곁들인.
-struct ConstantBuffer
-{
-	Matrix mWorld;
-	Matrix mView;
-	Matrix mProjection;
-
-	Vector4 vLightDir;
-	Vector4 vOutputColor;
-
-	Vector4 vAmbientColor;
-	Vector4 vDiffuseColor;
-	Vector4 vSpecularColor;
-
-	Vector4 vMaterialAmbient;
-	Vector4 vMaterialDiffuse;
-	Vector4 vMaterialSpecular;
-
-	Vector4 cameraPos;
-
-	Vector4 vShininess;
-
-	int UseLighting; // 1 = 빛 계산, 0 = 무시
-	Vector3 padding;
-
-	int hasTexture;
-
-	int hasNormalMap;
-	int hasSpecularMap;
-	int hasEmissiveMap;
-
-	Vector4 solidColor;
-
-	UINT IsRigid;
-	UINT RefBoneIndex;
-	float pad1;
-	float pad2;
-};
-
-struct Material
-{
-	Vector4 ambient = { 0.1f, 0.1f, 0.1f, 0.1f };
-	Vector4 diffuse = { 1.0f, 1.0f, 1.0f, 1.0f };
-	Vector4 specular = { 1.0f, 1.0f, 1.0f, 1.0f };
-	Vector4 shininess = { 1.0f, 0, 0, 0 };
-};
 
 class Model
 {

@@ -26,7 +26,7 @@ public:
 	ID3D11Device* m_pDevice = nullptr;								// 디바이스	
 	ID3D11DeviceContext* m_pDeviceContext = nullptr;				// 즉시 디바이스 컨텍스트
 	IDXGISwapChain* m_pSwapChain = nullptr;							// 스왑체인
-	ID3D11Buffer* m_pConstantBuffer;								// 상수 버퍼.
+	ID3D11Buffer* m_pStaticMeshConstantBuffer;								// 상수 버퍼.
     ID3D11Buffer* m_pBonePoseBuffer;								    // 상수 버퍼.
 
 	ComPtr<ID3D11RenderTargetView> m_pRenderTargetView;				// 렌더링 타겟뷰

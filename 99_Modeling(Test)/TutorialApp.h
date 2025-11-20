@@ -26,7 +26,7 @@ public:
 	ID3D11VertexShader* m_pVertexShader = nullptr;					// 정점 셰이더.
 	ID3D11PixelShader* m_pPixelShader = nullptr;					// 픽셀 셰이더.	
 	ID3D11InputLayout* m_pInputLayout = nullptr;					// 입력 레이아웃.
-	ID3D11Buffer* m_pConstantBuffer = nullptr;						// 상수 버퍼.
+	ID3D11Buffer* m_pStaticMeshConstantBuffer = nullptr;						// 상수 버퍼.
 	ID3D11SamplerState* m_pSamplerLinear = nullptr;					// 샘플러 스테이트
 	ID3D11BlendState* m_pBlendState = nullptr;						// 블렌더 스테이트
 
