@@ -46,4 +46,7 @@ struct ConstantBuffer
     UINT RefBoneIndex;
     float pad1;
     float pad2;
+
+    Matrix ShadowView;
+    Matrix ShadowProjection;
 };

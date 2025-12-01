@@ -20,5 +20,9 @@ PS_INPUT main(VS_INPUT input)
     // 입력된 uv텍스처를 출력에 반영한다.
     output.Tex = input.Tex;
     
+    // 라이트 시점에서의 화면 좌표 출력을 위함
+    output.PositionShadow = mul(float4(output.WorldPos, 1.0f), ShadowView);
+    output.PositionShadow = mul(output.PositionShadow, ShadowProjection);
+    
     return output;
 }

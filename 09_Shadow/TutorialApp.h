@@ -16,6 +16,11 @@
 using namespace DirectX::SimpleMath;
 using namespace DirectX;
 
+struct Light
+{
+    Vector3 Direction = {0, -1, 1};
+};
+
 enum ERasterizeState
 {
 	None, Default, Back = Default, Front
@@ -64,27 +69,45 @@ public:
 	ID3D11ShaderResourceView* m_pCubeDaylightTextureRV = nullptr;	// 텍스처 파일2(큐브맵, 실외)
 	ID3D11ShaderResourceView* m_pCubeHanakoTextureRV = nullptr;		// 텍스처 파일3(큐브맵, 디버그)
 
-    /*-----땅-----*/
-    ID3D11Buffer* m_pGroundVertexBuffer = nullptr;
-    ID3D11Buffer* m_pGroundIndexBuffer = nullptr;
-
 	Matrix m_World;
 	Matrix m_View;
 	Matrix m_Projection;
+
+    D3D11_VIEWPORT m_MainViewport;
 
     /*-----Shadow Map-----*/
     ComPtr<ID3D11Texture2D> m_pShadowMap;
     ComPtr<ID3D11DepthStencilView> m_pShadowMapDSV;
     ComPtr<ID3D11ShaderResourceView> m_pShadowMapSRV;
 
-    Matrix m_ShadowPos;
+    Vector3 m_ShadowPos;
+    Vector3 m_ShadowLookAt;
     Matrix m_ShadowView;
-    Matrix m_ShadowLookAt;
     Matrix m_ShadowProjection;
 
-    
+    ComPtr<ID3D11RasterizerState>    m_pShadowRasterState;  // 레스터라이저
 
-	// Manager
+    ID3D11Buffer* m_pShadowConstantBuffer = nullptr;
+
+    const UINT SHADOW_WIDTH = 8192;     // 그림자 해상도
+    const UINT SHADOW_HEIGHT = 8192;
+
+    float m_ShadowForwardDistFromCamera = 10.0f;        // 카메라에서 앞쪽으로 얼마나 떨어진 위치에 그림자 카메라를 둘지
+    float m_ShadowUpDistFromLookAt = 2.0f;              // LookAt 지점에서 얼마나 위쪽으로 올릴지
+	
+    Vector2 m_ShadowProjectionNearFar = { 0.01f, 100.0f };
+
+    D3D11_VIEWPORT m_ShadowViewport;
+
+	ComPtr<ID3D11VertexShader> m_pShadowVS;				// 정점 셰이더
+
+
+    // Imgui에 전달할 함수들
+    ID3D11ShaderResourceView* GetShadowSRV() const { return m_pShadowMapSRV.Get(); }
+    UINT GetShadowMapWidth() const { return SHADOW_WIDTH; }
+    UINT GetShadowMapHeight() const { return SHADOW_HEIGHT; }
+
+    // Manager
 	ImGuiManager m_ImGuiManager;
 	ModelLoader m_ModelLoader;
 	SkeletalMesh m_SkeletalModelLoader;
@@ -133,6 +156,8 @@ public:
 	XMFLOAT4 m_InitialLightDirs = { 1.0f, -1.0f, 1.0f, 0.0f };
 	XMFLOAT4 m_LightDirsEvaluated = {};
     Vector4 m_shininess = { 200, 0, 0, 0 };
+
+    Light m_Light;
 
 	Vector4 m_cameraPos;
 

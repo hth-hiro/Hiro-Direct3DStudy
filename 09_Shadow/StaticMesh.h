@@ -22,7 +22,10 @@ public:
 
     void ReadFile(ID3D11Device* device, const std::string& filePath);
 private:
+    ID3D11Device* m_Dev;
     std::string m_Directory;
     std::string m_Name;
+
+    //ID3D11ShaderResourceView* loadEmbeddedTexture(const aiTexture* embeddedTexture);
 };
 

@@ -13,6 +13,8 @@
 
 using namespace DirectX::SimpleMath;
 
+class TutorialApp;
+
 struct Object
 {
 	Object() = default;
@@ -48,11 +50,18 @@ public:
 	ImGuiManager() = default;
 	//ImGuiManager(GameApp* app) : m_app(app) {}
 
-	void Initialize();
-	void BeginFrame(ID3D11Device* _Device, ID3D11DeviceContext* _DeviceContext);
-	void Release() { EndFrame(); }
+	void Initialize(ID3D11Device* _Device, ID3D11DeviceContext* _DeviceContext);
+	
+    // Loop
+    void BeginFrame();
     void Update();
-	void Render();
+    void DrawShadowSRV(ID3D11ShaderResourceView* shadowSRV, float width, float height);
+    void DrawObjectUI();
+    void Render();
+
+	void Release() { EndFrame(); }
+
+	void RenderObjectUI(const char* label, Object& obj);
 
 	Object object1 = { Vector3(0,0,0)};
 	Object object2 = { Vector3(-100,0,0) };
@@ -74,6 +83,8 @@ public:
 private:
 	void EndFrame();
 
+    //TutorialApp* gApp;
+
 	float nearZ = 1.0f;
 	float farZ = 1000.0f;
 
@@ -84,8 +95,7 @@ private:
 		ambientLight = { 0.1f, 0.1f, 0.1f, 0.1f };
 		diffuseLight = { 1.0f, 1.0f, 1.0f, 1.0f };
 		specularLight = { 1.0f, 1.0f, 1.0f, 1.0f };
-		lightDir = { 0.0f, 0.0f, 1.0f };
+		lightDir = { 0.0f, -1.0f, 1.0f };
 	}
 
-	void RenderObjectUI(const char* label, Object& obj);
 };

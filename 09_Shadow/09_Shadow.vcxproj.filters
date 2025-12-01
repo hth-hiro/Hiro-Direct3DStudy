@@ -140,6 +140,9 @@
     <FxCompile Include="Shader\SkyboxVertexShader.hlsl">
       <Filter>Shader</Filter>
     </FxCompile>
+    <FxCompile Include="Shader\DepthOnlyPass.hlsl">
+      <Filter>Shader</Filter>
+    </FxCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="Shader\Shared.hlsli">

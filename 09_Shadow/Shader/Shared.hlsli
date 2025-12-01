@@ -5,6 +5,8 @@
 //Shared.hlsli
 SamplerState samLinear : register(s0);
 
+SamplerState ShadowSampler : register(s1);
+
 cbuffer ConstantBuffer : register(b0)
 {
     matrix World;
@@ -41,6 +43,9 @@ cbuffer ConstantBuffer : register(b0)
     uint gRefBoneIndex;
     float pad1;
     float pad2;
+    
+    matrix ShadowView;
+    matrix ShadowProjection;
 }
 
 cbuffer SkyboxCB : register(b1)
@@ -69,6 +74,8 @@ TextureCube txCube : register(t1);
 Texture2D normalMap : register(t2);
 Texture2D specularMap : register(t3);
 Texture2D emissiveMap : register(t4);
+
+Texture2D<float> txShadow : register(t5);
 
 //--------------------------------------------------------------------------------------
 
@@ -100,6 +107,7 @@ struct PS_INPUT
     float2 Tex : TEXCOORD1;
     float3 Tangent : TEXCOORD3;
     float3 Bitangent : TEXCOORD4;
+    float4 PositionShadow : TEXCOORD5;
 };
 
 struct VS_INPUT_BONED

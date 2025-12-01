@@ -12,6 +12,12 @@
 #pragma comment(lib, "dxgi.lib")
 #pragma comment(lib, "d3dcompiler.lib") // 셰이더 컴파일 시 필요
 
+struct ShadowCB
+{
+    Matrix mView;
+    Matrix mProjection;
+};
+
 struct Skybox
 {
     Vector3 Pos;       // 스카이박스는 위치만 필요
@@ -64,6 +70,9 @@ void TutorialApp::Update()
     // Light
     m_InitialLightDirs = { m_ImGuiManager.lightDir.x, m_ImGuiManager.lightDir.y, m_ImGuiManager.lightDir.z, 0.0f };
     m_LightDirsEvaluated = m_InitialLightDirs;
+
+    m_Light.Direction = { m_ImGuiManager.lightDir.x, m_ImGuiManager.lightDir.y, m_ImGuiManager.lightDir.z  };
+
     m_AmbientColor = { m_ImGuiManager.ambientLight };
     m_DiffuseColor = { m_ImGuiManager.diffuseLight };
     m_SpecularColor = { m_ImGuiManager.specularLight };
@@ -97,6 +106,11 @@ void TutorialApp::Update()
     {
         m_pCubeTextureRV = m_pCubeMuseumTextureRV;
     }
+
+    
+
+
+
 
     //SkeletalModel* BoxHuman = GetSkeletalModelByName("SkinningTest");
     //if (BoxHuman)
@@ -133,77 +147,52 @@ void TutorialApp::Update()
 
 void TutorialApp::Render()
 {
+    Vector3 ObjectPos = { m_ImGuiManager.object1.transform.GetPosition().x, m_ImGuiManager.object1.transform.GetPosition().y ,m_ImGuiManager.object1.transform.GetPosition().z };
+
     // 1. Clear
     float color[4] = { 0.0f, 0.7f, 0.7f, 1.0f };
-
     float blendFactor[4] = { 0.f, 0.f, 0.f, 0.f }; // 일반적으로 0,0,0,0
     UINT sampleMask = 0xffffffff; // 모든 샘플 사용
 
-    //m_pDeviceContext->OMSetBlendState(m_pBlendState.Get(), blendFactor, sampleMask);
-
+    m_pDeviceContext->OMSetBlendState(m_pBlendState.Get(), blendFactor, sampleMask);
     ID3D11RenderTargetView* rtv = m_pRenderTargetView.Get(); // 내부 포인터
     m_pDeviceContext->OMSetRenderTargets(1, &rtv, m_pDepthStencilView.Get());
     m_pDeviceContext->ClearRenderTargetView(rtv, color);
     m_pDeviceContext->ClearDepthStencilView(m_pDepthStencilView.Get(), D3D11_CLEAR_DEPTH, 1.0f, 0);
+    m_pDeviceContext->RSSetViewports(1, &m_MainViewport);
 
-    // 2. 스카이박스 렌더
-    m_pDeviceContext->OMSetDepthStencilState(m_pSkyboxDepthStencilState, 0);
 
-    m_pDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-    m_pDeviceContext->IASetVertexBuffers(0, 1, &m_pSkyboxVertexBuffer, &m_SkyboxVertexBufferStride, &m_SkyboxVertexBufferOffset);
-    m_pDeviceContext->IASetIndexBuffer(m_pSkyboxIndexBuffer, DXGI_FORMAT_R16_UINT, 0);
-    m_pDeviceContext->IASetInputLayout(m_pSkyboxInputLayout.Get());
 
-    m_pDeviceContext->VSSetShader(m_pSkyboxVertexShader.Get(), nullptr, 0);
-    m_pDeviceContext->PSSetShader(m_pSkyboxPixelShader.Get(), nullptr, 0);
+    // ShadowPass
+    m_pDeviceContext->RSSetViewports(1, &m_ShadowViewport);
+    m_pDeviceContext->OMSetRenderTargets(0, nullptr, m_pShadowMapDSV.Get());
+    m_pDeviceContext->ClearDepthStencilView(m_pShadowMapDSV.Get(), D3D11_CLEAR_DEPTH, 1.0f, 0);
+    m_pDeviceContext->VSSetShader(m_pShadowVS.Get(), nullptr, 0);
+    m_pDeviceContext->PSSetShader(nullptr, nullptr, 0);
 
-    // 스카이박스 상수버퍼
-    // 카메라 위치 중심
-    SkyBoxCB cbSky;
-    cbSky.mView = XMMatrixTranspose(XMMatrixScaling(10, 10, 10) * m_Camera.GetViewMatrixNoTranslation(m_View));
-    cbSky.mProjection = XMMatrixTranspose(m_Projection);
+    // 상수 버퍼 업데이트
+    ShadowCB cbShadow;
+    cbShadow.mView = XMMatrixTranspose(m_ShadowView);
+    cbShadow.mProjection = XMMatrixTranspose(m_ShadowProjection);
+    m_pDeviceContext->VSSetConstantBuffers(0, 1, &m_pShadowConstantBuffer);
+    m_pDeviceContext->UpdateSubresource(m_pShadowConstantBuffer, 0, nullptr, &cbShadow, 0, 0);
 
-    m_pDeviceContext->VSSetConstantBuffers(1, 1, &m_pSkyboxConstantBuffer);
-    m_pDeviceContext->UpdateSubresource(m_pSkyboxConstantBuffer, 0, nullptr, &cbSky, 0, 0);
-
-    m_pDeviceContext->PSSetShaderResources(1, 1, &m_pCubeTextureRV);
-    m_pDeviceContext->PSSetSamplers(1, 1, &m_pSamplerLinear);
-
-    m_pDeviceContext->DrawIndexed(m_nSkyboxIndices, 0, 0);
-
-    // 원래 상태 복원
+    m_pDeviceContext->RSSetViewports(1, &m_MainViewport);
+    m_pDeviceContext->OMSetRenderTargets(1, &rtv, m_pDepthStencilView.Get());
     m_pDeviceContext->OMSetDepthStencilState(nullptr, 0);
 
     // 3. 일반 오브젝트 렌더
     m_pDeviceContext->IASetInputLayout(m_pInputLayout.Get());
     m_pDeviceContext->VSSetShader(m_pVertexShader.Get(), nullptr, 0);
-
-    //m_pDeviceContext->IASetInputLayout(m_pSkeletalInputLayout.Get());
-    //m_pDeviceContext->VSSetShader(m_pSkeletalVS.Get(), nullptr, 0);
-
     m_pDeviceContext->PSSetShader(m_pPixelShader.Get(), nullptr, 0);
-
-    //// 특정 모델마다 다르게 설정한다면, 렌더에서 새로 모델 드로우 할때마다 설정을 바꿔주면 됨
-    //// 렌더링 전에 상태 적용
     m_pDeviceContext->RSSetState(m_pRasterStateNoCull.Get());
 
-    //RSSetState(None);
-
-    // 투명 오브젝트와 불투명 오브젝트를 따로 렌더해야 한다?
-    // 불투명 오브젝트 렌더 -> 알파 소팅 -> 투명 오브젝트 렌더
-    //m_SkeletalModelLoader.Draw(m_pDeviceContext,
-    //    m_pConstantBuffer,
-    //    m_View,
-    //    m_Projection,
-    //    m_LightDirsEvaluated,
-    //    m_AmbientColor,
-    //    m_DiffuseColor,
-    //    m_SpecularColor,
-    //    m_shininess,
-    //    m_cameraPos,
-    //    m_ImGuiManager.useLighting);
-
+    // Sampler
     m_pDeviceContext->PSSetSamplers(0, 1, &m_pSamplerLinear);
+    m_pDeviceContext->PSSetSamplers(1, 1, &m_pSamplerLinear);
+
+    // ShadowMapSRV
+    m_pDeviceContext->PSSetShaderResources(5, 1, m_pShadowMapSRV.GetAddressOf());
 
     for (auto& section : m_StaticMesh.m_StaticMeshSection)
     {
@@ -214,16 +203,18 @@ void TutorialApp::Render()
         Material& mat = m_StaticMesh.m_Materials[matIdx];
 
         ConstantBuffer cb;
-        cb.mWorld = XMMatrixTranspose(m_StaticMesh.m_World);
+        cb.mWorld = XMMatrixTranspose(XMMatrixScaling(10, 10, 10)) *
+            XMMatrixTranspose(XMMatrixTranslation(ObjectPos.x, ObjectPos.y, ObjectPos.z))
+            * XMMatrixTranspose(m_StaticMesh.m_World);
         cb.mView = XMMatrixTranspose(m_View);
         cb.mProjection = XMMatrixTranspose(m_Projection);
         cb.vLightDir = m_LightDirsEvaluated;
 
         // 머티리얼 정보
-        cb.vMaterialAmbient = mat.ambient;
-        cb.vMaterialDiffuse = mat.diffuse;
-        cb.vMaterialSpecular = mat.specular;
-        cb.vShininess = mat.shininess;
+        cb.vMaterialAmbient = m_ImGuiManager.object1.ambient;
+        cb.vMaterialDiffuse = m_ImGuiManager.object1.diffuse;
+        cb.vMaterialSpecular = m_ImGuiManager.object1.specular;
+        cb.vShininess = { m_ImGuiManager.object1.shininess };
 
         cb.vAmbientColor = m_AmbientColor;
         cb.vDiffuseColor = m_DiffuseColor;
@@ -237,6 +228,12 @@ void TutorialApp::Render()
         cb.hasNormalMap = mat.hasNormalMap ? 1 : 0;
         cb.hasSpecularMap = mat.hasSpecularMap ? 1 : 0;
         cb.hasEmissiveMap = mat.hasEmissiveMap ? 1 : 0;
+
+        cb.ShadowView = cbShadow.mView;
+        cb.ShadowProjection = cbShadow.mProjection;
+
+        cb.ShadowView = XMMatrixTranspose(m_ShadowView);
+        cb.ShadowProjection = XMMatrixTranspose(m_ShadowProjection);
 
         // 상수버퍼 업데이트
         m_pDeviceContext->VSSetConstantBuffers(0, 1, &m_pStaticMeshConstantBuffer);
@@ -267,7 +264,6 @@ void TutorialApp::Render()
         // Draw 호출
         m_pDeviceContext->DrawIndexed(static_cast<UINT>(section.Indices.size()), 0, 0);
     }
-
     for (auto& section : ground.m_StaticMeshSection)
     {
         int matIdx = section.materialIndex;
@@ -277,7 +273,7 @@ void TutorialApp::Render()
         Material& mat = ground.m_Materials[matIdx];
 
         ConstantBuffer cb;
-        cb.mWorld = XMMatrixTranspose(ground.m_World);
+        cb.mWorld = XMMatrixTranspose(XMMatrixTranslation(0, -100, 0)) * XMMatrixTranspose(ground.m_World);
         cb.mView = XMMatrixTranspose(m_View);
         cb.mProjection = XMMatrixTranspose(m_Projection);
         cb.vLightDir = m_LightDirsEvaluated;
@@ -300,6 +296,9 @@ void TutorialApp::Render()
         cb.hasNormalMap = mat.hasNormalMap ? 1 : 0;
         cb.hasSpecularMap = mat.hasSpecularMap ? 1 : 0;
         cb.hasEmissiveMap = mat.hasEmissiveMap ? 1 : 0;
+
+        cb.ShadowView = XMMatrixTranspose(m_ShadowView);
+        cb.ShadowProjection = XMMatrixTranspose(m_ShadowProjection);
 
         // 상수버퍼 업데이트
         m_pDeviceContext->VSSetConstantBuffers(0, 1, &m_pStaticMeshConstantBuffer);
@@ -331,7 +330,34 @@ void TutorialApp::Render()
         m_pDeviceContext->DrawIndexed(static_cast<UINT>(section.Indices.size()), 0, 0);
     }
 
+    // 2. 스카이박스 렌더
+    //m_pDeviceContext->OMSetDepthStencilState(m_pSkyboxDepthStencilState, 0);
+
+    //m_pDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+    //m_pDeviceContext->IASetVertexBuffers(0, 1, &m_pSkyboxVertexBuffer, &m_SkyboxVertexBufferStride, &m_SkyboxVertexBufferOffset);
+    //m_pDeviceContext->IASetIndexBuffer(m_pSkyboxIndexBuffer, DXGI_FORMAT_R16_UINT, 0);
+    //m_pDeviceContext->IASetInputLayout(m_pSkyboxInputLayout.Get());
+    //m_pDeviceContext->VSSetShader(m_pSkyboxVertexShader.Get(), nullptr, 0);
+    //m_pDeviceContext->PSSetShader(m_pSkyboxPixelShader.Get(), nullptr, 0);
+
+    //// 상수 버퍼 업데이트
+    //SkyBoxCB cbSky;
+    //cbSky.mView = XMMatrixTranspose(XMMatrixScaling(10, 10, 10) * m_Camera.GetViewMatrixNoTranslation(m_View));
+    //cbSky.mProjection = XMMatrixTranspose(m_Projection);
+    //m_pDeviceContext->VSSetConstantBuffers(1, 1, &m_pSkyboxConstantBuffer);
+    //m_pDeviceContext->UpdateSubresource(m_pSkyboxConstantBuffer, 0, nullptr, &cbSky, 0, 0);
+    //m_pDeviceContext->PSSetShaderResources(1, 1, &m_pCubeTextureRV);
+    //m_pDeviceContext->PSSetSamplers(1, 1, &m_pSamplerLinear);
+    //m_pDeviceContext->DrawIndexed(m_nSkyboxIndices, 0, 0);
+
+    //// 원래 상태 복원
+    //m_pDeviceContext->OMSetDepthStencilState(nullptr, 0);
+
     // 4. GUI 렌더
+    m_ImGuiManager.BeginFrame();
+    //m_ImGuiManager.RenderObjectUI("오브젝트1",object1)
+    m_ImGuiManager.DrawObjectUI();
+    m_ImGuiManager.DrawShadowSRV(m_pShadowMapSRV.Get(), (float)SHADOW_WIDTH, (float)SHADOW_HEIGHT);
     m_ImGuiManager.Render();
 
     // 5. Present
@@ -480,8 +506,7 @@ void TutorialApp::UninitD3D()
 
 bool TutorialApp::InitImGUI()
 {
-    m_ImGuiManager.Initialize();
-    m_ImGuiManager.BeginFrame(this->m_pDevice, this->m_pDeviceContext);
+    m_ImGuiManager.Initialize(this->m_pDevice, this->m_pDeviceContext);
     return true;
 }
 
@@ -549,7 +574,7 @@ bool TutorialApp::InitScene()
 
     /*--------Pixel Shader Stage--------*/
     ID3DBlob* pixelShaderBuffer = nullptr;
-    CompileShaderFromFile(L"Shader/BasicPixelShader.hlsl", "main", "ps_4_0", &pixelShaderBuffer);
+    CompileShaderFromFile(L"Shader/BasicPixelShader.hlsl", "main", "ps_5_0", &pixelShaderBuffer);
 
     HR_T(m_pDevice->CreatePixelShader(pixelShaderBuffer->GetBufferPointer(),
         pixelShaderBuffer->GetBufferSize(), NULL, &m_pPixelShader));
@@ -576,11 +601,18 @@ bool TutorialApp::InitScene()
     sampDesc.MaxLOD = D3D11_FLOAT32_MAX;                    // 밉맵 최대값
     HR_T(m_pDevice->CreateSamplerState(&sampDesc, &m_pSamplerLinear));
 
-    // 리팩토링
-    m_StaticMesh.ReadFile(m_pDevice, "../Resource/zeldaPosed001.fbx");
+
+
+    m_StaticMesh.ReadFile(m_pDevice, "../Resource/Appearance Miku/Appearance Miku.fbx");
+    //m_StaticMesh.ReadFile(m_pDevice, "../Resource/box.fbx");
     ground.ReadFile(m_pDevice, "../Resource/Ground.fbx");
 
     for (auto& section : m_StaticMesh.m_StaticMeshSection)
+    {
+        section.Create(m_pDevice);
+    }
+
+    for (auto& section : ground.m_StaticMeshSection)
     {
         section.Create(m_pDevice);
     }
@@ -671,30 +703,83 @@ bool TutorialApp::InitScene()
     HR_T(CreateDDSTextureFromFile(m_pDevice, L"../Resource/Daylight.dds", nullptr, &m_pCubeDaylightTextureRV));
     HR_T(CreateDDSTextureFromFile(m_pDevice, L"../Resource/Hanako.dds", nullptr, &m_pCubeHanakoTextureRV));
 
+    m_MainViewport.TopLeftX = 0.0f;
+    m_MainViewport.TopLeftY = 0.0f;
+    m_MainViewport.Width = static_cast<float>(m_ClientWidth);
+    m_MainViewport.Height = static_cast<float>(m_ClientHeight);
+    m_MainViewport.MinDepth = 0.0f;
+    m_MainViewport.MaxDepth = 1.0f;
+
     // ShadowMap
+    m_ShadowViewport.TopLeftX = 0;
+    m_ShadowViewport.TopLeftY = 0;
+    m_ShadowViewport.Width = static_cast<float>(SHADOW_WIDTH);
+    m_ShadowViewport.Height = static_cast<float>(SHADOW_HEIGHT);
+    m_ShadowViewport.MinDepth = 0.0f;
+    m_ShadowViewport.MaxDepth = 1.0f;
+
+    D3D11_BUFFER_DESC cbd = {};
+    cbd.Usage = D3D11_USAGE_DEFAULT;
+    cbd.ByteWidth = sizeof(ShadowCB);
+    cbd.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+    cbd.CPUAccessFlags = 0;
+
+    m_pDevice->CreateBuffer(&cbd, nullptr, &m_pShadowConstantBuffer);
+
     // Texture 생성
-    //D3D11_TEXTURE2D_DESC texDesc = {};
-    ////texDesc.Width = 
-    //texDesc.MipLevels = 1;
-    //texDesc.ArraySize = 1;
-    //texDesc.Usage = D3D11_USAGE_DEFAULT;
-    //texDesc.Format = DXGI_FORMAT_R32_TYPELESS;
-    //texDesc.BindFlags = D3D11_BIND_DEPTH_STENCIL | D3D11_BIND_SHADER_RESOURCE;
-    //HR_T(m_pDevice->CreateTexture2D(&texDesc, NULL, m_pShadowMap.GetAddressOf()));
+    D3D11_TEXTURE2D_DESC texDesc = {};
+    texDesc.Width = SHADOW_WIDTH;
+    texDesc.Height = SHADOW_HEIGHT;
+    texDesc.MipLevels = 1;
+    texDesc.ArraySize = 1;
+    texDesc.Usage = D3D11_USAGE_DEFAULT;
+    texDesc.Format = DXGI_FORMAT_R32_TYPELESS;
+    texDesc.BindFlags = D3D11_BIND_DEPTH_STENCIL | D3D11_BIND_SHADER_RESOURCE;
+    texDesc.SampleDesc.Count = 1;
+    texDesc.SampleDesc.Quality = 0;
+    HR_T(m_pDevice->CreateTexture2D(&texDesc, NULL, m_pShadowMap.GetAddressOf()));
 
-    //// DSV 생성
-    //D3D11_DEPTH_STENCIL_VIEW_DESC descDSV = {};
-    //descDSV.Format = DXGI_FORMAT_D32_FLOAT;
-    //descDSV.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
-    //HR_T(m_pDevice->CreateDepthStencilView(m_pShadowMap.Get(), &descDSV, m_pShadowMapDSV.GetAddressOf()));
+    // DSV 생성
+    D3D11_DEPTH_STENCIL_VIEW_DESC descDSV = {};
+    descDSV.Format = DXGI_FORMAT_D32_FLOAT;
+    descDSV.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
+    HR_T(m_pDevice->CreateDepthStencilView(m_pShadowMap.Get(), &descDSV, m_pShadowMapDSV.GetAddressOf()));
 
-    //// SRV 생성
-    //D3D11_SHADER_RESOURCE_VIEW_DESC srvDesc = {};
-    //srvDesc.Format = DXGI_FORMAT_R32_FLOAT;
-    //srvDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
-    //srvDesc.Texture2D.MipLevels = 1;
-    //HR_T(m_pDevice->CreateShaderResourceView(m_pShadowMap.Get(), &srvDesc, m_pShadowMapSRV.GetAddressOf()));
+    // SRV 생성
+    D3D11_SHADER_RESOURCE_VIEW_DESC srvDesc = {};
+    srvDesc.Format = DXGI_FORMAT_R32_FLOAT;
+    srvDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
+    srvDesc.Texture2D.MipLevels = 1;
+    HR_T(m_pDevice->CreateShaderResourceView(m_pShadowMap.Get(), &srvDesc, m_pShadowMapSRV.GetAddressOf()));
 
+    m_ShadowProjection = XMMatrixPerspectiveFovLH(XM_PIDIV4, m_ShadowViewport.Width /
+        (float)m_ShadowViewport.Height, m_ShadowProjectionNearFar.x, m_ShadowProjectionNearFar.y);
+
+    m_ShadowLookAt = m_Camera.GetPosition() + m_Camera.GetForward() * m_ShadowForwardDistFromCamera;
+
+    m_ShadowPos = m_ShadowLookAt + (m_Light.Direction * m_ShadowUpDistFromLookAt);
+
+    m_ShadowView = XMMatrixLookAtLH(m_ShadowPos, m_ShadowLookAt, Vector3(0.0f, 1.0f, 0.0f));
+    
+    m_pDeviceContext->RSSetViewports(1, &m_ShadowViewport);
+
+    // Create Vertex Buffer
+    ID3DBlob* vsBlob;
+    CompileShaderFromFile(L"Shader/DepthOnlyPass.hlsl", "main", "vs_5_0", &vsBlob);
+
+    HR_T(m_pDevice->CreateVertexShader(vsBlob->GetBufferPointer(),
+        vsBlob->GetBufferSize(), nullptr, m_pShadowVS.GetAddressOf()));
+
+    //D3D11_INPUT_ELEMENT_DESC shadowlayout[] =
+    //{
+    //    {"POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0},
+    //    {"POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0},
+    //};
+
+    //HR_T(m_pDevice->CreateInputLayout(shadowlayout, ARRAYSIZE(shadowlayout), vsBlob->GetBufferPointer(),
+    //    vsBlob->GetBufferSize(), &m_pSkyboxInputLayout));
+
+    SAFE_RELEASE(vsBlob);
 
     // 그려지는 범위 NearZ, FarZ값으로 설정
     m_Projection = XMMatrixPerspectiveFovLH(XM_PIDIV2, m_ClientWidth / (FLOAT)m_ClientHeight, 0.01f, 100.0f);
@@ -708,9 +793,6 @@ bool TutorialApp::InitScene()
 
     m_LightDirsEvaluated = m_InitialLightDirs;
 
-    //m_ShadowProjection = XMMatrixPerspectiveFovLH(XM_PIDIV4, )
-
-
     return true;
 }
 
@@ -721,6 +803,9 @@ void TutorialApp::UninitScene()
     SAFE_RELEASE(m_pCubeMuseumTextureRV);
     SAFE_RELEASE(m_pCubeDaylightTextureRV);
     SAFE_RELEASE(m_pCubeHanakoTextureRV);
+
+    SAFE_RELEASE(m_pSkyboxConstantBuffer);
+    SAFE_RELEASE(m_pShadowConstantBuffer);
 
     m_ModelLoader.Close();
 }

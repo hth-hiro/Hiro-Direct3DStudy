@@ -18,7 +18,7 @@ struct Material
     ID3D11ShaderResourceView* specularSRV = nullptr;
     ID3D11ShaderResourceView* emissiveSRV = nullptr;
 
-    bool hasTexture = true;
+    bool hasTexture = false;
     bool hasNormalMap = false;
     bool hasSpecularMap = false;
     bool hasEmissiveMap = false;

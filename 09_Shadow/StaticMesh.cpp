@@ -5,6 +5,7 @@
 #include <iostream>
 #include <directxtk/WICTextureLoader.h>
 #include "TextureLoader.h"
+#include "../Common/Helper.h"
 
 bool StaticMesh::Load(const std::string& filePath, const std::string& name)
 {
@@ -17,6 +18,8 @@ bool StaticMesh::Load(const std::string& filePath, const std::string& name)
 
 void StaticMesh::ReadFile(ID3D11Device* device, const std::string& filePath)
 {
+    m_Dev = device;
+
     Assimp::Importer importer;
     const aiScene* scene = importer.ReadFile(filePath,
         aiProcess_Triangulate |
@@ -39,11 +42,21 @@ void StaticMesh::ReadFile(ID3D11Device* device, const std::string& filePath)
     // -------------------------
     m_Materials.resize(scene->mNumMaterials);
 
+
     auto LoadTexture = [&](aiMaterial* aiMat, aiTextureType type, std::string& path, ID3D11ShaderResourceView** srv, bool& hasFlag)
         {
             aiString texPath;
             if (AI_SUCCESS == aiMat->GetTexture(type, 0, &texPath))
             {
+                //const aiTexture* embeddedTexture = scene->GetEmbeddedTexture(texPath.C_Str());
+                //if (embeddedTexture != nullptr)
+                //{
+                //    *srv = loadEmbeddedTexture(embeddedTexture);
+                //    hasFlag = true;
+                //    path = texPath.C_Str();
+                //    return;
+                //}
+
                 std::string filename = texPath.C_Str();
 
                 // "Textures\" 제거
@@ -126,3 +139,43 @@ void StaticMesh::ReadFile(ID3D11Device* device, const std::string& filePath)
 
     //processNode(scene->mRootNode);
 }
+
+//ID3D11ShaderResourceView* StaticMesh::loadEmbeddedTexture(const aiTexture* embeddedTexture)
+//{
+//    ID3D11ShaderResourceView* texture = nullptr;
+//
+//    if (embeddedTexture->mHeight != 0) {
+//        // 임베디드 텍스처가 압축되지 않은 ARGB8888 형식임을 가정하고 로드
+//        D3D11_TEXTURE2D_DESC desc;
+//        desc.Width = embeddedTexture->mWidth;
+//        desc.Height = embeddedTexture->mHeight;
+//        desc.MipLevels = 1;
+//        desc.ArraySize = 1;
+//        desc.SampleDesc.Count = 1;
+//        desc.SampleDesc.Quality = 0;
+//        desc.Usage = D3D11_USAGE_DEFAULT;
+//        desc.Format = DXGI_FORMAT_B8G8R8A8_UNORM;
+//        desc.BindFlags = D3D11_BIND_SHADER_RESOURCE;
+//        desc.CPUAccessFlags = 0;
+//        desc.MiscFlags = 0;
+//
+//        D3D11_SUBRESOURCE_DATA subresourceData;
+//        subresourceData.pSysMem = embeddedTexture->pcData;
+//        subresourceData.SysMemPitch = embeddedTexture->mWidth * 4;
+//        subresourceData.SysMemSlicePitch = embeddedTexture->mWidth * embeddedTexture->mHeight * 4;
+//
+//        ID3D11Texture2D* texture2D = nullptr;
+//        HR_T(m_Dev->CreateTexture2D(&desc, &subresourceData, &texture2D));
+//        HR_T(m_Dev->CreateShaderResourceView(texture2D, nullptr, &texture));
+//
+//        return texture;
+//    }
+//
+//    // 임베디드 텍스처가 압축된 형식이라면 mHeight가 0이 됨.
+//    const size_t size = embeddedTexture->mWidth;
+//
+//    HR_T(DirectX::CreateWICTextureFromMemory(m_Dev, reinterpret_cast<const unsigned char*>(embeddedTexture->pcData), size, nullptr, &texture));
+//
+//    return texture;
+//}
+
