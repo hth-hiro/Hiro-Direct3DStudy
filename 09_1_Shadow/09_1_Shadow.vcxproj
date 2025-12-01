@@ -128,20 +128,25 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="09_1_Shadow.h" />
+    <ClInclude Include="09-2_Shadow.h" />
     <ClInclude Include="framework.h" />
     <ClInclude Include="Resource.h" />
     <ClInclude Include="targetver.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="09_1_Shadow.cpp" />
+    <ClCompile Include="09-2_Shadow.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ResourceCompile Include="09_1_Shadow.rc" />
+    <ResourceCompile Include="09-2_Shadow.rc" />
   </ItemGroup>
   <ItemGroup>
-    <Image Include="09_1_Shadow.ico" />
+    <Image Include="09-2_Shadow.ico" />
     <Image Include="small.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Common\Common.vcxproj">
+      <Project>{3b5488ed-92b8-4f2d-9edd-3954cbc7dea8}</Project>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

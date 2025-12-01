@@ -1,17 +1,17 @@
 ﻿//{{NO_DEPENDENCIES}}
 // Microsoft Visual C++에서 생성한 포함 파일입니다.
-// 다음에서 사용 09_1_Shadow.rc
+// 다음에서 사용 09-2_Shadow.rc
 
 #define IDS_APP_TITLE			103
 
 #define IDR_MAINFRAME			128
-#define IDD_MY091SHADOW_DIALOG	102
+#define IDD_MY092SHADOW_DIALOG	102
 #define IDD_ABOUTBOX			103
 #define IDM_ABOUT				104
 #define IDM_EXIT				105
-#define IDI_MY091SHADOW			107
+#define IDI_MY092SHADOW			107
 #define IDI_SMALL				108
-#define IDC_MY091SHADOW			109
+#define IDC_MY092SHADOW			109
 #define IDC_MYICON				2
 #ifndef IDC_STATIC
 #define IDC_STATIC				-1
