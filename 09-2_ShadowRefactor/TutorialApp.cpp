@@ -531,37 +531,14 @@ void TutorialApp::Render()
     //ImGui::Separator();
     //ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / io.Framerate, io.Framerate);
 
-    ImGui::DragFloat2(u8"디버그", &m_ShadowProjectionNearFar.x, 0.1, 0.01, 50000000.f);
+    //ImGui::DragFloat2(u8"디버그", &m_ShadowProjectionNearFar.x, 0.1, 0.01, 50000000.f);
 
 
     ImGui::End();
 
     //m_ImGuiManager.DrawShadowSRV(m_pShadowMapSRV.Get(), (float)SHADOW_WIDTH, (float)SHADOW_HEIGHT);
     ImGui::Begin(u8"그림자 맵");
-    //if (m_pShadowMapSRV.Get())
-    //{
-    //    float maxWidth = 256.0f;
-    //    float maxHeight = 256.0f;
-
-    //    float displayWidth = SHADOW_WIDTH;
-    //    float displayHeight = SHADOW_HEIGHT;
-
-    //    if (displayWidth > maxWidth)
-    //    {
-    //        float ratio = maxWidth / displayWidth;
-    //        displayWidth = maxWidth;
-    //        displayHeight *= ratio;
-    //    }
-    //    if (displayHeight > maxHeight)
-    //    {
-    //        float ratio = maxHeight / displayHeight;
-    //        displayHeight = maxHeight;
-    //        displayWidth *= ratio;
-    //    }
-
-    //    ImGui::Image((ImTextureID)m_pShadowMapSRV.Get(), ImVec2(displayWidth, displayHeight));
-    //}
-    ImGui::Image((ImTextureID)m_pShadowMapSRV.Get(), ImVec2(512, 512));
+    ImGui::Image((ImTextureID)m_pShadowMapSRV.Get(), ImVec2(256, 256));
     ImGui::End();
 
     //m_ImGuiManager.Render();
