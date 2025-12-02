@@ -172,10 +172,10 @@ void TutorialApp::Update()
 
 
     // Light
-    //m_InitialLightDirs = { m_ImGuiManager.lightDir.x, m_ImGuiManager.lightDir.y, m_ImGuiManager.lightDir.z, 0.0f };
+    m_InitialLightDirs = { lightDir.x, lightDir.y, lightDir.z, 0.0f };
     m_LightDirsEvaluated = m_InitialLightDirs;
 
-    //m_Light.Direction = { m_ImGuiManager.lightDir.x, m_ImGuiManager.lightDir.y, m_ImGuiManager.lightDir.z  };
+    m_Light.Direction = { lightDir.x, lightDir.y, lightDir.z  };
 
     //m_AmbientColor = { m_ImGuiManager.ambientLight };
     //m_DiffuseColor = { m_ImGuiManager.diffuseLight };
@@ -247,6 +247,20 @@ void TutorialApp::Update()
     //}
 
     //m_SkeletalModelLoader.Update(m_Time.GetDeltaTime());
+
+
+    m_ShadowProjection = XMMatrixPerspectiveFovLH(XMConvertToRadians(10), m_ShadowViewport.Width /
+        (float)m_ShadowViewport.Height, m_ShadowProjectionNearFar.x, m_ShadowProjectionNearFar.y);
+
+    //m_ShadowLookAt = /*m_Camera.GetPosition() +*/ m_Camera.GetForward() * m_ShadowForwardDistFromCamera;
+    m_ShadowLookAt = Vector3(0, 0, 0);
+
+    //m_ShadowPos = m_ShadowLookAt + (-m_Light.Direction * m_ShadowUpDistFromLookAt);
+    m_ShadowPos = m_ShadowLookAt + (-m_Light.Direction * 500);
+
+    m_ShadowView = XMMatrixLookAtLH(m_ShadowPos, m_ShadowLookAt, Vector3(0.0f, 1.0f, 0.0f));
+
+    m_pDeviceContext->RSSetViewports(1, &m_ShadowViewport);
 }
 
 void TutorialApp::Render()
@@ -259,15 +273,12 @@ void TutorialApp::Render()
     UINT sampleMask = 0xffffffff; // 모든 샘플 사용
 
     m_pDeviceContext->OMSetBlendState(m_pBlendState.Get(), blendFactor, sampleMask);
-    ID3D11RenderTargetView* rtv = m_pRenderTargetView.Get(); // 내부 포인터
-    m_pDeviceContext->OMSetRenderTargets(1, &rtv, m_pDepthStencilView.Get());
-    m_pDeviceContext->ClearRenderTargetView(rtv, color);
-    m_pDeviceContext->ClearDepthStencilView(m_pDepthStencilView.Get(), D3D11_CLEAR_DEPTH, 1.0f, 0);
-    m_pDeviceContext->RSSetViewports(1, &m_MainViewport);
+
 
 
 
     // ShadowPass
+    m_pDeviceContext->IASetInputLayout(m_pInputLayout.Get());
     m_pDeviceContext->RSSetViewports(1, &m_ShadowViewport);
     m_pDeviceContext->OMSetRenderTargets(0, nullptr, m_pShadowMapDSV.Get());
     m_pDeviceContext->ClearDepthStencilView(m_pShadowMapDSV.Get(), D3D11_CLEAR_DEPTH, 1.0f, 0);
@@ -275,14 +286,34 @@ void TutorialApp::Render()
     m_pDeviceContext->PSSetShader(nullptr, nullptr, 0);
 
     // 상수 버퍼 업데이트
-    ShadowCB cbShadow;
-    cbShadow.mView = XMMatrixTranspose(m_ShadowView);
-    cbShadow.mProjection = XMMatrixTranspose(m_ShadowProjection);
+    ConstantBuffer cb;
+    cb.mWorld = XMMatrixTranspose(XMMatrixTranslation(ObjectPos.x, ObjectPos.y, ObjectPos.z))
+        * XMMatrixTranspose(m_StaticMesh.m_World);
+    cb.ShadowView = XMMatrixTranspose(m_ShadowView);
+    cb.ShadowProjection = XMMatrixTranspose(m_ShadowProjection);
     m_pDeviceContext->VSSetConstantBuffers(0, 1, &m_pShadowConstantBuffer);
-    m_pDeviceContext->UpdateSubresource(m_pShadowConstantBuffer, 0, nullptr, &cbShadow, 0, 0);
+    m_pDeviceContext->UpdateSubresource(m_pShadowConstantBuffer, 0, nullptr, &cb, 0, 0);
 
-    m_pDeviceContext->RSSetViewports(1, &m_MainViewport);
+    for (auto& section : m_StaticMesh.m_StaticMeshSection)
+    {
+        // Vertex/Index Buffer 바인딩
+        UINT stride = sizeof(Vertex);
+        UINT offset = 0;
+        m_pDeviceContext->IASetVertexBuffers(0, 1, &section.VertexBuffer, &stride, &offset);
+        m_pDeviceContext->IASetIndexBuffer(section.IndexBuffer, DXGI_FORMAT_R16_UINT, 0);
+        m_pDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+
+        // Shadow Pass에서는 PS 없이 Depth만 기록하므로 PS 텍스처 바인딩 불필요
+
+        // Draw
+        m_pDeviceContext->DrawIndexed(static_cast<UINT>(section.Indices.size()), 0, 0);
+    }
+
+    ID3D11RenderTargetView* rtv = m_pRenderTargetView.Get(); // 내부 포인터
     m_pDeviceContext->OMSetRenderTargets(1, &rtv, m_pDepthStencilView.Get());
+    m_pDeviceContext->ClearRenderTargetView(rtv, color);
+    m_pDeviceContext->ClearDepthStencilView(m_pDepthStencilView.Get(), D3D11_CLEAR_DEPTH, 1.0f, 0);
+    m_pDeviceContext->RSSetViewports(1, &m_MainViewport);
     m_pDeviceContext->OMSetDepthStencilState(nullptr, 0);
 
     // 3. 일반 오브젝트 렌더
@@ -292,8 +323,8 @@ void TutorialApp::Render()
     m_pDeviceContext->RSSetState(m_pRasterStateNoCull.Get());
 
     // Sampler
-    m_pDeviceContext->PSSetSamplers(0, 1, &m_pSamplerLinear);
-    m_pDeviceContext->PSSetSamplers(1, 1, &m_pSamplerLinear);
+    m_pDeviceContext->PSSetSamplers(0, 1, m_pSamplerLinear.GetAddressOf());
+    m_pDeviceContext->PSSetSamplers(1, 1, m_pSamplerLinear.GetAddressOf());
 
     // ShadowMapSRV
     m_pDeviceContext->PSSetShaderResources(5, 1, m_pShadowMapSRV.GetAddressOf());
@@ -306,9 +337,7 @@ void TutorialApp::Render()
 
         Material& mat = m_StaticMesh.m_Materials[matIdx];
 
-        ConstantBuffer cb;
-        cb.mWorld = XMMatrixTranspose(XMMatrixScaling(10, 10, 10)) *
-            XMMatrixTranspose(XMMatrixTranslation(ObjectPos.x, ObjectPos.y, ObjectPos.z))
+        cb.mWorld = XMMatrixTranspose(XMMatrixTranslation(ObjectPos.x, ObjectPos.y, ObjectPos.z))
             * XMMatrixTranspose(m_StaticMesh.m_World);
         cb.mView = XMMatrixTranspose(m_View);
         cb.mProjection = XMMatrixTranspose(m_Projection);
@@ -332,9 +361,6 @@ void TutorialApp::Render()
         cb.hasNormalMap = mat.hasNormalMap ? 1 : 0;
         cb.hasSpecularMap = mat.hasSpecularMap ? 1 : 0;
         cb.hasEmissiveMap = mat.hasEmissiveMap ? 1 : 0;
-
-        cb.ShadowView = cbShadow.mView;
-        cb.ShadowProjection = cbShadow.mProjection;
 
         cb.ShadowView = XMMatrixTranspose(m_ShadowView);
         cb.ShadowProjection = XMMatrixTranspose(m_ShadowProjection);
@@ -376,8 +402,7 @@ void TutorialApp::Render()
 
         Material& mat = ground.m_Materials[matIdx];
 
-        ConstantBuffer cb;
-        cb.mWorld = XMMatrixTranspose(XMMatrixTranslation(0, -100, 0)) * XMMatrixTranspose(ground.m_World);
+        cb.mWorld = XMMatrixTranspose(XMMatrixScaling(0.01, 0.01, 0.01)) * XMMatrixTranspose(XMMatrixTranslation(0, -100, 0)) * XMMatrixTranspose(ground.m_World);
         cb.mView = XMMatrixTranspose(m_View);
         cb.mProjection = XMMatrixTranspose(m_Projection);
         cb.vLightDir = m_LightDirsEvaluated;
@@ -433,6 +458,10 @@ void TutorialApp::Render()
         // Draw 호출
         m_pDeviceContext->DrawIndexed(static_cast<UINT>(section.Indices.size()), 0, 0);
     }
+
+    ID3D11ShaderResourceView* nullSRV[1] = { nullptr };
+
+    m_pDeviceContext->PSSetShaderResources(5, 1, nullSRV);
 
     // 2. 스카이박스 렌더
     //m_pDeviceContext->OMSetDepthStencilState(m_pSkyboxDepthStencilState, 0);
@@ -495,39 +524,44 @@ void TutorialApp::Render()
         depth.y = 10000.0f;
     }
     ImGui::Text("");
-    ImGui::SeparatorText(u8" 배경 선택");
-    if (ImGui::Button(u8"실내"))		viewChanger = false; ImGui::SameLine();
-    if (ImGui::Button(u8"디버그"))	viewChanger = true;
-    ImGui::Text("");
-    ImGui::Separator();
-    ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / io.Framerate, io.Framerate);
+    //ImGui::SeparatorText(u8" 배경 선택");
+    //if (ImGui::Button(u8"실내"))		viewChanger = false; ImGui::SameLine();
+    //if (ImGui::Button(u8"디버그"))	viewChanger = true;
+    //ImGui::Text("");
+    //ImGui::Separator();
+    //ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / io.Framerate, io.Framerate);
+
+    ImGui::DragFloat2(u8"디버그", &m_ShadowProjectionNearFar.x, 0.1, 0.01, 50000000.f);
+
+
     ImGui::End();
 
     //m_ImGuiManager.DrawShadowSRV(m_pShadowMapSRV.Get(), (float)SHADOW_WIDTH, (float)SHADOW_HEIGHT);
     ImGui::Begin(u8"그림자 맵");
-    if (m_pShadowMapSRV.Get())
-    {
-        float maxWidth = 256.0f;
-        float maxHeight = 256.0f;
+    //if (m_pShadowMapSRV.Get())
+    //{
+    //    float maxWidth = 256.0f;
+    //    float maxHeight = 256.0f;
 
-        float displayWidth = SHADOW_WIDTH;
-        float displayHeight = SHADOW_HEIGHT;
+    //    float displayWidth = SHADOW_WIDTH;
+    //    float displayHeight = SHADOW_HEIGHT;
 
-        if (displayWidth > maxWidth)
-        {
-            float ratio = maxWidth / displayWidth;
-            displayWidth = maxWidth;
-            displayHeight *= ratio;
-        }
-        if (displayHeight > maxHeight)
-        {
-            float ratio = maxHeight / displayHeight;
-            displayHeight = maxHeight;
-            displayWidth *= ratio;
-        }
+    //    if (displayWidth > maxWidth)
+    //    {
+    //        float ratio = maxWidth / displayWidth;
+    //        displayWidth = maxWidth;
+    //        displayHeight *= ratio;
+    //    }
+    //    if (displayHeight > maxHeight)
+    //    {
+    //        float ratio = maxHeight / displayHeight;
+    //        displayHeight = maxHeight;
+    //        displayWidth *= ratio;
+    //    }
 
-        ImGui::Image((ImTextureID)m_pShadowMapSRV.Get(), ImVec2(displayWidth, displayHeight));
-    }
+    //    ImGui::Image((ImTextureID)m_pShadowMapSRV.Get(), ImVec2(displayWidth, displayHeight));
+    //}
+    ImGui::Image((ImTextureID)m_pShadowMapSRV.Get(), ImVec2(512, 512));
     ImGui::End();
 
     //m_ImGuiManager.Render();
@@ -913,7 +947,7 @@ bool TutorialApp::InitScene()
 
     D3D11_BUFFER_DESC cbd = {};
     cbd.Usage = D3D11_USAGE_DEFAULT;
-    cbd.ByteWidth = sizeof(ShadowCB);
+    cbd.ByteWidth = sizeof(ConstantBuffer);
     cbd.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
     cbd.CPUAccessFlags = 0;
 

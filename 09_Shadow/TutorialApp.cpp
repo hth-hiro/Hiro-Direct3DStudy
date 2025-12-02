@@ -757,7 +757,7 @@ bool TutorialApp::InitScene()
 
     m_ShadowLookAt = m_Camera.GetPosition() + m_Camera.GetForward() * m_ShadowForwardDistFromCamera;
 
-    m_ShadowPos = m_ShadowLookAt + (m_Light.Direction * m_ShadowUpDistFromLookAt);
+    m_ShadowPos = m_ShadowLookAt + (-m_Light.Direction * m_ShadowUpDistFromLookAt);
 
     m_ShadowView = XMMatrixLookAtLH(m_ShadowPos, m_ShadowLookAt, Vector3(0.0f, 1.0f, 0.0f));
     
