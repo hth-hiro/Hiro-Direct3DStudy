@@ -169,17 +169,14 @@ void TutorialApp::Update()
     //    lastMousePosBeforeWarp = ImVec2(-1, -1);
     //}
 
-
-
     // Light
     m_InitialLightDirs = { lightDir.x, lightDir.y, lightDir.z, 0.0f };
     m_LightDirsEvaluated = m_InitialLightDirs;
-
     m_Light.Direction = { lightDir.x, lightDir.y, lightDir.z  };
 
-    //m_AmbientColor = { m_ImGuiManager.ambientLight };
-    //m_DiffuseColor = { m_ImGuiManager.diffuseLight };
-    //m_SpecularColor = { m_ImGuiManager.specularLight };
+    m_AmbientColor = { ambientLight };
+    m_DiffuseColor = { diffuseLight };
+    m_SpecularColor = { specularLight };
 
     // Camera
     m_cameraPos = { m_Camera.GetPosition().x, m_Camera.GetPosition().y, m_Camera.GetPosition().z, 1 };
@@ -211,7 +208,7 @@ void TutorialApp::Update()
         m_pCubeTextureRV = m_pCubeMuseumTextureRV;
     }
 
-    
+    //object1.transform.SetPosition(object1.transform.scale.x, object1.transform.scale.y, object1.transform.scale.z)};
 
 
 
@@ -255,8 +252,7 @@ void TutorialApp::Update()
     //m_ShadowLookAt = /*m_Camera.GetPosition() +*/ m_Camera.GetForward() * m_ShadowForwardDistFromCamera;
     m_ShadowLookAt = Vector3(0, 0, 0);
 
-    //m_ShadowPos = m_ShadowLookAt + (-m_Light.Direction * m_ShadowUpDistFromLookAt);
-    m_ShadowPos = m_ShadowLookAt + (-m_Light.Direction * 500);
+    m_ShadowPos = m_ShadowLookAt + (-m_Light.Direction * m_ShadowUpDistFromLookAt);
 
     m_ShadowView = XMMatrixLookAtLH(m_ShadowPos, m_ShadowLookAt, Vector3(0.0f, 1.0f, 0.0f));
 
@@ -274,9 +270,6 @@ void TutorialApp::Render()
 
     m_pDeviceContext->OMSetBlendState(m_pBlendState.Get(), blendFactor, sampleMask);
 
-
-
-
     // ShadowPass
     m_pDeviceContext->IASetInputLayout(m_pInputLayout.Get());
     m_pDeviceContext->RSSetViewports(1, &m_ShadowViewport);
@@ -287,7 +280,7 @@ void TutorialApp::Render()
 
     // 상수 버퍼 업데이트
     ConstantBuffer cb;
-    cb.mWorld = XMMatrixTranspose(XMMatrixTranslation(ObjectPos.x, ObjectPos.y, ObjectPos.z))
+    cb.mWorld = XMMatrixTranspose(XMMatrixScaling(object1.transform.GetScale().x, object1.transform.GetScale().y, object1.transform.GetScale().z)) * XMMatrixTranspose(XMMatrixTranslation(ObjectPos.x, ObjectPos.y, ObjectPos.z))
         * XMMatrixTranspose(m_StaticMesh.m_World);
     cb.ShadowView = XMMatrixTranspose(m_ShadowView);
     cb.ShadowProjection = XMMatrixTranspose(m_ShadowProjection);
@@ -337,7 +330,7 @@ void TutorialApp::Render()
 
         Material& mat = m_StaticMesh.m_Materials[matIdx];
 
-        cb.mWorld = XMMatrixTranspose(XMMatrixTranslation(ObjectPos.x, ObjectPos.y, ObjectPos.z))
+        cb.mWorld = XMMatrixTranspose(XMMatrixScaling(object1.transform.GetScale().x, object1.transform.GetScale().y, object1.transform.GetScale().z)) * XMMatrixTranspose(XMMatrixTranslation(ObjectPos.x, ObjectPos.y, ObjectPos.z))
             * XMMatrixTranspose(m_StaticMesh.m_World);
         cb.mView = XMMatrixTranspose(m_View);
         cb.mProjection = XMMatrixTranspose(m_Projection);
@@ -394,6 +387,7 @@ void TutorialApp::Render()
         // Draw 호출
         m_pDeviceContext->DrawIndexed(static_cast<UINT>(section.Indices.size()), 0, 0);
     }
+
     for (auto& section : ground.m_StaticMeshSection)
     {
         int matIdx = section.materialIndex;
@@ -494,17 +488,30 @@ void TutorialApp::Render()
     //m_ImGuiManager.DrawObjectUI();
     ImGuiIO& io = ImGui::GetIO(); (void)io;
 
-    ImGui::Begin(u8"컨트롤러");                       
+    ImGui::Begin(u8"컨트롤러");
     ImGui::SeparatorText(u8"오브젝트 조절");
+    ImGui::DragFloat3(u8" 오브젝트 크기", &object1.transform.scale.x, 1.0f, 100.0f);
+    ImGui::SliderFloat3(u8" 오브젝트 위치", &object1.transform.position.x, -100.0f, 100.0f, "%.1f");
+    ImGui::DragFloat3(u8" 오브젝트 회전", &object1.transform.rotation.x, 0.1f);
+    ImGui::ColorEdit4(u8" 오브젝트 Material Ambient", &object1.ambient.x);
+    ImGui::ColorEdit4(u8" 오브젝트 Material Diffuse", &object1.diffuse.x);
+    ImGui::ColorEdit4(u8" 오브젝트 Material Specular", &object1.specular.x);
+    ImGui::SliderFloat(u8" 오브젝트 광택지수", &object1.shininess, 200.0f, 20000.0f);
+    if (ImGui::Button(u8" 오브젝트 초기화")) object1.Reset();
+    ImGui::Text("");
 
-    RenderObjectUI(u8" 오브젝트1", object1);
-    //RenderObjectUI(u8" 오브젝트2", object2);
-    //RenderObjectUI(u8" 오브젝트3", object3);
     ImGui::SeparatorText(u8"빛 조절");
     ImGui::ColorEdit4(u8" Ambient 색상", &ambientLight.x);
     ImGui::ColorEdit4(u8" Diffuse 색상", &diffuseLight.x);
     ImGui::ColorEdit4(u8" Specular 색상", &specularLight.x);
-    ImGui::SliderFloat3(u8" 방향", &lightDir.x, -1.0f, 1.0f, "%.1f");
+    ImGui::DragFloat3(u8" 방향", &lightDir.x, 0.1, -1.0f, 1.0f, "%.1f");
+
+    // 안전하게 x나 z가 0이 되어도 그림자 생성
+    if (fabs(lightDir.x) < 0.1f && fabs(lightDir.z) < 0.1f)
+    {
+        lightDir.x = (lightDir.x >= 0.0f ? 1.0f : -1.0f) * 0.01f;
+        lightDir.z = (lightDir.z >= 0.0f ? 1.0f : -1.0f) * 0.01f;
+    }
 
     ImGui::Checkbox("Use Lighting", &useLighting);
 
@@ -531,8 +538,9 @@ void TutorialApp::Render()
     //ImGui::Separator();
     //ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / io.Framerate, io.Framerate);
 
-    //ImGui::DragFloat2(u8"디버그", &m_ShadowProjectionNearFar.x, 0.1, 0.01, 50000000.f);
+    ImGui::DragFloat2(u8"디버그", &m_ShadowProjectionNearFar.x, 0.1, 0.01, 50000000.f);
 
+    ImGui::DragFloat(u8"디버그2", &m_ShadowUpDistFromLookAt);
 
     ImGui::End();
 
