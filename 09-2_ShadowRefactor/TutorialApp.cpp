@@ -208,54 +208,11 @@ void TutorialApp::Update()
         m_pCubeTextureRV = m_pCubeMuseumTextureRV;
     }
 
-    //object1.transform.SetPosition(object1.transform.scale.x, object1.transform.scale.y, object1.transform.scale.z)};
-
-
-
-
-    //SkeletalModel* BoxHuman = GetSkeletalModelByName("SkinningTest");
-    //if (BoxHuman)
-    //{
-    //    Object obj = m_ImGuiManager.object1;
-
-    //    BoxHuman->transform.position = { obj.transform.GetPosition() };
-    //    BoxHuman->transform.scale = { obj.transform.GetScale() };
-    //    BoxHuman->transform.rotation = { obj.transform.GetRotation() };
-
-    //    BoxHuman->material.ambient = { obj.ambient };
-    //    BoxHuman->material.diffuse = { obj.diffuse };
-    //    BoxHuman->material.specular = { obj.specular };
-    //    BoxHuman->material.shininess = { obj.shininess };
-    //}
-
-    //SkeletalModel* model = GetSkeletalModelByName("model");
-    //if (model)
-    //{
-    //    Object obj = m_ImGuiManager.object2;
-
-    //    model->transform.position = { obj.transform.GetPosition() };
-    //    model->transform.scale = { obj.transform.GetScale() };
-    //    model->transform.rotation = { obj.transform.GetRotation() };
-
-    //    model->material.ambient = { obj.ambient };
-    //    model->material.diffuse = { obj.diffuse };
-    //    model->material.specular = { obj.specular };
-    //    model->material.shininess = { obj.shininess };
-    //}
-
-    //m_SkeletalModelLoader.Update(m_Time.GetDeltaTime());
-
-
     m_ShadowProjection = XMMatrixPerspectiveFovLH(XMConvertToRadians(10), m_ShadowViewport.Width /
         (float)m_ShadowViewport.Height, m_ShadowProjectionNearFar.x, m_ShadowProjectionNearFar.y);
-
-    //m_ShadowLookAt = /*m_Camera.GetPosition() +*/ m_Camera.GetForward() * m_ShadowForwardDistFromCamera;
     m_ShadowLookAt = Vector3(0, 0, 0);
-
     m_ShadowPos = m_ShadowLookAt + (-m_Light.Direction * m_ShadowUpDistFromLookAt);
-
     m_ShadowView = XMMatrixLookAtLH(m_ShadowPos, m_ShadowLookAt, Vector3(0.0f, 1.0f, 0.0f));
-
     m_pDeviceContext->RSSetViewports(1, &m_ShadowViewport);
 }
 
@@ -280,7 +237,9 @@ void TutorialApp::Render()
 
     // 상수 버퍼 업데이트
     ConstantBuffer cb;
-    cb.mWorld = XMMatrixTranspose(XMMatrixScaling(object1.transform.GetScale().x, object1.transform.GetScale().y, object1.transform.GetScale().z)) * XMMatrixTranspose(XMMatrixTranslation(ObjectPos.x, ObjectPos.y, ObjectPos.z))
+    cb.mWorld = XMMatrixTranspose(XMMatrixScaling(object1.transform.GetScale().x, object1.transform.GetScale().y, object1.transform.GetScale().z))
+        * XMMatrixTranspose(XMMatrixRotationRollPitchYaw(object1.transform.GetRotation().x, object1.transform.GetRotation().y, object1.transform.GetRotation().z))
+        * XMMatrixTranspose(XMMatrixTranslation(ObjectPos.x, ObjectPos.y, ObjectPos.z))
         * XMMatrixTranspose(m_StaticMesh.m_World);
     cb.ShadowView = XMMatrixTranspose(m_ShadowView);
     cb.ShadowProjection = XMMatrixTranspose(m_ShadowProjection);
@@ -330,7 +289,9 @@ void TutorialApp::Render()
 
         Material& mat = m_StaticMesh.m_Materials[matIdx];
 
-        cb.mWorld = XMMatrixTranspose(XMMatrixScaling(object1.transform.GetScale().x, object1.transform.GetScale().y, object1.transform.GetScale().z)) * XMMatrixTranspose(XMMatrixTranslation(ObjectPos.x, ObjectPos.y, ObjectPos.z))
+        cb.mWorld = XMMatrixTranspose(XMMatrixScaling(object1.transform.GetScale().x, object1.transform.GetScale().y, object1.transform.GetScale().z))
+            * XMMatrixTranspose(XMMatrixRotationRollPitchYaw(object1.transform.GetRotation().x, object1.transform.GetRotation().y, object1.transform.GetRotation().z))
+            * XMMatrixTranspose(XMMatrixTranslation(ObjectPos.x, ObjectPos.y, ObjectPos.z))
             * XMMatrixTranspose(m_StaticMesh.m_World);
         cb.mView = XMMatrixTranspose(m_View);
         cb.mProjection = XMMatrixTranspose(m_Projection);
