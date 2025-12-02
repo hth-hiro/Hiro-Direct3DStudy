@@ -55,17 +55,24 @@ float4 main(PS_INPUT input) : SV_Target
     if (surface.a < 0.1f)
         discard;
     
-    if (UseLighting > 0)
-    {
-        finalColor = saturate(ambient + diffuse + specular);
-        finalColor.a = surface.a;
-    }
-    else
-    {
-        finalColor = surface;
-    }
+    //if (UseLighting > 0)
+    //{
+    //    finalColor = saturate(ambient + diffuse + specular);
+    //    finalColor.a = surface.a;
+    //}
+    //else
+    //{
+    //    finalColor = surface;
+    //}
     
     //return finalColor;
+    
+    if (UseLighting == 0)
+    {
+        return float4(surface.rgb + txEmissive.rgb, surface.a);
+    }
+    
+    
     
     // 그림자 처리
     // Depth를 기록하기 위해서 Shadow의 포지션 값을 정규화
@@ -76,19 +83,20 @@ float4 main(PS_INPUT input) : SV_Target
     uv = uv * 0.5 + 0.5;    // -1 ~ 1 => 0 ~ 1
     
     // ShadowMap에 기록된 Depth
-    float sampleShadowDepth = txShadow.Sample(ShadowSampler, uv).r;
     
     // 최종 색상 계산 (조명 + 그림자 + 발광)
-    float shadowFactor = (currentShadowDepth > sampleShadowDepth + 0.001) ? 0.0f : 1.0f;
     
-    float3 lit = (ambient.rgb + diffuse.rgb * shadowFactor + specular.rgb * shadowFactor);
+    float shadowFactor = 1.0f;
 
+    if (uv.x >= 0.0 && uv.x <= 1.0 && uv.y >= 0.0 && uv.y <= 1.0)
+    {
+        float sampleShadowDepth = txShadow.Sample(samLinear, uv).r;
+        shadowFactor = (currentShadowDepth > sampleShadowDepth + 0.001) ? 0.0f : 1.0f;
+    }
+
+// 조명 계산
+    float3 lit = ambient.rgb + diffuse.rgb * shadowFactor + specular.rgb * shadowFactor;
     float4 final = float4(lit + txEmissive.rgb, surface.a);
 
-    //float depth = input.PositionShadow.z / input.PositionShadow.w;
-    
-    return float4(uv.x, uv.y, 0, 1);
-    
-    //return final;
-    //return float4(1, 0, 0, 1);
+    return final;
 }
