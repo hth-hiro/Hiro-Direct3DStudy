@@ -237,10 +237,20 @@ void TutorialApp::Render()
 
     // 상수 버퍼 업데이트
     ConstantBuffer cb;
-    cb.mWorld = XMMatrixTranspose(XMMatrixScaling(object1.transform.GetScale().x, object1.transform.GetScale().y, object1.transform.GetScale().z))
-        * XMMatrixTranspose(XMMatrixRotationRollPitchYaw(object1.transform.GetRotation().x, object1.transform.GetRotation().y, object1.transform.GetRotation().z))
-        * XMMatrixTranspose(XMMatrixTranslation(ObjectPos.x, ObjectPos.y, ObjectPos.z))
-        * XMMatrixTranspose(m_StaticMesh.m_World);
+    cb.mWorld = XMMatrixTranspose(
+        XMMatrixScaling(object1.transform.GetScale().x,
+            object1.transform.GetScale().y,
+            object1.transform.GetScale().z) *
+        XMMatrixRotationRollPitchYaw(object1.transform.GetRotation().x,
+            object1.transform.GetRotation().y,
+            object1.transform.GetRotation().z) *
+        XMMatrixTranslation(ObjectPos.x, ObjectPos.y, ObjectPos.z)
+    );
+    //cb.mWorld = XMMatrixTranspose(m_StaticMesh.m_World) *
+    //    XMMatrixTranspose(XMMatrixScaling(object1.transform.GetScale().x, object1.transform.GetScale().y, object1.transform.GetScale().z))
+    //    * XMMatrixTranspose(XMMatrixRotationRollPitchYaw(object1.transform.GetRotation().x, object1.transform.GetRotation().y, object1.transform.GetRotation().z))
+    //    * XMMatrixTranspose(XMMatrixTranslation(ObjectPos.x, ObjectPos.y, ObjectPos.z))
+    //    ;
     cb.ShadowView = XMMatrixTranspose(m_ShadowView);
     cb.ShadowProjection = XMMatrixTranspose(m_ShadowProjection);
     m_pDeviceContext->VSSetConstantBuffers(0, 1, &m_pShadowConstantBuffer);
@@ -289,10 +299,20 @@ void TutorialApp::Render()
 
         Material& mat = m_StaticMesh.m_Materials[matIdx];
 
-        cb.mWorld = XMMatrixTranspose(XMMatrixScaling(object1.transform.GetScale().x, object1.transform.GetScale().y, object1.transform.GetScale().z))
-            * XMMatrixTranspose(XMMatrixRotationRollPitchYaw(object1.transform.GetRotation().x, object1.transform.GetRotation().y, object1.transform.GetRotation().z))
-            * XMMatrixTranspose(XMMatrixTranslation(ObjectPos.x, ObjectPos.y, ObjectPos.z))
-            * XMMatrixTranspose(m_StaticMesh.m_World);
+        cb.mWorld = XMMatrixTranspose(
+            XMMatrixScaling(object1.transform.GetScale().x,
+                object1.transform.GetScale().y,
+                object1.transform.GetScale().z) *
+            XMMatrixRotationRollPitchYaw(object1.transform.GetRotation().x,
+                object1.transform.GetRotation().y,
+                object1.transform.GetRotation().z) *
+            XMMatrixTranslation(ObjectPos.x, ObjectPos.y, ObjectPos.z)
+        );
+
+        //cb.mWorld = XMMatrixTranspose(XMMatrixScaling(object1.transform.GetScale().x, object1.transform.GetScale().y, object1.transform.GetScale().z))
+        //    * XMMatrixTranspose(XMMatrixRotationRollPitchYaw(object1.transform.GetRotation().x, object1.transform.GetRotation().y, object1.transform.GetRotation().z))
+        //    * XMMatrixTranspose(XMMatrixTranslation(ObjectPos.x, ObjectPos.y, ObjectPos.z))
+        //    * XMMatrixTranspose(m_StaticMesh.m_World);
         cb.mView = XMMatrixTranspose(m_View);
         cb.mProjection = XMMatrixTranspose(m_Projection);
         cb.vLightDir = m_LightDirsEvaluated;
