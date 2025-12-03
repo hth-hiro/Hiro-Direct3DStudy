@@ -72,8 +72,6 @@ float4 main(PS_INPUT input) : SV_Target
         return float4(surface.rgb + txEmissive.rgb, surface.a);
     }
     
-    
-    
     // 그림자 처리
     // Depth를 기록하기 위해서 Shadow의 포지션 값을 정규화
     float currentShadowDepth = input.PositionShadow.z / input.PositionShadow.w;
