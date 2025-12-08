@@ -29,7 +29,7 @@ cbuffer ConstantBuffer : register(b0)
     float4 vShininess;
     
     int UseLighting;
-    float3 padding;               
+    float3 pad_Boolean;
     
     int hasTexture;
     int hasNormalMap;
@@ -40,11 +40,18 @@ cbuffer ConstantBuffer : register(b0)
     
     uint gIsRigid;
     uint gRefBoneIndex;
-    float pad1;
-    float pad2;
+    float pad3;
+    float pad4;
     
     matrix ShadowView;
     matrix ShadowProjection;
+    
+    float roughness;
+    float metallic;
+    float ao;
+    float gamma;
+    
+    float4 albedo;
 }
 
 cbuffer SkyboxCB : register(b1)

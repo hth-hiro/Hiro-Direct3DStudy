@@ -38,17 +38,31 @@ struct Object
 
     float shininess = 200.f;
 
-    void Reset()
+    Vector4 albedo = { 1.f, 1.f, 1.f, 1.0f };
+    float roughness = 0.5f;
+    float metallic = 0.0f;
+    float gamma = 2.2f;
+
+    void PosReset()
     {
         transform.SetPosition(initPos);
         transform.SetRotation(Vector3(0, 0, 0));
         transform.SetScale(Vector3(1, 1, 1));
+    }
 
-        ambient = { 0.1f, 0.1f, 0.1f, 0.1f };
-        diffuse = { 1,1,1,1 };
-        specular = { 1,1,1,1 };
+    void Reset()
+    {
+        // 기존 퐁 셰이딩
+        //ambient = { 0.1f, 0.1f, 0.1f, 0.1f };
+        //diffuse = { 1,1,1,1 };
+        //specular = { 1,1,1,1 };
+        //shininess = 200.f;
 
-        shininess = 200.f;
+        // PBR
+        albedo = { 1.f, 1.f, 1.f, 1.0f };
+        roughness = 0.5f;
+        metallic = 0.0f;
+        gamma = 2.2f;
     }
 };
 
@@ -134,9 +148,9 @@ public:
 
 
     // Imgui에 전달할 함수들
-    ID3D11ShaderResourceView* GetShadowSRV() const { return m_pShadowMapSRV.Get(); }
-    UINT GetShadowMapWidth() const { return SHADOW_WIDTH; }
-    UINT GetShadowMapHeight() const { return SHADOW_HEIGHT; }
+    //ID3D11ShaderResourceView* GetShadowSRV() const { return m_pShadowMapSRV.Get(); }
+    //UINT GetShadowMapWidth() const { return SHADOW_WIDTH; }
+    //UINT GetShadowMapHeight() const { return SHADOW_HEIGHT; }
 
     // Manager
 	//ImGuiManager m_ImGuiManager;
@@ -207,6 +221,13 @@ public:
     bool viewChanger = false;
 
     Vector2 depth = { 1.0f, 10000.0f };
+
+    // PBR
+    //Vector4 m_Albedo = { 1.f, 1.f, 1.f, 1.0f };
+    //float m_Roughness = 0.5f;
+    //float m_Metalness = 0.0f;
+
+
 
     bool useLighting = true;
 

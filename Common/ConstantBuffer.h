@@ -32,7 +32,7 @@ struct ConstantBuffer
     Vector4 vShininess;
 
     int UseLighting; // 1 = ºû °è»ê, 0 = ¹«½Ã
-    Vector3 padding;
+    Vector3 pad_Boolean;
 
     int hasTexture;
 
@@ -49,4 +49,12 @@ struct ConstantBuffer
 
     Matrix ShadowView;
     Matrix ShadowProjection;
+
+    // PBR
+    float roughness;
+    float metallic;
+    float ao;           //
+    float gamma;
+
+    Vector4 albedo;
 };

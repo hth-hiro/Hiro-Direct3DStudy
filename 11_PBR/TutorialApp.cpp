@@ -336,6 +336,12 @@ void TutorialApp::Render()
         cb.hasSpecularMap = mat.hasSpecularMap ? 1 : 0;
         cb.hasEmissiveMap = mat.hasEmissiveMap ? 1 : 0;
 
+        // PBR
+        cb.metallic = object1.metallic;
+        cb.roughness = object1.roughness;
+        cb.albedo = object1.albedo;
+        cb.gamma = object1.gamma;
+
         cb.ShadowView = XMMatrixTranspose(m_ShadowView);
         cb.ShadowProjection = XMMatrixTranspose(m_ShadowProjection);
 
@@ -393,6 +399,16 @@ void TutorialApp::Render()
         cb.vSpecularColor = m_SpecularColor;
         cb.cameraPos = m_cameraPos;
         cb.UseLighting = useLighting;
+
+        // PBR
+        //cb.metalness = m_Metalness;
+        //cb.roughness = m_Roughness;
+        //cb.albedo = m_Albedo;
+
+        // 땅은 그냥 고정값으로 들어가게 설정
+        cb.metallic = 0.f;
+        cb.roughness = 0.5f;
+        cb.albedo = Vector4(0, 0, 0, 1);
 
         // 텍스처 관련
         cb.hasTexture = mat.hasTexture ? 1 : 0;
@@ -474,6 +490,7 @@ void TutorialApp::Render()
     ImGui::DragFloat3(u8" 오브젝트 크기", &object1.transform.scale.x, 1.0f, 100.0f);
     ImGui::SliderFloat3(u8" 오브젝트 위치", &object1.transform.position.x, -100.0f, 100.0f, "%.1f");
     ImGui::DragFloat3(u8" 오브젝트 회전", &object1.transform.rotation.x, 0.1f);
+    if (ImGui::Button(u8" 오브젝트 초기화")) object1.PosReset();
 
     ImGui::SeparatorText(u8"빛 조절");
     ImGui::ColorEdit4(u8" Ambient 색상", &ambientLight.x);
@@ -526,11 +543,18 @@ void TutorialApp::Render()
 
     ImGui::Begin(u8"PBR");
     // BaseColor
-    ImGui::ColorEdit4(u8" 오브젝트 Material Ambient", &object1.ambient.x);
-    ImGui::ColorEdit4(u8" 오브젝트 Material Diffuse", &object1.diffuse.x);
-    ImGui::ColorEdit4(u8" 오브젝트 Material Specular", &object1.specular.x);
-    ImGui::SliderFloat(u8" 오브젝트 광택지수", &object1.shininess, 200.0f, 20000.0f);
-    if (ImGui::Button(u8" 오브젝트 초기화")) object1.Reset();
+    //ImGui::ColorEdit4(u8" 오브젝트 Material Ambient", &object1.ambient.x);
+    //ImGui::ColorEdit4(u8" 오브젝트 Material Diffuse", &object1.diffuse.x);
+    //ImGui::ColorEdit4(u8" 오브젝트 Material Specular", &object1.specular.x);
+    //ImGui::SliderFloat(u8" 오브젝트 광택지수", &object1.shininess, 200.0f, 20000.0f);
+
+    ImGui::ColorEdit4(u8"알베도", &object1.albedo.x);
+    ImGui::SliderFloat(u8"Metallic", &object1.metallic, 0.0f, 1.0f);
+    ImGui::SliderFloat(u8"Roughness", &object1.roughness, 0.01f, 1.0f);
+    ImGui::SliderFloat(u8"Gamma", &object1.gamma, 1.f, 3.0f);
+    
+    //ImGui::Checkbox(u8"텍스처 적용", &useTexture);
+    if (ImGui::Button(u8" 초기화")) object1.Reset();
     ImGui::Text("");
 
     ImGui::End();
@@ -802,7 +826,8 @@ bool TutorialApp::InitScene()
 
 
 
-    m_StaticMesh.ReadFile(m_pDevice, "../Resource/Appearance Miku/Appearance Miku.fbx");
+    //m_StaticMesh.ReadFile(m_pDevice, "../Resource/Appearance Miku/Appearance Miku.fbx");
+    m_StaticMesh.ReadFile(m_pDevice, "../Resource/Warrior/char.fbx");
     //m_StaticMesh.ReadFile(m_pDevice, "../Resource/box.fbx");
     ground.ReadFile(m_pDevice, "../Resource/Ground.fbx");
 

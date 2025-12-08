@@ -11,7 +11,10 @@ float4 main(PS_INPUT input) : SV_Target
     // 텍스처 샘플링
     // 텍스처가 있다면 샘플링, 아니라면 기본 머테리얼 색을 넣는다.
     float4 surface = hasTexture > 0 ? txDiffuse.Sample(samLinear, input.Tex) : solidColor;
- 
+    
+    if (surface.a < 0.1f)
+        discard;
+
     // Texture2D.Sample은 0~1 값 반환
     float3 txNormal = normalMap.Sample(samLinear, input.Tex).xyz;
     // 탄젠트 공간에서 정의된 노멀벡터는 -1~ 1값을 가진다.
@@ -37,11 +40,12 @@ float4 main(PS_INPUT input) : SV_Target
     vAmbientColor
     * vMaterialAmbient;
     
-    float4 diffuse =
-    vDiffuseColor
-    * vMaterialDiffuse 
-    * surface
-    * saturate(dot(normalVector, -lightVector));
+    // 기존 diffuse 방식 (PBR 적용 X)
+    //float4 diffuse =
+    //vDiffuseColor
+    //* vMaterialDiffuse 
+    //* surface
+    //* saturate(dot(normalVector, -lightVector));
     
     // 블린 퐁 계산
     //float4 specular =
@@ -55,25 +59,28 @@ float4 main(PS_INPUT input) : SV_Target
 
     // PBR
     // 법선 분포 함수
-    float a = 0.0f; // 임시 값(roughness)
+    float a = roughness;
     float D = ((a * a) / (PI * pow((pow(dot(normalVector, halfVector), 2) * (a * a - 1) + 1), 2)));
     
-    // 프레넬 반사
-    //float3 F0 = float3(0.04f, 0.04f, 0.04f);  // 임시 값(비금속)
-    float3 F0 = float3(1.f, 1.f, 1.f);  // 임시 값(금속)
+    float3 F0 = lerp(float3(0.04f, 0.04f, 0.04f), albedo.rgb, metallic);
+    
+    
     float3 F = F0 + (1 - F0) * pow((1 - dot(halfVector, viewVector)), 5);
     
     // 폐쇄성 감쇠
     float k = pow((a + 1), 2) / 8;
     float G = dot(normalVector, viewVector) / (dot(normalVector, viewVector) * (1 - k) + k);
     
+    float3 kd = lerp(float3(1, 1, 1) - F, float3(0, 0, 0), metallic);
+    
     // 최종 반영
-    float3 specular = (D * F * G) / (4 * dot(normalVector, -lightVector) * dot(normalVector, viewVector));
+    float3 diffuse = kd * surface.rgb / PI * max(dot(normalVector, -lightVector), 0);
+    float NdotL = max(dot(normalVector, -lightVector), 0);
+    float3 specular = (F * D * G) / max(1e-6f, 4.0f * NdotL * saturate(dot(normalVector, viewVector))) * NdotL;
     
-    if (surface.a < 0.1f)
-        discard;
-    
-    //return finalColor;
+    //float3 specular = (D * F * G) / (4 * saturate(dot(normalVector, -lightVector)) * saturate(dot(normalVector, viewVector)));
+    //float3 diffuse = (1.0 - F) * surface.rgb / PI * max(dot(normalVector, -lightVector), 0);
+
     
     if (UseLighting == 0)
     {
@@ -102,7 +109,7 @@ float4 main(PS_INPUT input) : SV_Target
 
 // 조명 계산
     float3 lit = ambient.rgb + diffuse.rgb * shadowFactor + specular.rgb * shadowFactor;
-    float4 final = float4(lit + txEmissive.rgb, surface.a);
+    float4 final = pow(float4(lit + txEmissive.rgb, surface.a), (1 / gamma));
 
     return final;
 }
