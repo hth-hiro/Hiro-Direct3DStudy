@@ -104,7 +104,8 @@ float4 main(PS_INPUT input) : SV_Target
     if (uv.x >= 0.0 && uv.x <= 1.0 && uv.y >= 0.0 && uv.y <= 1.0)
     {
         float sampleShadowDepth = txShadow.Sample(samLinear, uv).r;
-        shadowFactor = (currentShadowDepth > sampleShadowDepth + 0.001) ? 0.0f : 1.0f;
+        shadowFactor = (currentShadowDepth > sampleShadowDepth + 0.0001) ? 0.0f : 1.0f; 
+        // 0.001 부분을 늘리면 그림자와 물체가 가까워지고 줄이면 멀어짐
     }
 
 // 조명 계산
