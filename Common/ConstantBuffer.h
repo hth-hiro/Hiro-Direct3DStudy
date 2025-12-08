@@ -32,7 +32,8 @@ struct ConstantBuffer
     Vector4 vShininess;
 
     int UseLighting; // 1 = ºû °è»ê, 0 = ¹«½Ã
-    Vector3 pad_Boolean;
+    int UseTexture;
+    Vector2 pad_Boolean;
 
     int hasTexture;
 

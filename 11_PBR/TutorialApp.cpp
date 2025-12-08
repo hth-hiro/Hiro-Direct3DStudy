@@ -341,6 +341,7 @@ void TutorialApp::Render()
         cb.roughness = object1.roughness;
         cb.albedo = object1.albedo;
         cb.gamma = object1.gamma;
+        cb.UseTexture = useTexture;
 
         cb.ShadowView = XMMatrixTranspose(m_ShadowView);
         cb.ShadowProjection = XMMatrixTranspose(m_ShadowProjection);
@@ -553,7 +554,7 @@ void TutorialApp::Render()
     ImGui::SliderFloat(u8"Roughness", &object1.roughness, 0.01f, 1.0f);
     ImGui::SliderFloat(u8"Gamma", &object1.gamma, 1.f, 3.0f);
     
-    //ImGui::Checkbox(u8"텍스처 적용", &useTexture);
+    ImGui::Checkbox(u8"텍스처 적용", &useTexture);
     if (ImGui::Button(u8" 초기화")) object1.Reset();
     ImGui::Text("");
 

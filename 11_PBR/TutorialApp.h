@@ -39,7 +39,7 @@ struct Object
     float shininess = 200.f;
 
     Vector4 albedo = { 1.f, 1.f, 1.f, 1.0f };
-    float roughness = 0.5f;
+    float roughness = 0.04f;
     float metallic = 0.0f;
     float gamma = 2.2f;
 
@@ -60,7 +60,7 @@ struct Object
 
         // PBR
         albedo = { 1.f, 1.f, 1.f, 1.0f };
-        roughness = 0.5f;
+        roughness = 0.04f;
         metallic = 0.0f;
         gamma = 2.2f;
     }
@@ -227,8 +227,7 @@ public:
     //float m_Roughness = 0.5f;
     //float m_Metalness = 0.0f;
 
-
-
+    bool useTexture = true;
     bool useLighting = true;
 
     void LightReset()
