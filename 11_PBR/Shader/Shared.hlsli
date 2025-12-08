@@ -29,7 +29,8 @@ cbuffer ConstantBuffer : register(b0)
     float4 vShininess;
     
     int UseLighting;
-    float3 pad_Boolean;
+    int UseTexture;
+    float2 pad_Boolean;
     
     int hasTexture;
     int hasNormalMap;

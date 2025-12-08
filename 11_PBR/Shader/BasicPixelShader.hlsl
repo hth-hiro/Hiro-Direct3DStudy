@@ -15,6 +15,14 @@ float4 main(PS_INPUT input) : SV_Target
     if (surface.a < 0.1f)
         discard;
 
+    // 텍스처 적용 여부를 끄면 샘플링을 안하게 만들예정
+    
+    
+    if (UseTexture == 1)
+    {
+        
+    }
+    
     // Texture2D.Sample은 0~1 값 반환
     float3 txNormal = normalMap.Sample(samLinear, input.Tex).xyz;
     // 탄젠트 공간에서 정의된 노멀벡터는 -1~ 1값을 가진다.
