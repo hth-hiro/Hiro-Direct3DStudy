@@ -6,6 +6,7 @@
 #include <directxtk/WICTextureLoader.h>
 #include "TextureLoader.h"
 #include "../Common/Helper.h"
+#include "DirectXTex.h"
 
 bool StaticMesh::Load(const std::string& filePath, const std::string& name)
 {
@@ -68,7 +69,27 @@ void StaticMesh::ReadFile(ID3D11Device* device, const std::string& filePath)
                 path = filename;
 
                 std::wstring filenamews(filename.begin(), filename.end());
-                HRESULT hr = DirectX::CreateWICTextureFromFile(device, filenamews.c_str(), nullptr, srv);
+
+                // 파일 확장자 확인
+                string ext = filename.substr(filename.find_last_of('.') + 1);
+                for (auto& c : ext) c = tolower(c);
+
+                HRESULT hr = E_FAIL;
+
+                if (ext == "tga")
+                {
+                    ScratchImage image;
+                    hr = LoadFromTGAFile(filenamews.c_str(), nullptr, image);
+                    if (SUCCEEDED(hr))
+                    {
+                        hr = CreateShaderResourceView(device, image.GetImages(), image.GetImageCount(), image.GetMetadata(), srv);
+                    }
+                    else
+                    {
+                        hr = DirectX::CreateWICTextureFromFile(device, filenamews.c_str(), nullptr, srv);
+                    }
+                }
+
                 hasFlag = SUCCEEDED(hr);
                 if (!SUCCEEDED(hr))
                     std::cerr << "Failed to load texture: " << filename << std::endl;
@@ -90,7 +111,8 @@ void StaticMesh::ReadFile(ID3D11Device* device, const std::string& filePath)
         LoadTexture(aiMat, aiTextureType_NORMALS, mat.normalPath, &mat.normalSRV, mat.hasNormalMap);
         LoadTexture(aiMat, aiTextureType_SPECULAR, mat.specularPath, &mat.specularSRV, mat.hasSpecularMap);
         LoadTexture(aiMat, aiTextureType_EMISSIVE, mat.emissivePath, &mat.emissiveSRV, mat.hasEmissiveMap);
-
+        // 메탈릭, 러프니스가 있다면 넣고, aiTexture뭐시기 바인딩하는거, tutorialapp 에도 바인딩, shader도 반영,
+        // hlsl코드 수정해서 PBR 반영
         m_Materials[i] = mat;
     }
 
@@ -178,4 +200,3 @@ void StaticMesh::ReadFile(ID3D11Device* device, const std::string& filePath)
 //
 //    return texture;
 //}
-
