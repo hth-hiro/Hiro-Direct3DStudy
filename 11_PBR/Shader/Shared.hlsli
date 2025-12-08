@@ -32,7 +32,6 @@ cbuffer ConstantBuffer : register(b0)
     float3 padding;               
     
     int hasTexture;
-    
     int hasNormalMap;
     int hasSpecularMap;
     int hasEmissiveMap;

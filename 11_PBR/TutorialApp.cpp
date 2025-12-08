@@ -474,12 +474,6 @@ void TutorialApp::Render()
     ImGui::DragFloat3(u8" 오브젝트 크기", &object1.transform.scale.x, 1.0f, 100.0f);
     ImGui::SliderFloat3(u8" 오브젝트 위치", &object1.transform.position.x, -100.0f, 100.0f, "%.1f");
     ImGui::DragFloat3(u8" 오브젝트 회전", &object1.transform.rotation.x, 0.1f);
-    ImGui::ColorEdit4(u8" 오브젝트 Material Ambient", &object1.ambient.x);
-    ImGui::ColorEdit4(u8" 오브젝트 Material Diffuse", &object1.diffuse.x);
-    ImGui::ColorEdit4(u8" 오브젝트 Material Specular", &object1.specular.x);
-    ImGui::SliderFloat(u8" 오브젝트 광택지수", &object1.shininess, 200.0f, 20000.0f);
-    if (ImGui::Button(u8" 오브젝트 초기화")) object1.Reset();
-    ImGui::Text("");
 
     ImGui::SeparatorText(u8"빛 조절");
     ImGui::ColorEdit4(u8" Ambient 색상", &ambientLight.x);
@@ -529,6 +523,18 @@ void TutorialApp::Render()
     ImGui::Begin(u8"그림자 맵");
     ImGui::Image((ImTextureID)m_pShadowMapSRV.Get(), ImVec2(256, 256));
     ImGui::End();
+
+    ImGui::Begin(u8"PBR");
+    // BaseColor
+    ImGui::ColorEdit4(u8" 오브젝트 Material Ambient", &object1.ambient.x);
+    ImGui::ColorEdit4(u8" 오브젝트 Material Diffuse", &object1.diffuse.x);
+    ImGui::ColorEdit4(u8" 오브젝트 Material Specular", &object1.specular.x);
+    ImGui::SliderFloat(u8" 오브젝트 광택지수", &object1.shininess, 200.0f, 20000.0f);
+    if (ImGui::Button(u8" 오브젝트 초기화")) object1.Reset();
+    ImGui::Text("");
+
+    ImGui::End();
+
 
     //m_ImGuiManager.Render();
     ImGui::Render();

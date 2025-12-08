@@ -1,4 +1,5 @@
 #include "../Shader/Shared.hlsli"
+#define PI 3.14159265359
 
 //--------------------------------------------------------------------------------------
 // Pixel Shader
@@ -30,7 +31,7 @@ float4 main(PS_INPUT input) : SV_Target
     float3 lightVector = normalize(vLightDir.xyz);                                    // 빛의 방향 (L)
     float3 reflectVector = normalize(reflect(lightVector, normalVector));             // 반사 벡터 (R)
     float3 viewVector = normalize(cameraPos.xyz - input.WorldPos);                    // 뷰 벡터 (V)
-    float3 harfVector = normalize(-lightVector + viewVector);                         // 하프 벡터 (H)
+    float3 halfVector = normalize(-lightVector + viewVector); // 하프 벡터 (H)
     
     float4 ambient =
     vAmbientColor
@@ -43,27 +44,34 @@ float4 main(PS_INPUT input) : SV_Target
     * saturate(dot(normalVector, -lightVector));
     
     // 블린 퐁 계산
-    float4 specular =
-    vSpecularColor
-    * vMaterialSpecular 
-    * txSpecular.r
-    * pow(saturate(dot(normalVector, harfVector)), (float) vShininess);
+    //float4 specular =
+    //vSpecularColor
+    //* vMaterialSpecular 
+    //* txSpecular.r
+    //* pow(saturate(dot(normalVector, halfVector)), (float) vShininess);
     
     // 퐁 계산
     //float4 specular = vSpecularColor.rgba * pow(saturate(dot(reflectVector, viewVector)), (float)vShininess);
 
+    // PBR
+    // 법선 분포 함수
+    float a = 0.0f; // 임시 값(roughness)
+    float D = ((a * a) / (PI * pow((pow(dot(normalVector, halfVector), 2) * (a * a - 1) + 1), 2)));
+    
+    // 프레넬 반사
+    //float3 F0 = float3(0.04f, 0.04f, 0.04f);  // 임시 값(비금속)
+    float3 F0 = float3(1.f, 1.f, 1.f);  // 임시 값(금속)
+    float3 F = F0 + (1 - F0) * pow((1 - dot(halfVector, viewVector)), 5);
+    
+    // 폐쇄성 감쇠
+    float k = pow((a + 1), 2) / 8;
+    float G = dot(normalVector, viewVector) / (dot(normalVector, viewVector) * (1 - k) + k);
+    
+    // 최종 반영
+    float3 specular = (D * F * G) / (4 * dot(normalVector, -lightVector) * dot(normalVector, viewVector));
+    
     if (surface.a < 0.1f)
         discard;
-    
-    //if (UseLighting > 0)
-    //{
-    //    finalColor = saturate(ambient + diffuse + specular);
-    //    finalColor.a = surface.a;
-    //}
-    //else
-    //{
-    //    finalColor = surface;
-    //}
     
     //return finalColor;
     
