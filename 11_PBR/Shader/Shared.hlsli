@@ -39,10 +39,10 @@ cbuffer ConstantBuffer : register(b0)
     
     float4 solidColor;
     
+    int hasMetallicMap;
+    int hasRoughnessMap;
     uint gIsRigid;
     uint gRefBoneIndex;
-    float pad3;
-    float pad4;
     
     matrix ShadowView;
     matrix ShadowProjection;
@@ -81,8 +81,10 @@ TextureCube txCube : register(t1);
 Texture2D normalMap : register(t2);
 Texture2D specularMap : register(t3);
 Texture2D emissiveMap : register(t4);
+Texture2D metallicMap : register(t5);
+Texture2D roughnessMap : register(t6);
 
-Texture2D<float> txShadow : register(t5);
+Texture2D<float> txShadow : register(t7);
 
 //--------------------------------------------------------------------------------------
 

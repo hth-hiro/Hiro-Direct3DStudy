@@ -14,14 +14,6 @@ float4 main(PS_INPUT input) : SV_Target
     
     if (surface.a < 0.1f)
         discard;
-
-    // 텍스처 적용 여부를 끄면 샘플링을 안하게 만들예정
-    
-    
-    if (UseTexture == 1)
-    {
-        
-    }
     
     // Texture2D.Sample은 0~1 값 반환
     float3 txNormal = normalMap.Sample(samLinear, input.Tex).xyz;
@@ -36,7 +28,7 @@ float4 main(PS_INPUT input) : SV_Target
     
     float4 txSpecular = hasSpecularMap > 0 ? specularMap.Sample(samLinear, input.Tex) : float4(1, 1, 1, 1);
     float4 txEmissive = hasEmissiveMap > 0 ? emissiveMap.Sample(samLinear, input.Tex) : float4(0, 0, 0, 0);
-    
+
     float3 normalVector = hasNormalMap > 0 ? worldNormal : normal; // 노멀 벡터 (N)      
     //float3 normalVector = - worldNormal;
     float3 lightVector = normalize(vLightDir.xyz);                                    // 빛의 방향 (L)
@@ -66,12 +58,34 @@ float4 main(PS_INPUT input) : SV_Target
     //float4 specular = vSpecularColor.rgba * pow(saturate(dot(reflectVector, viewVector)), (float)vShininess);
 
     // PBR
+    // 초기화
+    float4 txMetallic = { 1, 1, 1, 1 };
+    float4 txRoughness = { 1, 1, 1, 1 };
+    
+    float a = 1.0;
+    float metal = 0;
+    float4 customAlbedo = { 1, 1, 1, 1 };
+    
+    if (UseTexture == 1)
+    {
+        txMetallic = hasMetallicMap > 0 ? metallicMap.Sample(samLinear, input.Tex) : float4(1, 1, 1, 1);
+        txRoughness = hasRoughnessMap > 0 ? roughnessMap.Sample(samLinear, input.Tex) : float4(1, 1, 1, 1);
+        
+        a = txRoughness.r;
+        metal = txMetallic.r;
+        customAlbedo = surface;
+    }
+    else
+    {
+        a = roughness;
+        metal = metallic;
+        customAlbedo = albedo;
+    }
+    
     // 법선 분포 함수
-    float a = roughness;
     float D = ((a * a) / (PI * pow((pow(dot(normalVector, halfVector), 2) * (a * a - 1) + 1), 2)));
     
-    float3 F0 = lerp(float3(0.04f, 0.04f, 0.04f), albedo.rgb, metallic);
-    
+    float3 F0 = lerp(float3(0.04f, 0.04f, 0.04f), customAlbedo.rgb, metal);
     
     float3 F = F0 + (1 - F0) * pow((1 - dot(halfVector, viewVector)), 5);
     
@@ -79,7 +93,7 @@ float4 main(PS_INPUT input) : SV_Target
     float k = pow((a + 1), 2) / 8;
     float G = dot(normalVector, viewVector) / (dot(normalVector, viewVector) * (1 - k) + k);
     
-    float3 kd = lerp(float3(1, 1, 1) - F, float3(0, 0, 0), metallic);
+    float3 kd = lerp(float3(1, 1, 1) - F, float3(0, 0, 0), metal);
     
     // 최종 반영
     float3 diffuse = kd * surface.rgb / PI * max(dot(normalVector, -lightVector), 0);
@@ -88,12 +102,6 @@ float4 main(PS_INPUT input) : SV_Target
     
     //float3 specular = (D * F * G) / (4 * saturate(dot(normalVector, -lightVector)) * saturate(dot(normalVector, viewVector)));
     //float3 diffuse = (1.0 - F) * surface.rgb / PI * max(dot(normalVector, -lightVector), 0);
-
-    
-    if (UseLighting == 0)
-    {
-        return float4(surface.rgb + txEmissive.rgb, surface.a);
-    }
     
     // 그림자 처리
     // Depth를 기록하기 위해서 Shadow의 포지션 값을 정규화
@@ -112,10 +120,16 @@ float4 main(PS_INPUT input) : SV_Target
     if (uv.x >= 0.0 && uv.x <= 1.0 && uv.y >= 0.0 && uv.y <= 1.0)
     {
         float sampleShadowDepth = txShadow.Sample(samLinear, uv).r;
-        shadowFactor = (currentShadowDepth > sampleShadowDepth + 0.0001) ? 0.0f : 1.0f; 
+        shadowFactor = (currentShadowDepth > sampleShadowDepth + 0.001) ? 0.0f : 1.0f; 
         // 0.001 부분을 늘리면 그림자와 물체가 가까워지고 줄이면 멀어짐
     }
 
+    if (UseLighting == 0)
+    {
+        return float4(surface.rgb + txEmissive.rgb, surface.a);
+        shadowFactor = 1.0f;
+    }
+    
 // 조명 계산
     float3 lit = ambient.rgb + diffuse.rgb * shadowFactor + specular.rgb * shadowFactor;
     float4 final = pow(float4(lit + txEmissive.rgb, surface.a), (1 / gamma));

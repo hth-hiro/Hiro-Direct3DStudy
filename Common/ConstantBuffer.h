@@ -43,10 +43,10 @@ struct ConstantBuffer
 
     Vector4 solidColor;
 
+    int hasMetallicMap;
+    int hasRoughnessMap;
     UINT IsRigid;
     UINT RefBoneIndex;
-    float pad1;
-    float pad2;
 
     Matrix ShadowView;
     Matrix ShadowProjection;
