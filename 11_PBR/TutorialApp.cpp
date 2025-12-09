@@ -566,7 +566,7 @@ void TutorialApp::Render()
     ImGui::SliderFloat(u8"Gamma", &object1.gamma, 1.f, 3.0f);
     
     ImGui::Checkbox(u8"텍스처 적용", &useTexture);
-    ImGui::Checkbox(u8"알베도 수동 조작", &useCustomAlbedo);
+    ImGui::Checkbox(u8"PBR 수동 조작", &useCustomAlbedo);
 
     if (ImGui::Button(u8" 초기화")) object1.Reset();
     ImGui::Text("");
@@ -839,8 +839,8 @@ bool TutorialApp::InitScene()
 
 
 
-    m_StaticMesh.ReadFile(m_pDevice, "../Resource/Appearance Miku/Appearance Miku.fbx");
-    //m_StaticMesh.ReadFile(m_pDevice, "../Resource/Warrior/char.fbx");
+    //m_StaticMesh.ReadFile(m_pDevice, "../Resource/Appearance Miku/Appearance Miku.fbx");
+    m_StaticMesh.ReadFile(m_pDevice, "../Resource/Warrior/char.fbx");
     //m_StaticMesh.ReadFile(m_pDevice, "../Resource/box.fbx");
     ground.ReadFile(m_pDevice, "../Resource/Ground.fbx");
 
