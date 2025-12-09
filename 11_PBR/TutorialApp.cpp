@@ -463,7 +463,7 @@ void TutorialApp::Render()
 
     ID3D11ShaderResourceView* nullSRV[1] = { nullptr };
 
-    m_pDeviceContext->PSSetShaderResources(5, 1, nullSRV);
+    m_pDeviceContext->PSSetShaderResources(7, 1, nullSRV);
 
     // 2. 스카이박스 렌더
     //m_pDeviceContext->OMSetDepthStencilState(m_pSkyboxDepthStencilState, 0);
