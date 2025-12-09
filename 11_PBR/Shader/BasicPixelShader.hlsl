@@ -83,7 +83,8 @@ float4 main(PS_INPUT input) : SV_Target
     }
     
     // 법선 분포 함수
-    float D = ((a * a) / (PI * pow((pow(dot(normalVector, halfVector), 2) * (a * a - 1) + 1), 2)));
+    float NdotH = saturate(dot(normalVector, halfVector));
+    float D = ((a * a) / (PI * pow(NdotH * NdotH * (a * a - 1) + 1, 2)));
     
     float3 F0 = lerp(float3(0.04f, 0.04f, 0.04f), customAlbedo.rgb, metal);
     
@@ -96,7 +97,7 @@ float4 main(PS_INPUT input) : SV_Target
     float3 kd = lerp(float3(1, 1, 1) - F, float3(0, 0, 0), metal);
     
     // 최종 반영
-    float3 diffuse = kd * surface.rgb / PI * max(dot(normalVector, -lightVector), 0);
+    float3 diffuse = kd * customAlbedo.rgb / PI * max(dot(normalVector, -lightVector), 0);
     float NdotL = max(dot(normalVector, -lightVector), 0);
     float3 specular = (F * D * G) / max(1e-6f, 4.0f * NdotL * saturate(dot(normalVector, viewVector))) * NdotL;
     
@@ -126,8 +127,8 @@ float4 main(PS_INPUT input) : SV_Target
 
     if (UseLighting == 0)
     {
-        return float4(surface.rgb + txEmissive.rgb, surface.a);
-        shadowFactor = 1.0f;
+        return float4(customAlbedo.rgb + txEmissive.rgb, surface.a);
+        //shadowFactor = 1.0f;
     }
     
 // 조명 계산
