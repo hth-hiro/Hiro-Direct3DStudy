@@ -111,8 +111,12 @@ void StaticMesh::ReadFile(ID3D11Device* device, const std::string& filePath)
         LoadTexture(aiMat, aiTextureType_NORMALS, mat.normalPath, &mat.normalSRV, mat.hasNormalMap);
         LoadTexture(aiMat, aiTextureType_SPECULAR, mat.specularPath, &mat.specularSRV, mat.hasSpecularMap);
         LoadTexture(aiMat, aiTextureType_EMISSIVE, mat.emissivePath, &mat.emissiveSRV, mat.hasEmissiveMap);
-        // 메탈릭, 러프니스가 있다면 넣고, aiTexture뭐시기 바인딩하는거, tutorialapp 에도 바인딩, shader도 반영,
+
+        // 메탈릭, 러프니스가 있다면 넣고, aiTexture뭐시기 바인딩하는거, tutorialapp, cb 에도 바인딩, shader도 반영,
         // hlsl코드 수정해서 PBR 반영
+        LoadTexture(aiMat, aiTextureType_METALNESS, mat.metallicPath, &mat.metallicSRV, mat.hasMetallicMap);
+        LoadTexture(aiMat, aiTextureType_SHININESS, mat.roughnessPath, &mat.roughnessSRV, mat.hasRoughnessMap);
+
         m_Materials[i] = mat;
     }
 

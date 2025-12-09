@@ -138,7 +138,7 @@ public:
     const UINT SHADOW_HEIGHT = 8192;
 
     float m_ShadowForwardDistFromCamera = 500.0;        // 카메라에서 앞쪽으로 얼마나 떨어진 위치에 그림자 카메라를 둘지
-    float m_ShadowUpDistFromLookAt = 800.0f;              // LookAt 지점에서 얼마나 위쪽으로 올릴지
+    float m_ShadowUpDistFromLookAt = 1500.0f;              // LookAt 지점에서 얼마나 위쪽으로 올릴지
 	
     Vector2 m_ShadowProjectionNearFar = { 690, 5000 };
 

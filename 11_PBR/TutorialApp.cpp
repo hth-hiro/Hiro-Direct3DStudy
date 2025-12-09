@@ -289,7 +289,7 @@ void TutorialApp::Render()
     m_pDeviceContext->PSSetSamplers(1, 1, m_pSamplerLinear.GetAddressOf());
 
     // ShadowMapSRV
-    m_pDeviceContext->PSSetShaderResources(5, 1, m_pShadowMapSRV.GetAddressOf());
+    m_pDeviceContext->PSSetShaderResources(7, 1, m_pShadowMapSRV.GetAddressOf());
 
     for (auto& section : m_StaticMesh.m_StaticMeshSection)
     {
@@ -336,6 +336,9 @@ void TutorialApp::Render()
         cb.hasSpecularMap = mat.hasSpecularMap ? 1 : 0;
         cb.hasEmissiveMap = mat.hasEmissiveMap ? 1 : 0;
 
+        cb.hasMetallicMap = mat.hasMetallicMap ? 1 : 0;
+        cb.hasRoughnessMap = mat.hasRoughnessMap ? 1 : 0;
+
         // PBR
         cb.metallic = object1.metallic;
         cb.roughness = object1.roughness;
@@ -360,7 +363,7 @@ void TutorialApp::Render()
 
         // PS 텍스처 바인딩
         ID3D11ShaderResourceView* nullSRV[1] = { nullptr };
-        for (int i = 0; i <= 4; i++)
+        for (int i = 0; i <= 6; i++)
             m_pDeviceContext->PSSetShaderResources(i, 1, nullSRV);
 
         if (mat.hasTexture && mat.diffuseSRV)
@@ -371,85 +374,92 @@ void TutorialApp::Render()
             m_pDeviceContext->PSSetShaderResources(3, 1, &mat.specularSRV);
         if (mat.hasEmissiveMap && mat.emissiveSRV)
             m_pDeviceContext->PSSetShaderResources(4, 1, &mat.emissiveSRV);
+        if (mat.hasMetallicMap && mat.metallicSRV)
+            m_pDeviceContext->PSSetShaderResources(5, 1, &mat.metallicSRV);
+        if (mat.hasRoughnessMap && mat.roughnessSRV)
+            m_pDeviceContext->PSSetShaderResources(6, 1, &mat.roughnessSRV);
 
         // Draw 호출
         m_pDeviceContext->DrawIndexed(static_cast<UINT>(section.Indices.size()), 0, 0);
     }
 
-    for (auto& section : ground.m_StaticMeshSection)
-    {
-        int matIdx = section.materialIndex;
-        if (matIdx < 0 || matIdx >= ground.m_Materials.size())
-            continue;
+    //for (auto& section : ground.m_StaticMeshSection)
+    //{
+    //    int matIdx = section.materialIndex;
+    //    if (matIdx < 0 || matIdx >= ground.m_Materials.size())
+    //        continue;
 
-        Material& mat = ground.m_Materials[matIdx];
+    //    Material& mat = ground.m_Materials[matIdx];
 
-        cb.mWorld = XMMatrixTranspose(XMMatrixScaling(0.01, 0.01, 0.01)) * XMMatrixTranspose(XMMatrixTranslation(0, -100, 0)) * XMMatrixTranspose(ground.m_World);
-        cb.mView = XMMatrixTranspose(m_View);
-        cb.mProjection = XMMatrixTranspose(m_Projection);
-        cb.vLightDir = m_LightDirsEvaluated;
+    //    cb.mWorld = XMMatrixTranspose(XMMatrixScaling(0.01, 0.01, 0.01)) * XMMatrixTranspose(XMMatrixTranslation(0, -100, 0)) * XMMatrixTranspose(ground.m_World);
+    //    cb.mView = XMMatrixTranspose(m_View);
+    //    cb.mProjection = XMMatrixTranspose(m_Projection);
+    //    cb.vLightDir = m_LightDirsEvaluated;
 
-        // 머티리얼 정보
-        cb.vMaterialAmbient = mat.ambient;
-        cb.vMaterialDiffuse = mat.diffuse;
-        cb.vMaterialSpecular = mat.specular;
-        cb.vShininess = mat.shininess;
+    //    // 머티리얼 정보
+    //    cb.vMaterialAmbient = mat.ambient;
+    //    cb.vMaterialDiffuse = mat.diffuse;
+    //    cb.vMaterialSpecular = mat.specular;
+    //    cb.vShininess = mat.shininess;
 
-        cb.vAmbientColor = m_AmbientColor;
-        cb.vDiffuseColor = m_DiffuseColor;
-        cb.vSpecularColor = m_SpecularColor;
-        cb.cameraPos = m_cameraPos;
-        cb.UseLighting = useLighting;
+    //    cb.vAmbientColor = m_AmbientColor;
+    //    cb.vDiffuseColor = m_DiffuseColor;
+    //    cb.vSpecularColor = m_SpecularColor;
+    //    cb.cameraPos = m_cameraPos;
+    //    cb.UseLighting = useLighting;
 
-        // PBR
-        //cb.metalness = m_Metalness;
-        //cb.roughness = m_Roughness;
-        //cb.albedo = m_Albedo;
+    //    // PBR
+    //    //cb.metalness = m_Metalness;
+    //    //cb.roughness = m_Roughness;
+    //    //cb.albedo = m_Albedo;
 
-        // 땅은 그냥 고정값으로 들어가게 설정
-        cb.metallic = 0.f;
-        cb.roughness = 0.5f;
-        cb.albedo = Vector4(0, 0, 0, 1);
+    //    // 땅은 그냥 고정값으로 들어가게 설정
+    //    cb.metallic = 0.f;
+    //    cb.roughness = 0.5f;
+    //    cb.albedo = Vector4(0, 0, 0, 1);
 
-        // 텍스처 관련
-        cb.hasTexture = mat.hasTexture ? 1 : 0;
-        cb.solidColor = mat.hasTexture ? XMFLOAT4(1, 1, 1, 1) : mat.solidColor;
-        cb.hasNormalMap = mat.hasNormalMap ? 1 : 0;
-        cb.hasSpecularMap = mat.hasSpecularMap ? 1 : 0;
-        cb.hasEmissiveMap = mat.hasEmissiveMap ? 1 : 0;
+    //    // 텍스처 관련
+    //    cb.hasTexture = mat.hasTexture ? 1 : 0;
+    //    cb.solidColor = mat.hasTexture ? XMFLOAT4(1, 1, 1, 1) : mat.solidColor;
+    //    cb.hasNormalMap = mat.hasNormalMap ? 1 : 0;
+    //    cb.hasSpecularMap = mat.hasSpecularMap ? 1 : 0;
+    //    cb.hasEmissiveMap = mat.hasEmissiveMap ? 1 : 0;
 
-        cb.ShadowView = XMMatrixTranspose(m_ShadowView);
-        cb.ShadowProjection = XMMatrixTranspose(m_ShadowProjection);
+    //    cb.hasMetallicMap = mat.hasMetallicMap ? 1 : 0;
+    //    cb.hasRoughnessMap = mat.hasRoughnessMap ? 1 : 0;
 
-        // 상수버퍼 업데이트
-        m_pDeviceContext->VSSetConstantBuffers(0, 1, &m_pStaticMeshConstantBuffer);
-        m_pDeviceContext->PSSetConstantBuffers(0, 1, &m_pStaticMeshConstantBuffer);
-        m_pDeviceContext->UpdateSubresource(m_pStaticMeshConstantBuffer, 0, nullptr, &cb, 0, 0);
+    //    cb.ShadowView = XMMatrixTranspose(m_ShadowView);
+    //    cb.ShadowProjection = XMMatrixTranspose(m_ShadowProjection);
 
-        // Vertex/Index Buffer
-        UINT stride = sizeof(Vertex);
-        UINT offset = 0;
-        m_pDeviceContext->IASetVertexBuffers(0, 1, &section.VertexBuffer, &stride, &offset);
-        m_pDeviceContext->IASetIndexBuffer(section.IndexBuffer, DXGI_FORMAT_R16_UINT, 0);
-        m_pDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+    //    // 상수버퍼 업데이트
+    //    m_pDeviceContext->VSSetConstantBuffers(0, 1, &m_pStaticMeshConstantBuffer);
+    //    m_pDeviceContext->PSSetConstantBuffers(0, 1, &m_pStaticMeshConstantBuffer);
+    //    m_pDeviceContext->UpdateSubresource(m_pStaticMeshConstantBuffer, 0, nullptr, &cb, 0, 0);
 
-        // PS 텍스처 바인딩
-        ID3D11ShaderResourceView* nullSRV[1] = { nullptr };
-        for (int i = 0; i <= 4; i++)
-            m_pDeviceContext->PSSetShaderResources(i, 1, nullSRV);
+    //    // Vertex/Index Buffer
+    //    UINT stride = sizeof(Vertex);
+    //    UINT offset = 0;
+    //    m_pDeviceContext->IASetVertexBuffers(0, 1, &section.VertexBuffer, &stride, &offset);
+    //    m_pDeviceContext->IASetIndexBuffer(section.IndexBuffer, DXGI_FORMAT_R16_UINT, 0);
+    //    m_pDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
-        if (mat.hasTexture && mat.diffuseSRV)
-            m_pDeviceContext->PSSetShaderResources(0, 1, &mat.diffuseSRV);
-        if (mat.hasNormalMap && mat.normalSRV)
-            m_pDeviceContext->PSSetShaderResources(2, 1, &mat.normalSRV);
-        if (mat.hasSpecularMap && mat.specularSRV)
-            m_pDeviceContext->PSSetShaderResources(3, 1, &mat.specularSRV);
-        if (mat.hasEmissiveMap && mat.emissiveSRV)
-            m_pDeviceContext->PSSetShaderResources(4, 1, &mat.emissiveSRV);
+    //    // PS 텍스처 바인딩
+    //    ID3D11ShaderResourceView* nullSRV[1] = { nullptr };
+    //    for (int i = 0; i <= 4; i++)
+    //        m_pDeviceContext->PSSetShaderResources(i, 1, nullSRV);
 
-        // Draw 호출
-        m_pDeviceContext->DrawIndexed(static_cast<UINT>(section.Indices.size()), 0, 0);
-    }
+    //    if (mat.hasTexture && mat.diffuseSRV)
+    //        m_pDeviceContext->PSSetShaderResources(0, 1, &mat.diffuseSRV);
+    //    if (mat.hasNormalMap && mat.normalSRV)
+    //        m_pDeviceContext->PSSetShaderResources(2, 1, &mat.normalSRV);
+    //    if (mat.hasSpecularMap && mat.specularSRV)
+    //        m_pDeviceContext->PSSetShaderResources(3, 1, &mat.specularSRV);
+    //    if (mat.hasEmissiveMap && mat.emissiveSRV)
+    //        m_pDeviceContext->PSSetShaderResources(4, 1, &mat.emissiveSRV);
+
+    //    // Draw 호출
+    //    m_pDeviceContext->DrawIndexed(static_cast<UINT>(section.Indices.size()), 0, 0);
+    //}
 
     ID3D11ShaderResourceView* nullSRV[1] = { nullptr };
 
@@ -557,7 +567,6 @@ void TutorialApp::Render()
     ImGui::Checkbox(u8"텍스처 적용", &useTexture);
     if (ImGui::Button(u8" 초기화")) object1.Reset();
     ImGui::Text("");
-
     ImGui::End();
 
 
