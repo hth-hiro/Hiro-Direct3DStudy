@@ -33,7 +33,8 @@ struct ConstantBuffer
 
     int UseLighting; // 1 = ºû °è»ê, 0 = ¹«½Ã
     int UseTexture;
-    Vector2 pad_Boolean;
+    int UseCustomAlbedo;
+    int pad_Boolean;
 
     int hasTexture;
 

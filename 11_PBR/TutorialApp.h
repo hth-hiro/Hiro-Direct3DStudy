@@ -228,6 +228,7 @@ public:
     //float m_Metalness = 0.0f;
 
     bool useTexture = true;
+    bool useCustomAlbedo = false;
     bool useLighting = true;
 
     void LightReset()

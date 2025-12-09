@@ -66,6 +66,8 @@ float4 main(PS_INPUT input) : SV_Target
     float metal = 0;
     float4 customAlbedo = { 1, 1, 1, 1 };
     
+    float3 diffuse = { 1, 1, 1 };
+    
     if (UseTexture == 1)
     {
         txMetallic = hasMetallicMap > 0 ? metallicMap.Sample(samLinear, input.Tex) : float4(1, 1, 1, 1);
@@ -75,11 +77,12 @@ float4 main(PS_INPUT input) : SV_Target
         metal = txMetallic.r;
         customAlbedo = surface;
     }
-    else
+
+    if (UseCustomAlbedo == 1)
     {
         a = roughness;
         metal = metallic;
-        customAlbedo = albedo;
+        customAlbedo = albedo * customAlbedo;
     }
     
     // 법선 분포 함수
@@ -97,7 +100,7 @@ float4 main(PS_INPUT input) : SV_Target
     float3 kd = lerp(float3(1, 1, 1) - F, float3(0, 0, 0), metal);
     
     // 최종 반영
-    float3 diffuse = kd * customAlbedo.rgb / PI * max(dot(normalVector, -lightVector), 0);
+    diffuse = kd * customAlbedo.rgb / PI * max(dot(normalVector, -lightVector), 0);
     float NdotL = max(dot(normalVector, -lightVector), 0);
     float3 specular = (F * D * G) / max(1e-6f, 4.0f * NdotL * saturate(dot(normalVector, viewVector))) * NdotL;
     

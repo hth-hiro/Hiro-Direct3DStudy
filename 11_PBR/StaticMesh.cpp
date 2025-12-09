@@ -89,6 +89,10 @@ void StaticMesh::ReadFile(ID3D11Device* device, const std::string& filePath)
                         hr = DirectX::CreateWICTextureFromFile(device, filenamews.c_str(), nullptr, srv);
                     }
                 }
+                else
+                {
+                    hr = DirectX::CreateWICTextureFromFile(device, filenamews.c_str(), nullptr, srv);
+                }
 
                 hasFlag = SUCCEEDED(hr);
                 if (!SUCCEEDED(hr))

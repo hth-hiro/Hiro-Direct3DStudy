@@ -30,7 +30,8 @@ cbuffer ConstantBuffer : register(b0)
     
     int UseLighting;
     int UseTexture;
-    float2 pad_Boolean;
+    int UseCustomAlbedo;
+    float pad_Boolean;
     
     int hasTexture;
     int hasNormalMap;
