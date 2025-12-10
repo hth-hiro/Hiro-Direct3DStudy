@@ -562,7 +562,7 @@ void TutorialApp::Render()
 
     ImGui::ColorEdit4(u8"알베도", &object1.albedo.x);
     ImGui::SliderFloat(u8"Metallic", &object1.metallic, 0.0f, 1.0f);
-    ImGui::SliderFloat(u8"Roughness", &object1.roughness, 0.01f, 1.0f);
+    ImGui::SliderFloat(u8"Roughness", &object1.roughness, 0.0f, 1.0f);
     ImGui::SliderFloat(u8"Gamma", &object1.gamma, 1.f, 3.0f);
     
     ImGui::Checkbox(u8"텍스처 적용", &useTexture);
@@ -840,7 +840,9 @@ bool TutorialApp::InitScene()
 
 
     //m_StaticMesh.ReadFile(m_pDevice, "../Resource/Appearance Miku/Appearance Miku.fbx");
-    m_StaticMesh.ReadFile(m_pDevice, "../Resource/Warrior/char.fbx");
+    //m_StaticMesh.ReadFile(m_pDevice, "../Resource/Warrior/char.fbx");
+    m_StaticMesh.ReadFile(m_pDevice, "../Resource/sphere.fbx");
+    //m_StaticMesh.ReadFile(m_pDevice, "../Resource/Ena_basic/ena_basic.fbx");
     //m_StaticMesh.ReadFile(m_pDevice, "../Resource/box.fbx");
     ground.ReadFile(m_pDevice, "../Resource/Ground.fbx");
 
