@@ -840,8 +840,8 @@ bool TutorialApp::InitScene()
 
 
     //m_StaticMesh.ReadFile(m_pDevice, "../Resource/Appearance Miku/Appearance Miku.fbx");
-    //m_StaticMesh.ReadFile(m_pDevice, "../Resource/Warrior/char.fbx");
-    m_StaticMesh.ReadFile(m_pDevice, "../Resource/sphere.fbx");
+    m_StaticMesh.ReadFile(m_pDevice, "../Resource/Warrior/char.fbx");
+    //m_StaticMesh.ReadFile(m_pDevice, "../Resource/sphere.fbx");
     //m_StaticMesh.ReadFile(m_pDevice, "../Resource/Ena_basic/ena_basic.fbx");
     //m_StaticMesh.ReadFile(m_pDevice, "../Resource/box.fbx");
     ground.ReadFile(m_pDevice, "../Resource/Ground.fbx");
