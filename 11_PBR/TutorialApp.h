@@ -71,6 +71,15 @@ struct Light
     Vector3 Direction = {0, -1, 1};
 };
 
+struct Environment
+{
+    ComPtr<ID3D11ShaderResourceView> SkyBox;
+    ComPtr<ID3D11ShaderResourceView> Diffuse;
+    ComPtr<ID3D11ShaderResourceView> Specular;
+    ComPtr<ID3D11ShaderResourceView> BRDF_LUT;
+};
+
+
 class TutorialApp : public GameApp
 {
 public:
@@ -110,6 +119,7 @@ public:
 	ID3D11DepthStencilState* m_pSkyboxDepthStencilState = nullptr;	// 뎊스 스텐실 스테이트
     
 	ID3D11ShaderResourceView* m_pCubeTextureRV = nullptr;			// 텍스처 파일(큐브맵, 현재 큐브맵)
+
 	ID3D11ShaderResourceView* m_pCubeMuseumTextureRV = nullptr;		// 텍스처 파일1(큐브맵, 실내)
 	ID3D11ShaderResourceView* m_pCubeDaylightTextureRV = nullptr;	// 텍스처 파일2(큐브맵, 실외)
 	ID3D11ShaderResourceView* m_pCubeHanakoTextureRV = nullptr;		// 텍스처 파일3(큐브맵, 디버그)
@@ -119,6 +129,21 @@ public:
 	Matrix m_Projection;
 
     D3D11_VIEWPORT m_MainViewport;
+
+    /*-------IBL------*/
+    ComPtr<ID3D11ShaderResourceView> m_pIBLCubeSRV;                 // IBL 텍스처 파일(큐브맵, 현재 Env)
+    ComPtr<ID3D11ShaderResourceView> m_pIBLDiffuseSRV;              // IBL Diffuse 파일
+    ComPtr<ID3D11ShaderResourceView> m_pIBLSpecularSRV;             // IBL Specular 파일
+    ComPtr<ID3D11ShaderResourceView> m_pIBLBDRFLutSRV;              // IBL BDRF 파일
+    
+    Environment* currentEnv;
+
+    Environment Env_Museum;
+    Environment Env_DayLight;
+    Environment Env_Night;
+    Environment Env_Street;
+    Environment Env_BakerSample;
+    Environment Env_Hanako; // Hanako
 
     /*-----Shadow Map-----*/
     ComPtr<ID3D11Texture2D> m_pShadowMap;

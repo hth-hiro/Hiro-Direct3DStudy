@@ -293,7 +293,7 @@ void TutorialApp::Render()
     cbSky.mProjection = XMMatrixTranspose(m_Projection);
     m_pDeviceContext->VSSetConstantBuffers(1, 1, &m_pSkyboxConstantBuffer);
     m_pDeviceContext->UpdateSubresource(m_pSkyboxConstantBuffer, 0, nullptr, &cbSky, 0, 0);
-    m_pDeviceContext->PSSetShaderResources(0, 1, &m_pCubeTextureRV);
+    m_pDeviceContext->PSSetShaderResources(0, 1, currentEnv->SkyBox.GetAddressOf());
     m_pDeviceContext->PSSetSamplers(0, 1, &m_pSamplerLinear);
     m_pDeviceContext->DrawIndexed(m_nSkyboxIndices, 0, 0);
     // 원래 상태 복원
@@ -309,6 +309,24 @@ void TutorialApp::Render()
     m_pDeviceContext->PSSetSamplers(1, 1, m_pSamplerLinear.GetAddressOf());
     // ShadowMapSRV
     m_pDeviceContext->PSSetShaderResources(7, 1, m_pShadowMapSRV.GetAddressOf());
+
+    // IBL 적용 여부 분기, 매핑 여부 결정
+    if (useIBL)
+    {
+        m_pDeviceContext->PSSetShaderResources(0, 1, currentEnv->SkyBox.GetAddressOf());
+        m_pDeviceContext->PSSetShaderResources(10, 1, currentEnv->Diffuse.GetAddressOf());
+        m_pDeviceContext->PSSetShaderResources(11, 1, currentEnv->Specular.GetAddressOf());
+        m_pDeviceContext->PSSetShaderResources(12, 1, currentEnv->BRDF_LUT.GetAddressOf());
+    }
+    else
+    {
+        ID3D11ShaderResourceView* nullSRV[1] = { nullptr };
+
+        m_pDeviceContext->PSSetShaderResources(0, 1, nullSRV);
+        m_pDeviceContext->PSSetShaderResources(10, 1, nullSRV);
+        m_pDeviceContext->PSSetShaderResources(11, 1, nullSRV);
+        m_pDeviceContext->PSSetShaderResources(12, 1, nullSRV);
+    }
 
     // Object - StaticMesh
     for (auto& section : m_StaticMesh.m_StaticMeshSection)
@@ -366,6 +384,9 @@ void TutorialApp::Render()
         cb.gamma = object1.gamma;
         cb.UseTexture = useTexture;
         cb.UseCustomAlbedo = useCustomAlbedo;
+
+        // IBL
+        cb.UseIBL = useIBL;
 
         cb.ShadowView = XMMatrixTranspose(m_ShadowView);
         cb.ShadowProjection = XMMatrixTranspose(m_ShadowProjection);
@@ -535,20 +556,29 @@ void TutorialApp::Render()
 
     ImGui::SeparatorText(u8" 배경 선택");
     static int currentBackground = 0;
-    const char* viewChanger[] = { u8"실내", u8"하늘", u8"디버그" };
+    const char* viewChanger[] = { u8"샘플", u8"하늘", u8"하나코", u8"실내", u8"밤", u8"거리" };
 
     if (ImGui::Combo(u8"배경", &currentBackground, viewChanger, IM_ARRAYSIZE(viewChanger)))
     {
         switch (currentBackground)
         {
         case 0:
-            m_pCubeTextureRV = m_pCubeMuseumTextureRV;
+            currentEnv = &Env_BakerSample;
             break;
         case 1:
-            m_pCubeTextureRV = m_pCubeDaylightTextureRV;
+            currentEnv = &Env_DayLight;
             break;
         case 2:
-            m_pCubeTextureRV = m_pCubeHanakoTextureRV;
+            currentEnv = &Env_Hanako;
+            break;
+        case 3:
+            currentEnv = &Env_Museum;
+            break;
+        case 4:
+            currentEnv = &Env_Night;
+            break;
+        case 5:
+            currentEnv = &Env_Street;
             break;
         }
     }
@@ -950,11 +980,52 @@ bool TutorialApp::InitScene()
     HR_T(m_pDevice->CreateBuffer(&skyVBDesc, nullptr, &m_pSkyboxConstantBuffer));
 
     // Skybox 파일 로드
-    HR_T(CreateDDSTextureFromFile(m_pDevice, L"../Resource/cubemap.dds", nullptr, &m_pCubeMuseumTextureRV));
-    HR_T(CreateDDSTextureFromFile(m_pDevice, L"../Resource/Daylight.dds", nullptr, &m_pCubeDaylightTextureRV));
-    HR_T(CreateDDSTextureFromFile(m_pDevice, L"../Resource/Hanako.dds", nullptr, &m_pCubeHanakoTextureRV));
+    //HR_T(CreateDDSTextureFromFile(m_pDevice, L"../Resource/Environment/cubemap.dds", nullptr, &m_pCubeMuseumTextureRV));
+    //HR_T(CreateDDSTextureFromFile(m_pDevice, L"../Resource/Environment/Daylight.dds", nullptr, &m_pCubeDaylightTextureRV));
+    //HR_T(CreateDDSTextureFromFile(m_pDevice, L"../Resource/Environment/Hanako.dds", nullptr, &m_pCubeHanakoTextureRV));
 
-    m_pCubeTextureRV = m_pCubeMuseumTextureRV;
+    //m_pCubeTextureRV = m_pCubeMuseumTextureRV;
+
+    // IBL
+
+    // Texture 파일 로드
+    // Baker_Sample
+    HR_T(CreateDDSTextureFromFile(m_pDevice, L"../Resource/Environment/BakerSample/BakerSampleEnvHDR.dds",nullptr, Env_BakerSample.SkyBox.GetAddressOf()));
+    HR_T(CreateDDSTextureFromFile(m_pDevice, L"../Resource/Environment/BakerSample/BakerSampleDiffuseHDR.dds", nullptr, Env_BakerSample.Diffuse.GetAddressOf()));
+    HR_T(CreateDDSTextureFromFile(m_pDevice, L"../Resource/Environment/BakerSample/BakerSampleSpecularHDR.dds", nullptr, Env_BakerSample.Specular.GetAddressOf()));
+    HR_T(CreateDDSTextureFromFile(m_pDevice, L"../Resource/Environment/BakerSample/BakerSampleBrdf.dds", nullptr, Env_BakerSample.BRDF_LUT.GetAddressOf()));
+    
+    // DayLight
+    HR_T(CreateDDSTextureFromFile(m_pDevice, L"../Resource/Environment/DayLight/DayLightEnvHDR.dds", nullptr, Env_DayLight.SkyBox.GetAddressOf()));
+    HR_T(CreateDDSTextureFromFile(m_pDevice, L"../Resource/Environment/DayLight/DayLightDiffuseHDR.dds", nullptr, Env_DayLight.Diffuse.GetAddressOf()));
+    HR_T(CreateDDSTextureFromFile(m_pDevice, L"../Resource/Environment/DayLight/DayLightSpecularHDR.dds", nullptr, Env_DayLight.Specular.GetAddressOf()));
+    HR_T(CreateDDSTextureFromFile(m_pDevice, L"../Resource/Environment/DayLight/DayLightBrdf.dds", nullptr, Env_DayLight.BRDF_LUT.GetAddressOf()));
+
+    // Hanako
+    HR_T(CreateDDSTextureFromFile(m_pDevice, L"../Resource/Environment/Hanako/HanakoEnvHDR.dds", nullptr, Env_Hanako.SkyBox.GetAddressOf()));
+    HR_T(CreateDDSTextureFromFile(m_pDevice, L"../Resource/Environment/Hanako/HanakoDiffuseHDR.dds", nullptr, Env_Hanako.Diffuse.GetAddressOf()));
+    HR_T(CreateDDSTextureFromFile(m_pDevice, L"../Resource/Environment/Hanako/HanakoSpecularHDR.dds", nullptr, Env_Hanako.Specular.GetAddressOf()));
+    HR_T(CreateDDSTextureFromFile(m_pDevice, L"../Resource/Environment/Hanako/HanakoBrdf.dds", nullptr, Env_Hanako.BRDF_LUT.GetAddressOf()));
+
+    // Museum
+    HR_T(CreateDDSTextureFromFile(m_pDevice, L"../Resource/Environment/Museum/MuseumEnvHDR.dds", nullptr, Env_Museum.SkyBox.GetAddressOf()));
+    HR_T(CreateDDSTextureFromFile(m_pDevice, L"../Resource/Environment/Museum/MuseumDiffuseHDR.dds", nullptr, Env_Museum.Diffuse.GetAddressOf()));
+    HR_T(CreateDDSTextureFromFile(m_pDevice, L"../Resource/Environment/Museum/MuseumSpecularHDR.dds", nullptr, Env_Museum.Specular.GetAddressOf()));
+    HR_T(CreateDDSTextureFromFile(m_pDevice, L"../Resource/Environment/Museum/MuseumBrdf.dds", nullptr, Env_Museum.BRDF_LUT.GetAddressOf()));
+    
+    // Night
+    HR_T(CreateDDSTextureFromFile(m_pDevice, L"../Resource/Environment/Night/NightEnvHDR.dds", nullptr, Env_Night.SkyBox.GetAddressOf()));
+    HR_T(CreateDDSTextureFromFile(m_pDevice, L"../Resource/Environment/Night/NightDiffuseHDR.dds", nullptr, Env_Night.Diffuse.GetAddressOf()));
+    HR_T(CreateDDSTextureFromFile(m_pDevice, L"../Resource/Environment/Night/NightSpecularHDR.dds", nullptr, Env_Night.Specular.GetAddressOf()));
+    HR_T(CreateDDSTextureFromFile(m_pDevice, L"../Resource/Environment/Night/NightBrdf.dds", nullptr, Env_Night.BRDF_LUT.GetAddressOf()));
+    
+    // Street
+    HR_T(CreateDDSTextureFromFile(m_pDevice, L"../Resource/Environment/Street/StreetEnvHDR.dds", nullptr, Env_Street.SkyBox.GetAddressOf()));
+    HR_T(CreateDDSTextureFromFile(m_pDevice, L"../Resource/Environment/Street/StreetDiffuseHDR.dds", nullptr, Env_Street.Diffuse.GetAddressOf()));
+    HR_T(CreateDDSTextureFromFile(m_pDevice, L"../Resource/Environment/Street/StreetSpecularHDR.dds", nullptr, Env_Street.Specular.GetAddressOf()));
+    HR_T(CreateDDSTextureFromFile(m_pDevice, L"../Resource/Environment/Street/StreetBrdf.dds", nullptr, Env_Street.BRDF_LUT.GetAddressOf()));
+
+    currentEnv = &Env_BakerSample;
 
     m_MainViewport.TopLeftX = 0.0f;
     m_MainViewport.TopLeftY = 0.0f;
