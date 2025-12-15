@@ -77,11 +77,10 @@ cbuffer BoneOffsetMatrix : register(b4)
     matrix gBoneOffset[128];
 }
 
-// CubeMap = 0
-
+// SkyBox
 TextureCube txCube : register(t0);
-Texture2D<float> txShadow : register(t7);
 
+// Material
 Texture2D txDiffuse : register(t1);
 Texture2D normalMap : register(t2);
 Texture2D specularMap : register(t3);
@@ -89,6 +88,13 @@ Texture2D emissiveMap : register(t4);
 Texture2D metallicMap : register(t5);
 Texture2D roughnessMap : register(t6);
 
+// Shadow
+Texture2D<float> txShadow : register(t7);
+
+// IBL
+TextureCube txIBL_Diffuse : register(t10);
+TextureCube txIBL_Specular : register(t11);
+Texture2D txIBL_Specular_LUT : register(t12);
 
 //--------------------------------------------------------------------------------------
 

@@ -57,6 +57,10 @@ float4 main(PS_INPUT input) : SV_Target
     // 퐁 계산
     //float4 specular = vSpecularColor.rgba * pow(saturate(dot(reflectVector, viewVector)), (float)vShininess);
 
+    
+    
+    
+    
     // PBR
     // 초기화
     float4 txMetallic = { 1, 1, 1, 1 };
@@ -107,6 +111,44 @@ float4 main(PS_INPUT input) : SV_Target
     //float3 specular = (D * F * G) / (4 * saturate(dot(normalVector, -lightVector)) * saturate(dot(normalVector, viewVector)));
     //float3 diffuse = (1.0 - F) * surface.rgb / PI * max(dot(normalVector, -lightVector), 0);
     
+    
+    
+    
+    // IBL
+    float3 irradiance = { 0, 0, 0 };
+
+    // 분기
+    if (UseIBL == 1)
+    {
+        irradiance = txIBL_Diffuse.Sample(samLinear, normalVector).rgb;
+    }
+    else
+    {
+        irradiance = float3(0, 0, 0);
+    }
+    
+    float3 diffuseIBL = kd * customAlbedo.rgb * irradiance;
+    uint specularTextureLevels, width, height;
+    
+    // 눈 방향을 기준으로 한 반사 방향
+    float3 Lr = reflect(-viewVector, normalVector);
+    
+    txIBL_Specular.GetDimensions(0, width, height, specularTextureLevels);
+    
+    float3 PrefilterdColor = txIBL_Specular.SampleLevel(samLinear, Lr, a *
+    specularTextureLevels).rgb;
+    
+    float2 specularBRDF = txIBL_Specular_LUT.Sample(samLinear, float2(NdotL, a)).rg;
+
+    float3 specularIBL = PrefilterdColor * (F0 * specularBRDF.x + specularBRDF.y);
+    
+    float AmbientOcclusion = 1.0f;
+    
+    float3 indirectIBL = (diffuseIBL + specularIBL) * AmbientOcclusion;
+    
+    
+    
+    
     // 그림자 처리
     // Depth를 기록하기 위해서 Shadow의 포지션 값을 정규화
     float currentShadowDepth = input.PositionShadow.z / input.PositionShadow.w;
@@ -135,7 +177,7 @@ float4 main(PS_INPUT input) : SV_Target
     }
     
 // 조명 계산
-    float3 lit = ambient.rgb + diffuse.rgb * shadowFactor + specular.rgb * shadowFactor;
+    float3 lit = ambient.rgb * vAmbientColor.rgb + diffuse.rgb * shadowFactor * vDiffuseColor.rgb + specular.rgb * shadowFactor * vSpecularColor.rgb + indirectIBL;
     float4 final = pow(float4(lit + txEmissive.rgb, surface.a), (1 / gamma));
 
     return final;
