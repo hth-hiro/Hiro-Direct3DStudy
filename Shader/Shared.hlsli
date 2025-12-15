@@ -29,23 +29,31 @@ cbuffer ConstantBuffer : register(b0)
     float4 vShininess;
     
     int UseLighting;
-    float3 padding;               
+    int UseTexture;
+    int UseCustomAlbedo;
+    int UseIBL;
     
     int hasTexture;
-    
     int hasNormalMap;
     int hasSpecularMap;
     int hasEmissiveMap;
     
     float4 solidColor;
     
+    int hasMetallicMap;
+    int hasRoughnessMap;
     uint gIsRigid;
     uint gRefBoneIndex;
-    float pad1;
-    float pad2;
     
     matrix ShadowView;
     matrix ShadowProjection;
+    
+    float roughness;
+    float metallic;
+    float ao;
+    float gamma;
+    
+    float4 albedo;
 }
 
 cbuffer SkyboxCB : register(b1)
@@ -69,13 +77,24 @@ cbuffer BoneOffsetMatrix : register(b4)
     matrix gBoneOffset[128];
 }
 
-Texture2D txDiffuse : register(t0);
-TextureCube txCube : register(t1);
+// SkyBox
+TextureCube txCube : register(t0);
+
+// Material
+Texture2D txDiffuse : register(t1);
 Texture2D normalMap : register(t2);
 Texture2D specularMap : register(t3);
 Texture2D emissiveMap : register(t4);
+Texture2D metallicMap : register(t5);
+Texture2D roughnessMap : register(t6);
 
-Texture2D<float> txShadow : register(t5);
+// Shadow
+Texture2D<float> txShadow : register(t7);
+
+// IBL
+TextureCube txIBL_Diffuse : register(t10);
+TextureCube txIBL_Specular : register(t11);
+Texture2D txIBL_Specular_LUT : register(t12);
 
 //--------------------------------------------------------------------------------------
 
