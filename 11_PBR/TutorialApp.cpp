@@ -224,6 +224,7 @@ void TutorialApp::Render()
     float color[4] = { 0.0f, 0.7f, 0.7f, 1.0f };
     float blendFactor[4] = { 0.f, 0.f, 0.f, 0.f }; // 일반적으로 0,0,0,0
     UINT sampleMask = 0xffffffff; // 모든 샘플 사용
+    ID3D11ShaderResourceView* nullSRV[1] = { nullptr };
 
     m_pDeviceContext->OMSetBlendState(m_pBlendState.Get(), blendFactor, sampleMask);
 
@@ -278,6 +279,29 @@ void TutorialApp::Render()
     m_pDeviceContext->RSSetViewports(1, &m_MainViewport);
     m_pDeviceContext->OMSetDepthStencilState(nullptr, 0);
 
+    // 스카이박스 렌더
+    m_pDeviceContext->OMSetDepthStencilState(m_pSkyboxDepthStencilState, 0);
+    
+    m_pDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+    m_pDeviceContext->IASetVertexBuffers(0, 1, &m_pSkyboxVertexBuffer, &m_SkyboxVertexBufferStride, &m_SkyboxVertexBufferOffset);
+    m_pDeviceContext->IASetIndexBuffer(m_pSkyboxIndexBuffer, DXGI_FORMAT_R16_UINT, 0);
+    m_pDeviceContext->IASetInputLayout(m_pSkyboxInputLayout.Get());
+    m_pDeviceContext->VSSetShader(m_pSkyboxVertexShader.Get(), nullptr, 0);
+    m_pDeviceContext->PSSetShader(m_pSkyboxPixelShader.Get(), nullptr, 0);
+    
+    // 상수 버퍼 업데이트
+    SkyBoxCB cbSky;
+    cbSky.mView = XMMatrixTranspose(XMMatrixScaling(10, 10, 10) * m_Camera.GetViewMatrixNoTranslation(m_View));
+    cbSky.mProjection = XMMatrixTranspose(m_Projection);
+    m_pDeviceContext->VSSetConstantBuffers(1, 1, &m_pSkyboxConstantBuffer);
+    m_pDeviceContext->UpdateSubresource(m_pSkyboxConstantBuffer, 0, nullptr, &cbSky, 0, 0);
+    m_pDeviceContext->PSSetShaderResources(0, 1, &m_pCubeTextureRV);
+    m_pDeviceContext->PSSetSamplers(0, 1, &m_pSamplerLinear);
+    m_pDeviceContext->DrawIndexed(m_nSkyboxIndices, 0, 0);
+    
+    // 원래 상태 복원
+    m_pDeviceContext->OMSetDepthStencilState(nullptr, 0);
+
     // 3. 일반 오브젝트 렌더
     m_pDeviceContext->IASetInputLayout(m_pInputLayout.Get());
     m_pDeviceContext->VSSetShader(m_pVertexShader.Get(), nullptr, 0);
@@ -291,6 +315,7 @@ void TutorialApp::Render()
     // ShadowMapSRV
     m_pDeviceContext->PSSetShaderResources(7, 1, m_pShadowMapSRV.GetAddressOf());
 
+    // Object - StaticMesh
     for (auto& section : m_StaticMesh.m_StaticMeshSection)
     {
         int matIdx = section.materialIndex;
@@ -363,12 +388,11 @@ void TutorialApp::Render()
         m_pDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
         // PS 텍스처 바인딩
-        ID3D11ShaderResourceView* nullSRV[1] = { nullptr };
-        for (int i = 0; i <= 6; i++)
+        for (int i = 1; i <= 6; i++)
             m_pDeviceContext->PSSetShaderResources(i, 1, nullSRV);
 
         if (mat.hasTexture && mat.diffuseSRV)
-            m_pDeviceContext->PSSetShaderResources(0, 1, &mat.diffuseSRV);
+            m_pDeviceContext->PSSetShaderResources(1, 1, &mat.diffuseSRV);
         if (mat.hasNormalMap && mat.normalSRV)
             m_pDeviceContext->PSSetShaderResources(2, 1, &mat.normalSRV);
         if (mat.hasSpecularMap && mat.specularSRV)
@@ -462,32 +486,7 @@ void TutorialApp::Render()
     //    m_pDeviceContext->DrawIndexed(static_cast<UINT>(section.Indices.size()), 0, 0);
     //}
 
-    ID3D11ShaderResourceView* nullSRV[1] = { nullptr };
-
     m_pDeviceContext->PSSetShaderResources(7, 1, nullSRV);
-
-    // 2. 스카이박스 렌더
-    //m_pDeviceContext->OMSetDepthStencilState(m_pSkyboxDepthStencilState, 0);
-
-    //m_pDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-    //m_pDeviceContext->IASetVertexBuffers(0, 1, &m_pSkyboxVertexBuffer, &m_SkyboxVertexBufferStride, &m_SkyboxVertexBufferOffset);
-    //m_pDeviceContext->IASetIndexBuffer(m_pSkyboxIndexBuffer, DXGI_FORMAT_R16_UINT, 0);
-    //m_pDeviceContext->IASetInputLayout(m_pSkyboxInputLayout.Get());
-    //m_pDeviceContext->VSSetShader(m_pSkyboxVertexShader.Get(), nullptr, 0);
-    //m_pDeviceContext->PSSetShader(m_pSkyboxPixelShader.Get(), nullptr, 0);
-
-    //// 상수 버퍼 업데이트
-    //SkyBoxCB cbSky;
-    //cbSky.mView = XMMatrixTranspose(XMMatrixScaling(10, 10, 10) * m_Camera.GetViewMatrixNoTranslation(m_View));
-    //cbSky.mProjection = XMMatrixTranspose(m_Projection);
-    //m_pDeviceContext->VSSetConstantBuffers(1, 1, &m_pSkyboxConstantBuffer);
-    //m_pDeviceContext->UpdateSubresource(m_pSkyboxConstantBuffer, 0, nullptr, &cbSky, 0, 0);
-    //m_pDeviceContext->PSSetShaderResources(1, 1, &m_pCubeTextureRV);
-    //m_pDeviceContext->PSSetSamplers(1, 1, &m_pSamplerLinear);
-    //m_pDeviceContext->DrawIndexed(m_nSkyboxIndices, 0, 0);
-
-    //// 원래 상태 복원
-    //m_pDeviceContext->OMSetDepthStencilState(nullptr, 0);
 
     // 4. GUI 렌더
     ImGui_ImplDX11_NewFrame();
@@ -658,8 +657,7 @@ bool TutorialApp::InitD3D()
 
     D3D11_DEPTH_STENCIL_DESC skyDesc = {};
     skyDesc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ZERO;
-    // Skybox는 Depth를 기록하지 않으므로 Enable false
-    //skyDesc.DepthEnable = false;
+    //skyDesc.DepthEnable = true;
     skyDesc.DepthFunc = D3D11_COMPARISON_LESS_EQUAL;
 
     m_pDevice->CreateDepthStencilState(&skyDesc, &m_pSkyboxDepthStencilState);

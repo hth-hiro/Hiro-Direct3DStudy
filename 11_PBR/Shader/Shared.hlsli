@@ -31,7 +31,7 @@ cbuffer ConstantBuffer : register(b0)
     int UseLighting;
     int UseTexture;
     int UseCustomAlbedo;
-    float pad_Boolean;
+    int UseIBL;
     
     int hasTexture;
     int hasNormalMap;
@@ -77,15 +77,18 @@ cbuffer BoneOffsetMatrix : register(b4)
     matrix gBoneOffset[128];
 }
 
-Texture2D txDiffuse : register(t0);
-TextureCube txCube : register(t1);
+// CubeMap = 0
+
+TextureCube txCube : register(t0);
+Texture2D<float> txShadow : register(t7);
+
+Texture2D txDiffuse : register(t1);
 Texture2D normalMap : register(t2);
 Texture2D specularMap : register(t3);
 Texture2D emissiveMap : register(t4);
 Texture2D metallicMap : register(t5);
 Texture2D roughnessMap : register(t6);
 
-Texture2D<float> txShadow : register(t7);
 
 //--------------------------------------------------------------------------------------
 
