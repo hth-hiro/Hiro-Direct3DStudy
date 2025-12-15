@@ -218,7 +218,7 @@ public:
     Vector4 specularLight = {  };
     Vector3 lightDir = {  };
 
-    bool viewChanger = false;
+    //bool viewChanger = false;
 
     Vector2 depth = { 1.0f, 10000.0f };
 
@@ -230,6 +230,7 @@ public:
     bool useTexture = true;
     bool useCustomAlbedo = false;
     bool useLighting = true;
+    bool useIBL = true;
 
     void LightReset()
     {

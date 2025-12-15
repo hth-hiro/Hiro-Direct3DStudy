@@ -198,15 +198,15 @@ void TutorialApp::Update()
     m_Projection = XMMatrixPerspectiveFovLH(XM_PIDIV4 / FOV, m_ClientWidth / (FLOAT)m_ClientHeight, nearZ, finalFarZ);
     m_Camera.GetViewMatrix(m_View);
 
-    if (viewChanger)
-    {
-        //m_pCubeTextureRV = m_pCubeDaylightTextureRV;
-        m_pCubeTextureRV = m_pCubeHanakoTextureRV;
-    }
-    else
-    {
-        m_pCubeTextureRV = m_pCubeMuseumTextureRV;
-    }
+    //if (viewChanger)
+    //{
+    //    //m_pCubeTextureRV = m_pCubeDaylightTextureRV;
+    //    m_pCubeTextureRV = m_pCubeHanakoTextureRV;
+    //}
+    //else
+    //{
+    //    m_pCubeTextureRV = m_pCubeMuseumTextureRV;
+    //}
 
     m_ShadowProjection = XMMatrixPerspectiveFovLH(XMConvertToRadians(10), m_ShadowViewport.Width /
         (float)m_ShadowViewport.Height, m_ShadowProjectionNearFar.x, m_ShadowProjectionNearFar.y);
@@ -528,17 +528,37 @@ void TutorialApp::Render()
         depth.x = 1.0f;
         depth.y = 10000.0f;
     }
+
     ImGui::Text("");
-    //ImGui::SeparatorText(u8" 배경 선택");
-    //if (ImGui::Button(u8"실내"))		viewChanger = false; ImGui::SameLine();
-    //if (ImGui::Button(u8"디버그"))	viewChanger = true;
-    //ImGui::Text("");
-    //ImGui::Separator();
-    //ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / io.Framerate, io.Framerate);
 
-    ImGui::DragFloat2(u8"디버그", &m_ShadowProjectionNearFar.x, 0.1, 0.01, 50000000.f);
+    ImGui::Checkbox(u8"IBL 사용", &useIBL);
 
-    ImGui::DragFloat(u8"디버그2", &m_ShadowUpDistFromLookAt);
+    ImGui::SeparatorText(u8" 배경 선택");
+    static int currentBackground = 0;
+    const char* viewChanger[] = { u8"실내", u8"하늘", u8"디버그" };
+
+    if (ImGui::Combo(u8"배경", &currentBackground, viewChanger, IM_ARRAYSIZE(viewChanger)))
+    {
+        switch (currentBackground)
+        {
+        case 0:
+            m_pCubeTextureRV = m_pCubeMuseumTextureRV;
+            break;
+        case 1:
+            m_pCubeTextureRV = m_pCubeDaylightTextureRV;
+            break;
+        case 2:
+            m_pCubeTextureRV = m_pCubeHanakoTextureRV;
+            break;
+        }
+    }
+
+    ImGui::Text("");
+    ImGui::Separator();
+    ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / io.Framerate, io.Framerate);
+
+    //ImGui::DragFloat2(u8"디버그", &m_ShadowProjectionNearFar.x, 0.1, 0.01, 50000000.f);
+    //ImGui::DragFloat(u8"디버그2", &m_ShadowUpDistFromLookAt);
 
     ImGui::End();
 
@@ -565,7 +585,6 @@ void TutorialApp::Render()
     if (ImGui::Button(u8" 초기화")) object1.Reset();
     ImGui::Text("");
     ImGui::End();
-
 
     //m_ImGuiManager.Render();
     ImGui::Render();
@@ -934,6 +953,8 @@ bool TutorialApp::InitScene()
     HR_T(CreateDDSTextureFromFile(m_pDevice, L"../Resource/cubemap.dds", nullptr, &m_pCubeMuseumTextureRV));
     HR_T(CreateDDSTextureFromFile(m_pDevice, L"../Resource/Daylight.dds", nullptr, &m_pCubeDaylightTextureRV));
     HR_T(CreateDDSTextureFromFile(m_pDevice, L"../Resource/Hanako.dds", nullptr, &m_pCubeHanakoTextureRV));
+
+    m_pCubeTextureRV = m_pCubeMuseumTextureRV;
 
     m_MainViewport.TopLeftX = 0.0f;
     m_MainViewport.TopLeftY = 0.0f;
