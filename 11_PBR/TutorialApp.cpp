@@ -300,7 +300,7 @@ void TutorialApp::Render()
     m_pDeviceContext->DrawIndexed(m_nSkyboxIndices, 0, 0);
     // 원래 상태 복원
     m_pDeviceContext->OMSetDepthStencilState(nullptr, 0);
-
+    
     // 3. 일반 오브젝트 렌더 ===========================================================================================
     m_pDeviceContext->IASetInputLayout(m_pInputLayout.Get());
     m_pDeviceContext->VSSetShader(m_pVertexShader.Get(), nullptr, 0);
