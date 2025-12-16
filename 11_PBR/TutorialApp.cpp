@@ -511,6 +511,8 @@ void TutorialApp::Render()
     //m_ImGuiManager.DrawObjectUI();
     ImGuiIO& io = ImGui::GetIO(); (void)io;
 
+    ImGui::SetNextWindowPos(ImVec2(30, 30), ImGuiCond_FirstUseEver);
+    ImGui::SetNextWindowSize(ImVec2(400, 716), ImGuiCond_FirstUseEver);
     ImGui::Begin(u8"컨트롤러");
     ImGui::SeparatorText(u8"오브젝트 조절");
     ImGui::DragFloat3(u8" 오브젝트 크기", &object1.transform.scale.x, 1.0f, 100.0f);
@@ -592,10 +594,14 @@ void TutorialApp::Render()
     ImGui::End();
 
     //m_ImGuiManager.DrawShadowSRV(m_pShadowMapSRV.Get(), (float)SHADOW_WIDTH, (float)SHADOW_HEIGHT);
+    ImGui::SetNextWindowPos(ImVec2(440, 30), ImGuiCond_FirstUseEver);
+    ImGui::SetNextWindowSize(ImVec2(272, 298), ImGuiCond_FirstUseEver);
     ImGui::Begin(u8"그림자 맵");
     ImGui::Image((ImTextureID)m_pShadowMapSRV.Get(), ImVec2(256, 256));
     ImGui::End();
 
+    ImGui::SetNextWindowPos(ImVec2(440, 340), ImGuiCond_FirstUseEver);
+    ImGui::SetNextWindowSize(ImVec2(408, 311), ImGuiCond_FirstUseEver);
     ImGui::Begin(u8"PBR");
     // BaseColor
     //ImGui::ColorEdit4(u8" 오브젝트 Material Ambient", &object1.ambient.x);
@@ -612,7 +618,7 @@ void TutorialApp::Render()
     ImGui::Checkbox(u8"PBR 수동 조작", &useCustomAlbedo);
     ImGui::DragFloat(u8"앰비언트 오클루전", &ambientOcclusion, 0.01f, 0.0f, 1.0f);
 
-    if (ImGui::Button(u8" 초기화")) object1.Reset();
+    if (ImGui::Button(u8" 초기화")) { object1.Reset(); ambientOcclusion = 1.0f; }
     ImGui::Text("");
     ImGui::End();
 
