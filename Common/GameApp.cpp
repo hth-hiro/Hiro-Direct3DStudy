@@ -1,5 +1,9 @@
 #include "pch.h"
 #include "GameApp.h"
+#include "Helper.h"
+
+#include <dwmapi.h>
+#pragma comment(lib, "dwmapi.lib")
 
 GameApp* GameApp::m_pInstance = nullptr;
 HWND GameApp::m_hWnd;
@@ -44,7 +48,7 @@ bool GameApp::Initialize(UINT Width, UINT Height)
 
 	//생성
 	m_hWnd = CreateWindowW(m_szWindowClass, m_szTitle, WS_OVERLAPPEDWINDOW,
-		0, 0,	// 생성되는 위치
+		100, 100,	// 생성되는 위치
 		rcClient.right - rcClient.left, rcClient.bottom - rcClient.top,
 		nullptr, nullptr, m_hInstance, nullptr);
 
@@ -52,6 +56,12 @@ bool GameApp::Initialize(UINT Width, UINT Height)
 	{
 		return false;
 	}
+
+    // 창 색깔 설정
+    SetTitleBarColor(m_hWnd, ColorF(227,227,232));
+
+    // 창 글씨 색 설정
+    SetTitleTextColor(m_hWnd, ColorF(0, 0, 0));
 
 	ShowWindow(m_hWnd, SW_SHOW);
 	UpdateWindow(m_hWnd);
@@ -134,4 +144,31 @@ LRESULT GameApp::WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 	}
 
 	return 0;
+}
+
+void GameApp::SetTitleBarColor(HWND hWnd, ColorF color)
+{
+    const DWORD DWMWA_USE_IMMERSIVE_DARK_MODE = 20; // Win10 2004+/Win11
+    const DWORD DWMWA_USE_IMMERSIVE_DARK_MODE_OLD = 19; // Win10 1809~1903
+    const DWORD DWMWA_CAPTION_COLOR = 35; // Win11
+    const DWORD DWMWA_TEXT_COLOR = 36; // Win11
+
+    //BOOL on = enable ? TRUE : FALSE;
+    BOOL on = TRUE;
+    
+    // 다크 타이틀바 적용
+    if (FAILED(DwmSetWindowAttribute(hWnd, DWMWA_USE_IMMERSIVE_DARK_MODE, &on, sizeof(on))))
+        DwmSetWindowAttribute(hWnd, DWMWA_USE_IMMERSIVE_DARK_MODE_OLD, &on, sizeof(on));
+
+    // Win11이면 캡션/텍스트 색까지 강제(완전 검정/흰색)
+    COLORREF caption = RGB(color.r, color.g, color.b); // 원하는 타이틀 바 색
+    COLORREF text = RGB(255, 255, 255);  // 타이틀 글자 색
+    DwmSetWindowAttribute(hWnd, DWMWA_CAPTION_COLOR, &caption, sizeof(caption));
+    //DwmSetWindowAttribute(hWnd, DWMWA_TEXT_COLOR, &text, sizeof(text));
+}
+
+void GameApp::SetTitleTextColor(HWND hWnd, ColorF color)
+{
+    COLORREF text = RGB(color.r, color.g, color.b);  // 타이틀 글자 색
+    DwmSetWindowAttribute(hWnd, DWMWA_TEXT_COLOR, &text, sizeof(text));
 }

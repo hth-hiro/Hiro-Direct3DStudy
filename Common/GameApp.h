@@ -8,6 +8,15 @@
 
 #define MAX_LOADSTRING 100
 
+struct ColorF
+{
+    ColorF(int _r, int _g, int _b) : r(_r), g(_g), b(_b) {}
+
+    int r;
+    int g;
+    int b;
+};
+
 class GameApp : public InputProcesser
 {
 public:
@@ -42,4 +51,7 @@ public:
 		const Mouse::State& MouseState, const Mouse::ButtonStateTracker& MouseTracker);
 
 	virtual LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
+
+    void SetTitleBarColor(HWND hWnd, ColorF color);
+    void SetTitleTextColor(HWND hWnd, ColorF color);
 };
