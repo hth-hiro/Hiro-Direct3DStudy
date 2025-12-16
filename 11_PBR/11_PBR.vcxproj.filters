@@ -57,6 +57,9 @@
     <ClInclude Include="VertexTypes.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
+    <ClInclude Include="resource1.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="11_PBR.cpp">
@@ -77,19 +80,6 @@
     <ClCompile Include="TutorialApp.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-  </ItemGroup>
-  <ItemGroup>
-    <ResourceCompile Include="11_PBR.rc">
-      <Filter>리소스 파일</Filter>
-    </ResourceCompile>
-  </ItemGroup>
-  <ItemGroup>
-    <Image Include="small.ico">
-      <Filter>리소스 파일</Filter>
-    </Image>
-    <Image Include="11_PBR.ico">
-      <Filter>리소스 파일</Filter>
-    </Image>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="Shader\BasicPixelShader.hlsl">
@@ -115,5 +105,15 @@
     <None Include="Shader\Shared.hlsli">
       <Filter>Shader</Filter>
     </None>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="11_PBR.rc">
+      <Filter>리소스 파일</Filter>
+    </ResourceCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="icon1.ico">
+      <Filter>리소스 파일</Filter>
+    </Image>
   </ItemGroup>
 </Project>

@@ -148,6 +148,7 @@ xcopy /Y /D "$(VcpkgRoot)\installed\$(TripletDynamic)\debug\bin\zlibd1.dll" "$(O
     <ClInclude Include="Material.h" />
     <ClInclude Include="Mesh.h" />
     <ClInclude Include="Resource.h" />
+    <ClInclude Include="resource1.h" />
     <ClInclude Include="StaticMesh.h" />
     <ClInclude Include="StaticMeshSection.h" />
     <ClInclude Include="targetver.h" />
@@ -162,13 +163,6 @@ xcopy /Y /D "$(VcpkgRoot)\installed\$(TripletDynamic)\debug\bin\zlibd1.dll" "$(O
     <ClCompile Include="StaticMeshSection.cpp" />
     <ClCompile Include="TextureLoader.cpp" />
     <ClCompile Include="TutorialApp.cpp" />
-  </ItemGroup>
-  <ItemGroup>
-    <ResourceCompile Include="11_PBR.rc" />
-  </ItemGroup>
-  <ItemGroup>
-    <Image Include="11_PBR.ico" />
-    <Image Include="small.ico" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Common\Common.vcxproj">
@@ -200,6 +194,12 @@ xcopy /Y /D "$(VcpkgRoot)\installed\$(TripletDynamic)\debug\bin\zlibd1.dll" "$(O
   </ItemGroup>
   <ItemGroup>
     <None Include="Shader\Shared.hlsli" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="11_PBR.rc" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="icon1.ico" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -30,6 +30,15 @@ GameApp::GameApp(HINSTANCE hInstance)
 	m_wcex.hCursor = LoadCursor(nullptr, IDC_ARROW);
 	m_wcex.hbrBackground = (HBRUSH)(COLOR_WINDOW + 1);
 	m_wcex.lpszClassName = m_szWindowClass;
+
+    // 아이콘 설정
+    m_wcex.hIcon = (HICON)LoadImageW(
+        NULL,
+        L"..\\Resource\\Icon\\Soline.ico",
+        IMAGE_ICON,
+        128, 128,           // 아이콘 크기
+        LR_LOADFROMFILE
+    );
 }
 
 GameApp::~GameApp()
@@ -62,6 +71,9 @@ bool GameApp::Initialize(UINT Width, UINT Height)
 
     // 창 글씨 색 설정
     SetTitleTextColor(m_hWnd, ColorF(0, 0, 0));
+    
+    SendMessage(m_hWnd, WM_SETICON, ICON_BIG, (LPARAM)m_wcex.hIcon);
+    SendMessage(m_hWnd, WM_SETICON, ICON_SMALL, (LPARAM)m_wcex.hIcon);
 
 	ShowWindow(m_hWnd, SW_SHOW);
 	UpdateWindow(m_hWnd);
