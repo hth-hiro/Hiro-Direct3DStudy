@@ -287,14 +287,16 @@ void TutorialApp::Render()
     m_pDeviceContext->IASetInputLayout(m_pSkyboxInputLayout.Get());
     m_pDeviceContext->VSSetShader(m_pSkyboxVertexShader.Get(), nullptr, 0);
     m_pDeviceContext->PSSetShader(m_pSkyboxPixelShader.Get(), nullptr, 0);
+    
     // 상수 버퍼 업데이트
     SkyBoxCB cbSky;
     cbSky.mView = XMMatrixTranspose(XMMatrixScaling(10, 10, 10) * m_Camera.GetViewMatrixNoTranslation(m_View));
     cbSky.mProjection = XMMatrixTranspose(m_Projection);
     m_pDeviceContext->VSSetConstantBuffers(1, 1, &m_pSkyboxConstantBuffer);
     m_pDeviceContext->UpdateSubresource(m_pSkyboxConstantBuffer, 0, nullptr, &cbSky, 0, 0);
+    
     m_pDeviceContext->PSSetShaderResources(0, 1, currentEnv->SkyBox.GetAddressOf());
-    m_pDeviceContext->PSSetSamplers(0, 1, &m_pSamplerLinear);
+    m_pDeviceContext->PSSetSamplers(0, 1, m_pSamplerLinear.GetAddressOf());
     m_pDeviceContext->DrawIndexed(m_nSkyboxIndices, 0, 0);
     // 원래 상태 복원
     m_pDeviceContext->OMSetDepthStencilState(nullptr, 0);
@@ -306,22 +308,18 @@ void TutorialApp::Render()
     m_pDeviceContext->RSSetState(m_pRasterStateNoCull.Get());
     // Sampler
     m_pDeviceContext->PSSetSamplers(0, 1, m_pSamplerLinear.GetAddressOf());
-    m_pDeviceContext->PSSetSamplers(1, 1, m_pSamplerLinear.GetAddressOf());
     // ShadowMapSRV
     m_pDeviceContext->PSSetShaderResources(7, 1, m_pShadowMapSRV.GetAddressOf());
-
+    
     // IBL 적용 여부 분기, 매핑 여부 결정
     if (useIBL)
     {
-        m_pDeviceContext->PSSetShaderResources(0, 1, currentEnv->SkyBox.GetAddressOf());
         m_pDeviceContext->PSSetShaderResources(10, 1, currentEnv->Diffuse.GetAddressOf());
         m_pDeviceContext->PSSetShaderResources(11, 1, currentEnv->Specular.GetAddressOf());
         m_pDeviceContext->PSSetShaderResources(12, 1, currentEnv->BRDF_LUT.GetAddressOf());
     }
     else
     {
-        ID3D11ShaderResourceView* nullSRV[1] = { nullptr };
-
         m_pDeviceContext->PSSetShaderResources(0, 1, nullSRV);
         m_pDeviceContext->PSSetShaderResources(10, 1, nullSRV);
         m_pDeviceContext->PSSetShaderResources(11, 1, nullSRV);
@@ -382,6 +380,7 @@ void TutorialApp::Render()
         cb.roughness = object1.roughness;
         cb.albedo = object1.albedo;
         cb.gamma = object1.gamma;
+        cb.ao = ambientOcclusion;
         cb.UseTexture = useTexture;
         cb.UseCustomAlbedo = useCustomAlbedo;
 
@@ -611,6 +610,7 @@ void TutorialApp::Render()
     
     ImGui::Checkbox(u8"텍스처 적용", &useTexture);
     ImGui::Checkbox(u8"PBR 수동 조작", &useCustomAlbedo);
+    ImGui::DragFloat(u8"앰비언트 오클루전", &ambientOcclusion, 0.01f, 0.0f, 1.0f);
 
     if (ImGui::Button(u8" 초기화")) object1.Reset();
     ImGui::Text("");

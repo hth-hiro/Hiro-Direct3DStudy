@@ -142,9 +142,10 @@ float4 main(PS_INPUT input) : SV_Target
 
     float3 specularIBL = PrefilterdColor * (F0 * specularBRDF.x + specularBRDF.y);
     
-    float AmbientOcclusion = 1.0f;
+    // 간접광 세기 보정
+    //float AmbientOcclusion = 1.0f; // ao
     
-    float3 indirectIBL = (diffuseIBL + specularIBL) * AmbientOcclusion;
+    float3 indirectIBL = (diffuseIBL + specularIBL) * ao;
     
     
     
@@ -165,7 +166,7 @@ float4 main(PS_INPUT input) : SV_Target
 
     if (uv.x >= 0.0 && uv.x <= 1.0 && uv.y >= 0.0 && uv.y <= 1.0)
     {
-        float sampleShadowDepth = txShadow.Sample(ShadowSampler, uv).r;
+        float sampleShadowDepth = txShadow.Sample(samLinear, uv).r;
         shadowFactor = (currentShadowDepth > sampleShadowDepth + 0.001) ? 0.0f : 1.0f; 
         // 0.001 부분을 늘리면 그림자와 물체가 가까워지고 줄이면 멀어짐
     }
@@ -176,8 +177,10 @@ float4 main(PS_INPUT input) : SV_Target
         //shadowFactor = 1.0f;
     }
     
-// 조명 계산
-    float3 lit = ambient.rgb * vAmbientColor.rgb + diffuse.rgb * shadowFactor * vDiffuseColor.rgb + specular.rgb * shadowFactor * vSpecularColor.rgb + indirectIBL;
+// 최종 조명 계산
+    
+    float3 directIBL = ambient.rgb + diffuse.rgb * shadowFactor * vDiffuseColor.rgb + specular.rgb * shadowFactor * vSpecularColor.rgb;
+    float3 lit = directIBL + indirectIBL;
     float4 final = pow(float4(lit + txEmissive.rgb, surface.a), (1 / gamma));
 
     return final;

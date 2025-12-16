@@ -79,7 +79,6 @@ struct Environment
     ComPtr<ID3D11ShaderResourceView> BRDF_LUT;
 };
 
-
 class TutorialApp : public GameApp
 {
 public:
@@ -129,6 +128,9 @@ public:
 	Matrix m_Projection;
 
     D3D11_VIEWPORT m_MainViewport;
+
+    /*-------PBR-------*/
+    float ambientOcclusion = 1.0f;
 
     /*-------IBL------*/
     ComPtr<ID3D11ShaderResourceView> m_pIBLCubeSRV;                 // IBL 텍스처 파일(큐브맵, 현재 Env)
