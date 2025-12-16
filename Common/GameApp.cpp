@@ -66,14 +66,9 @@ bool GameApp::Initialize(UINT Width, UINT Height)
 		return false;
 	}
 
-    // Ã¢ »ö±ò ¼³Á¤
+    // Ã¢ »ö±ò ¼³Á¤, ±Û¾¾ »ö ¼³Á¤
     SetTitleBarColor(m_hWnd, ColorF(227,227,232));
-
-    // Ã¢ ±Û¾¾ »ö ¼³Á¤
     SetTitleTextColor(m_hWnd, ColorF(0, 0, 0));
-    
-    SendMessage(m_hWnd, WM_SETICON, ICON_BIG, (LPARAM)m_wcex.hIcon);
-    SendMessage(m_hWnd, WM_SETICON, ICON_SMALL, (LPARAM)m_wcex.hIcon);
 
 	ShowWindow(m_hWnd, SW_SHOW);
 	UpdateWindow(m_hWnd);
