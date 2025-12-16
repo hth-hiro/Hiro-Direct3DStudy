@@ -81,6 +81,22 @@ bool GameApp::Initialize(UINT Width, UINT Height)
 
 bool GameApp::Run()
 {
+    // 런타임에도 창 색 변경 가능
+    //SetTitleBarColor(m_hWnd, ColorF(227, 227, 232));
+    //SetTitleTextColor(m_hWnd, ColorF(0, 0, 0));
+
+    // 런타임에도 창 아이콘 변경 가능
+    //m_wcex.hIcon = (HICON)LoadImageW(
+    //    NULL,
+    //    L"..\\Resource\\Icon\\Miku.ico",
+    //    IMAGE_ICON,
+    //    128, 128,           // 아이콘 크기
+    //    LR_LOADFROMFILE
+    //);
+
+    //SendMessage(m_hWnd, WM_SETICON, ICON_BIG, (LPARAM)m_wcex.hIcon);
+    //SendMessage(m_hWnd, WM_SETICON, ICON_SMALL, (LPARAM)m_wcex.hIcon);
+
 	// Game Loop
 	while (TRUE)
 	{
