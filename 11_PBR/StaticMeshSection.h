@@ -5,6 +5,7 @@
 #include <wrl/client.h>
 #include <d3d11.h>
 #include "VertexTypes.h"
+#include "../Common/Helper.h"
 
 using Microsoft::WRL::ComPtr;
 
@@ -16,8 +17,8 @@ public:
     std::vector<Vertex> Vertices;
     std::vector<WORD> Indices;
     int materialIndex;
-    ID3D11Buffer* IndexBuffer = nullptr;
-    ID3D11Buffer* VertexBuffer = nullptr;
+    ComPtr<ID3D11Buffer> IndexBuffer;
+    ComPtr<ID3D11Buffer> VertexBuffer;
 
     void Create(ID3D11Device* device);
 };

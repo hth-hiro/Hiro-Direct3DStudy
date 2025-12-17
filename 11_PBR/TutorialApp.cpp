@@ -36,11 +36,18 @@ TutorialApp::TutorialApp(HINSTANCE hInstance) : GameApp(hInstance)
 
 TutorialApp::~TutorialApp()
 {
-    UninitD3D();
-    UninitImGUI();
     UninitScene();
 
+    if (m_pDeviceContext)
+    {
+        m_pDeviceContext->ClearState();
+        m_pDeviceContext->Flush();
+    }
+
+    UninitImGUI();
     CheckDXGIDebug();
+    UninitD3D();
+
 }
 
 bool TutorialApp::Initialize(UINT Width, UINT Height)
@@ -262,8 +269,8 @@ void TutorialApp::Render()
         // Vertex/Index Buffer 바인딩
         UINT stride = sizeof(Vertex);
         UINT offset = 0;
-        m_pDeviceContext->IASetVertexBuffers(0, 1, &section.VertexBuffer, &stride, &offset);
-        m_pDeviceContext->IASetIndexBuffer(section.IndexBuffer, DXGI_FORMAT_R16_UINT, 0);
+        m_pDeviceContext->IASetVertexBuffers(0, 1, section.VertexBuffer.GetAddressOf(), &stride, &offset);
+        m_pDeviceContext->IASetIndexBuffer(section.IndexBuffer.Get(), DXGI_FORMAT_R16_UINT, 0);
         m_pDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
         // Shadow Pass에서는 PS 없이 Depth만 기록하므로 PS 텍스처 바인딩 불필요
@@ -398,8 +405,8 @@ void TutorialApp::Render()
         // Vertex/Index Buffer
         UINT stride = sizeof(Vertex);
         UINT offset = 0;
-        m_pDeviceContext->IASetVertexBuffers(0, 1, &section.VertexBuffer, &stride, &offset);
-        m_pDeviceContext->IASetIndexBuffer(section.IndexBuffer, DXGI_FORMAT_R16_UINT, 0);
+        m_pDeviceContext->IASetVertexBuffers(0, 1, section.VertexBuffer.GetAddressOf(), &stride, &offset);
+        m_pDeviceContext->IASetIndexBuffer(section.IndexBuffer.Get(), DXGI_FORMAT_R16_UINT, 0);
         m_pDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
         // PS 텍스처 바인딩
@@ -695,6 +702,8 @@ bool TutorialApp::InitD3D()
 
     m_pDevice->CreateDepthStencilView(depthStencilBuffer, &dsvDesc, &m_pDepthStencilView);
 
+    SAFE_RELEASE(depthStencilBuffer);
+
     // 깊이 테스트 - 오브젝트 렌더 시 DepthEnable = true 상태로 쓰고 있음
     D3D11_DEPTH_STENCIL_DESC dsDesc = {};
     dsDesc.DepthEnable = true;
@@ -704,6 +713,8 @@ bool TutorialApp::InitD3D()
     ID3D11DepthStencilState* depthStencilState;
     m_pDevice->CreateDepthStencilState(&dsDesc, &depthStencilState);
     m_pDeviceContext->OMSetDepthStencilState(depthStencilState, 0);
+
+    SAFE_RELEASE(depthStencilState);
 
     D3D11_DEPTH_STENCIL_DESC skyDesc = {};
     skyDesc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ZERO;
@@ -1128,14 +1139,15 @@ bool TutorialApp::InitScene()
 
 void TutorialApp::UninitScene()
 {
+
+    SAFE_RELEASE(m_pSkyboxVertexBuffer);
+    SAFE_RELEASE(m_pSkyboxIndexBuffer);
+    SAFE_RELEASE(m_pSkyboxConstantBuffer);
+    SAFE_RELEASE(m_pSkyboxDepthStencilState);
+
+    SAFE_RELEASE(m_pShadowConstantBuffer);
     SAFE_RELEASE(m_pStaticMeshConstantBuffer);
 
-    SAFE_RELEASE(m_pCubeMuseumTextureRV);
-    SAFE_RELEASE(m_pCubeDaylightTextureRV);
-    SAFE_RELEASE(m_pCubeHanakoTextureRV);
-
-    SAFE_RELEASE(m_pSkyboxConstantBuffer);
-    SAFE_RELEASE(m_pShadowConstantBuffer);
-
-    //m_ModelLoader.Close();
+    m_pRenderTargetView.Reset();
+    m_pDepthStencilView.Reset();
 }

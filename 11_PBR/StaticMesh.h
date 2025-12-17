@@ -21,11 +21,28 @@ public:
     bool Load(const std::string& filePath, const std::string& name);
 
     void ReadFile(ID3D11Device* device, const std::string& filePath);
+
+    ~StaticMesh()
+    {
+        Release();
+    }
+
 private:
     ID3D11Device* m_Dev;
     std::string m_Directory;
     std::string m_Name;
 
     //ID3D11ShaderResourceView* loadEmbeddedTexture(const aiTexture* embeddedTexture);
+
+    void Release()
+    {
+        for (auto& mat : m_Materials)
+        {
+            mat.Release();
+        }
+
+        m_StaticMeshSection.clear();
+        m_Materials.clear();
+    }
 };
 

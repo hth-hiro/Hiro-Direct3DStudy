@@ -117,11 +117,11 @@ public:
 	ID3D11Buffer* m_pSkyboxConstantBuffer = nullptr;				// 상수 버퍼
 	ID3D11DepthStencilState* m_pSkyboxDepthStencilState = nullptr;	// 뎊스 스텐실 스테이트
     
-	ID3D11ShaderResourceView* m_pCubeTextureRV = nullptr;			// 텍스처 파일(큐브맵, 현재 큐브맵)
+	//ID3D11ShaderResourceView* m_pCubeTextureRV = nullptr;			// 텍스처 파일(큐브맵, 현재 큐브맵)
 
-	ID3D11ShaderResourceView* m_pCubeMuseumTextureRV = nullptr;		// 텍스처 파일1(큐브맵, 실내)
-	ID3D11ShaderResourceView* m_pCubeDaylightTextureRV = nullptr;	// 텍스처 파일2(큐브맵, 실외)
-	ID3D11ShaderResourceView* m_pCubeHanakoTextureRV = nullptr;		// 텍스처 파일3(큐브맵, 디버그)
+	//ID3D11ShaderResourceView* m_pCubeMuseumTextureRV = nullptr;		// 텍스처 파일1(큐브맵, 실내)
+	//ID3D11ShaderResourceView* m_pCubeDaylightTextureRV = nullptr;	// 텍스처 파일2(큐브맵, 실외)
+	//ID3D11ShaderResourceView* m_pCubeHanakoTextureRV = nullptr;		// 텍스처 파일3(큐브맵, 디버그)
 
 	Matrix m_World;
 	Matrix m_View;
@@ -138,7 +138,7 @@ public:
     ComPtr<ID3D11ShaderResourceView> m_pIBLSpecularSRV;             // IBL Specular 파일
     ComPtr<ID3D11ShaderResourceView> m_pIBLBDRFLutSRV;              // IBL BDRF 파일
     
-    Environment* currentEnv;
+    Environment* currentEnv = nullptr;
 
     Environment Env_Museum;
     Environment Env_DayLight;
