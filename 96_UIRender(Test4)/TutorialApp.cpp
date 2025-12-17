@@ -36,7 +36,8 @@ TutorialApp::TutorialApp(HINSTANCE hInstance) : GameApp(hInstance)
 
 TutorialApp::~TutorialApp()
 {
-    UninitScene();
+    UninitImGUI();
+    ui.ShutDown();
 
     if (m_pDeviceContext)
     {
@@ -44,10 +45,12 @@ TutorialApp::~TutorialApp()
         m_pDeviceContext->Flush();
     }
 
-    UninitImGUI();
-    CheckDXGIDebug();
-    UninitD3D();
+    m_pRenderTargetView.Reset();
+    m_pDepthStencilView.Reset();
 
+    UninitScene();
+    UninitD3D();
+    CheckDXGIDebug();
 }
 
 bool TutorialApp::Initialize(UINT Width, UINT Height)
@@ -57,6 +60,9 @@ bool TutorialApp::Initialize(UINT Width, UINT Height)
     m_Time.Initialize();
 
     if (!InitD3D())
+        return false;
+
+    if (!ui.Initialize(m_hWnd, m_pDevice, m_pDeviceContext, m_pSwapChain))
         return false;
 
     if (!InitImGUI())
@@ -633,6 +639,11 @@ void TutorialApp::Render()
     ImGui::Render();
     ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
 
+    // UI
+    ui.BeginFrame();
+    ui.RenderText(L"ÇÑ±Û qwer 1234", 100, 100);
+    ui.EndFrame();
+
     // 5. Present
     m_pSwapChain->Present(0, 0);
 }
@@ -646,7 +657,7 @@ bool TutorialApp::InitD3D()
     swapDesc.BufferCount = 1;
     swapDesc.BufferDesc.Width = m_ClientWidth;
     swapDesc.BufferDesc.Height = m_ClientHeight;
-    swapDesc.BufferDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+    swapDesc.BufferDesc.Format = DXGI_FORMAT_B8G8R8A8_UNORM;
     swapDesc.BufferDesc.RefreshRate.Numerator = 60;
     swapDesc.BufferDesc.RefreshRate.Denominator = 1;
     swapDesc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
@@ -657,7 +668,7 @@ bool TutorialApp::InitD3D()
     swapDesc.SwapEffect = DXGI_SWAP_EFFECT_DISCARD;
     swapDesc.Flags = 0;
 
-    hr = D3D11CreateDeviceAndSwapChain(NULL, D3D_DRIVER_TYPE_HARDWARE, NULL, D3D11_CREATE_DEVICE_DEBUG, NULL, NULL,
+    hr = D3D11CreateDeviceAndSwapChain(NULL, D3D_DRIVER_TYPE_HARDWARE, NULL, /*D3D11_CREATE_DEVICE_DEBUG |*/ D3D11_CREATE_DEVICE_BGRA_SUPPORT, NULL, NULL,
         D3D11_SDK_VERSION, &swapDesc, &m_pSwapChain, &m_pDevice, NULL, &m_pDeviceContext);
     if (FAILED(hr))
     {
@@ -775,8 +786,8 @@ bool TutorialApp::InitD3D()
 
 void TutorialApp::UninitD3D()
 {
-    SAFE_RELEASE(m_pDeviceContext);
     SAFE_RELEASE(m_pSwapChain);
+    SAFE_RELEASE(m_pDeviceContext);
     SAFE_RELEASE(m_pDevice);
 }
 
@@ -1139,6 +1150,8 @@ bool TutorialApp::InitScene()
 
 void TutorialApp::UninitScene()
 {
+    m_pRenderTargetView.Reset();
+    m_pDepthStencilView.Reset();
 
     SAFE_RELEASE(m_pSkyboxVertexBuffer);
     SAFE_RELEASE(m_pSkyboxIndexBuffer);
@@ -1147,7 +1160,4 @@ void TutorialApp::UninitScene()
 
     SAFE_RELEASE(m_pShadowConstantBuffer);
     SAFE_RELEASE(m_pStaticMeshConstantBuffer);
-
-    m_pRenderTargetView.Reset();
-    m_pDepthStencilView.Reset();
 }

@@ -20,6 +20,9 @@
 #include <imgui_impl_dx11.h>
 #include <Psapi.h>
 
+// UI
+#include "UIRenderer.h"
+
 using namespace DirectX::SimpleMath;
 using namespace DirectX;
 
@@ -186,10 +189,17 @@ public:
 
 	TimeSystem m_TimeSystem;
 
-
     ID3D11Buffer* m_pStaticMeshConstantBuffer;						// 상수 버퍼.
     StaticMesh m_StaticMesh;
     StaticMesh ground;
+
+    /*------ UI ------*/
+    UIRenderer ui;
+
+
+
+
+
 
 
 	// ModelLoad
