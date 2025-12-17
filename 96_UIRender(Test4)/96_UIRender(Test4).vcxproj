@@ -133,11 +133,9 @@
     <ClInclude Include="framework.h" />
     <ClInclude Include="Material.h" />
     <ClInclude Include="Mesh.h" />
-    <ClInclude Include="Resource.h" />
     <ClInclude Include="StaticMesh.h" />
     <ClInclude Include="StaticMeshSection.h" />
     <ClInclude Include="targetver.h" />
-    <ClInclude Include="TextureLoader.h" />
     <ClInclude Include="TutorialApp.h" />
     <ClInclude Include="VertexTypes.h" />
   </ItemGroup>
@@ -146,7 +144,6 @@
     <ClCompile Include="Animation.cpp" />
     <ClCompile Include="StaticMesh.cpp" />
     <ClCompile Include="StaticMeshSection.cpp" />
-    <ClCompile Include="TextureLoader.cpp" />
     <ClCompile Include="TutorialApp.cpp" />
   </ItemGroup>
   <ItemGroup>

@@ -4,7 +4,6 @@
 #include <assimp/postprocess.h>
 #include <iostream>
 #include <directxtk/WICTextureLoader.h>
-#include "TextureLoader.h"
 #include "../Common/Helper.h"
 #include "DirectXTex.h"
 
