@@ -36,7 +36,7 @@ GameApp::GameApp(HINSTANCE hInstance)
         NULL,
         L"..\\Resource\\Icon\\Soline.ico",
         IMAGE_ICON,
-        128, 128,           // 아이콘 크기
+        16, 16,              // 아이콘 크기
         LR_LOADFROMFILE
     );
 }
