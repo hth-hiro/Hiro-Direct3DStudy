@@ -24,6 +24,7 @@
     <ProjectGuid>{88015c2c-4da3-4dff-85aa-4eb6726a6bfa}</ProjectGuid>
     <RootNamespace>My11PBR</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+    <ProjectName>11_PBR(+IBL)</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -194,12 +195,6 @@ xcopy /Y /D "$(VcpkgRoot)\installed\$(TripletDynamic)\debug\bin\zlibd1.dll" "$(O
   </ItemGroup>
   <ItemGroup>
     <None Include="Shader\Shared.hlsli" />
-  </ItemGroup>
-  <ItemGroup>
-    <ResourceCompile Include="11_PBR.rc" />
-  </ItemGroup>
-  <ItemGroup>
-    <Image Include="icon1.ico" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

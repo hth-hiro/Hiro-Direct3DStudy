@@ -106,14 +106,4 @@
       <Filter>Shader</Filter>
     </None>
   </ItemGroup>
-  <ItemGroup>
-    <ResourceCompile Include="11_PBR.rc">
-      <Filter>리소스 파일</Filter>
-    </ResourceCompile>
-  </ItemGroup>
-  <ItemGroup>
-    <Image Include="icon1.ico">
-      <Filter>리소스 파일</Filter>
-    </Image>
-  </ItemGroup>
 </Project>

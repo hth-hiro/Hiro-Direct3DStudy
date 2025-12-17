@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.13.35825.156
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Common", "Common\Common.vcxproj", "{3B5488ED-92B8-4F2D-9EDD-3954CBC7DEA8}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "00_Common", "Common\Common.vcxproj", "{3B5488ED-92B8-4F2D-9EDD-3954CBC7DEA8}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "02_Mesh", "02_Mesh\02_Mesh.vcxproj", "{9C99A219-240A-43CF-8C83-B8EB89AE4517}"
 EndProject
@@ -33,7 +33,9 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "97_PMX(Test3)", "97_PMX\97_
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "09-2_ShadowRefactor", "09-2_ShadowRefactor\09-2_ShadowRefactor.vcxproj", "{151D98AD-F933-4D02-8762-616B9B9DBC8F}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "11_PBR", "11_PBR\11_PBR.vcxproj", "{88015C2C-4DA3-4DFF-85AA-4EB6726A6BFA}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "11_PBR(+IBL)", "11_PBR\11_PBR.vcxproj", "{88015C2C-4DA3-4DFF-85AA-4EB6726A6BFA}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "12_HDR", "12_HDR\12_HDR.vcxproj", "{0C498887-74D6-475A-A8E0-5C68F88D5F7F}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -171,6 +173,14 @@ Global
 		{88015C2C-4DA3-4DFF-85AA-4EB6726A6BFA}.Release|x64.Build.0 = Release|x64
 		{88015C2C-4DA3-4DFF-85AA-4EB6726A6BFA}.Release|x86.ActiveCfg = Release|Win32
 		{88015C2C-4DA3-4DFF-85AA-4EB6726A6BFA}.Release|x86.Build.0 = Release|Win32
+		{0C498887-74D6-475A-A8E0-5C68F88D5F7F}.Debug|x64.ActiveCfg = Debug|x64
+		{0C498887-74D6-475A-A8E0-5C68F88D5F7F}.Debug|x64.Build.0 = Debug|x64
+		{0C498887-74D6-475A-A8E0-5C68F88D5F7F}.Debug|x86.ActiveCfg = Debug|Win32
+		{0C498887-74D6-475A-A8E0-5C68F88D5F7F}.Debug|x86.Build.0 = Debug|Win32
+		{0C498887-74D6-475A-A8E0-5C68F88D5F7F}.Release|x64.ActiveCfg = Release|x64
+		{0C498887-74D6-475A-A8E0-5C68F88D5F7F}.Release|x64.Build.0 = Release|x64
+		{0C498887-74D6-475A-A8E0-5C68F88D5F7F}.Release|x86.ActiveCfg = Release|Win32
+		{0C498887-74D6-475A-A8E0-5C68F88D5F7F}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
