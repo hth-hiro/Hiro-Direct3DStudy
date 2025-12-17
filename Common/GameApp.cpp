@@ -31,14 +31,13 @@ GameApp::GameApp(HINSTANCE hInstance)
 	m_wcex.hbrBackground = (HBRUSH)(COLOR_WINDOW + 1);
 	m_wcex.lpszClassName = m_szWindowClass;
 
-    // 아이콘 설정
-    m_wcex.hIcon = (HICON)LoadImageW(
-        NULL,
-        L"..\\Resource\\Icon\\Soline.ico",
-        IMAGE_ICON,
-        16, 16,              // 아이콘 크기
-        LR_LOADFROMFILE
-    );
+    // 아이콘 설정 - Big
+    m_wcex.hIcon = (HICON)LoadImageW(nullptr, L"..\\Resource\\Icon\\Soline.ico",
+        IMAGE_ICON, 128, 128, LR_LOADFROMFILE);
+
+    // 아이콘 설정 - Small
+    m_wcex.hIconSm = (HICON)LoadImageW(nullptr, L"..\\Resource\\Icon\\Soline.ico",
+        IMAGE_ICON, 16, 16, LR_LOADFROMFILE);
 }
 
 GameApp::~GameApp()
@@ -55,8 +54,6 @@ bool GameApp::Initialize(UINT Width, UINT Height)
 	RECT rcClient = { 0,0,(LONG)Width, (LONG)Height };
 	AdjustWindowRect(&rcClient, WS_OVERLAPPEDWINDOW, FALSE);
 
-    //SetCurrentProcessExplicitAppUserModelID(L"com.gameinjae.icondebug.unique");
-
 	//생성
 	m_hWnd = CreateWindowW(m_szWindowClass, m_szTitle, WS_OVERLAPPEDWINDOW,
 		100, 100,	// 생성되는 위치
@@ -67,6 +64,9 @@ bool GameApp::Initialize(UINT Width, UINT Height)
 	{
 		return false;
 	}
+
+    SendMessageW(m_hWnd, WM_SETICON, ICON_BIG, (LPARAM)m_wcex.hIcon);
+    SendMessageW(m_hWnd, WM_SETICON, ICON_SMALL, (LPARAM)m_wcex.hIconSm);
 
     // 창 색깔 설정, 글씨 색 설정
     SetTitleBarColor(m_hWnd, ColorF(227,227,232));
@@ -87,7 +87,7 @@ bool GameApp::Run()
     //SetTitleBarColor(m_hWnd, ColorF(227, 227, 232));
     //SetTitleTextColor(m_hWnd, ColorF(0, 0, 0));
 
-    // 런타임에도 창 아이콘 변경 가능
+     //런타임에도 창 아이콘 변경 가능
     //m_wcex.hIcon = (HICON)LoadImageW(
     //    NULL,
     //    L"..\\Resource\\Icon\\Miku.ico",
@@ -97,21 +97,6 @@ bool GameApp::Run()
     //);
 
     //SendMessage(m_hWnd, WM_SETICON, ICON_SMALL, (LPARAM)m_wcex.hIcon);
-
-    // 아이콘 설정
-    HICON hBig = (HICON)LoadImageW(nullptr, L"..\\Resource\\Icon\\Soline.ico",
-        IMAGE_ICON, 128, 128, LR_LOADFROMFILE);
-    HICON hSmall = (HICON)LoadImageW(nullptr, L"..\\Resource\\Icon\\Soline.ico",
-        IMAGE_ICON, 16, 16, LR_LOADFROMFILE);
-
-    SetClassLongPtrW(m_hWnd, GCLP_HICON, (LONG_PTR)hBig);
-    SetClassLongPtrW(m_hWnd, GCLP_HICONSM, (LONG_PTR)hSmall);
-
-    SendMessageW(m_hWnd, WM_SETICON, ICON_BIG, (LPARAM)hBig);
-    SendMessageW(m_hWnd, WM_SETICON, ICON_SMALL, (LPARAM)hSmall);
-
-    SetWindowPos(m_hWnd, nullptr, 0, 0, 0, 0,
-        SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_FRAMECHANGED);
 
 	// Game Loop
 	while (TRUE)
