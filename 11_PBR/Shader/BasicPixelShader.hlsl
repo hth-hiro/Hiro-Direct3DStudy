@@ -84,13 +84,18 @@ float4 main(PS_INPUT input) : SV_Target
 
     if (UseCustomAlbedo == 1)
     {
-        a = roughness;
+        a = max(roughness, 0.01);
         metal = metallic;
         customAlbedo = albedo * customAlbedo;
     }
     
     // ¹ý¼± ºÐÆ÷ ÇÔ¼ö
     float NdotH = saturate(dot(normalVector, halfVector));
+    
+    float NdotV = saturate(dot(normalVector, viewVector));
+    float NdotL = max(dot(normalVector, -lightVector), 0);
+
+    
     float D = ((a * a) / (PI * pow(NdotH * NdotH * (a * a - 1) + 1, 2)));
     
     float3 F0 = lerp(float3(0.04f, 0.04f, 0.04f), customAlbedo.rgb, metal);
@@ -99,13 +104,17 @@ float4 main(PS_INPUT input) : SV_Target
     
     // Æó¼â¼º °¨¼è
     float k = pow((a + 1), 2) / 8;
-    float G = dot(normalVector, viewVector) / (dot(normalVector, viewVector) * (1 - k) + k);
+    float Gv = NdotV / (NdotV * (1 - k) + k);
+    float Gl = NdotL / (NdotL * (1 - k) + k);
+    
+    //float G = dot(normalVector, viewVector) / (dot(normalVector, viewVector) * (1 - k) + k);
+    float G = Gv * Gl;
     
     float3 kd = lerp(float3(1, 1, 1) - F, float3(0, 0, 0), metal);
     
     // ÃÖÁ¾ ¹Ý¿µ
     diffuse = kd * customAlbedo.rgb / PI * max(dot(normalVector, -lightVector), 0);
-    float NdotL = max(dot(normalVector, -lightVector), 0);
+    //float NdotL = max(dot(normalVector, -lightVector), 0);
     float3 specular = (F * D * G) / max(1e-6f, 4.0f * NdotL * saturate(dot(normalVector, viewVector))) * NdotL;
     
     //float3 specular = (D * F * G) / (4 * saturate(dot(normalVector, -lightVector)) * saturate(dot(normalVector, viewVector)));
