@@ -639,9 +639,9 @@ void TutorialApp::Render()
     ImGui::Render();
     ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
 
-    // UI
+    // UI - Text
     ui.BeginFrame();
-    ui.RenderText(L"한글 qwer 1234", 100, 100);
+    ui.RenderText(L"텍스트", m_ClientWidth - 200, 40, 1000, 200, L"", 30.0f, { 10, 255, 255, 255 });
     ui.EndFrame();
 
     // 5. Present

@@ -1,5 +1,6 @@
 #include "UIRenderer.h"
 #include <cassert>
+#include <filesystem>
 
 #pragma comment(lib, "d2d1.lib")
 #pragma comment(lib, "dwrite.lib")
@@ -65,7 +66,6 @@ bool UIRenderer::Initialize(HWND hWnd, ID3D11Device* device, ID3D11DeviceContext
     );
     if (FAILED(hr)) return false;
 
-
     hr = m_dwriteFactory->CreateTextFormat(
         L"Malgun Gothic",
         nullptr,
@@ -78,12 +78,13 @@ bool UIRenderer::Initialize(HWND hWnd, ID3D11Device* device, ID3D11DeviceContext
     );
     if (FAILED(hr)) return false;
 
-
     hr = m_d2dRenderTarget->CreateSolidColorBrush(
         D2D1::ColorF(D2D1::ColorF::White),
         m_textBrush.GetAddressOf()
     );
     if (FAILED(hr)) return false;
+
+    if (!LoadFontsFromDirectory(L"..\\Resource\\Fonts")) return false;
 
     return true;
 }
@@ -102,17 +103,30 @@ void UIRenderer::EndFrame()
     m_d2dRenderTarget->EndDraw();
 }
 
-void UIRenderer::RenderText(const std::wstring& text, float x, float y, float fontSize, const XMFLOAT4& color)
+void UIRenderer::RenderText(
+    const std::wstring& text,
+    float x, float y, float width, float height,
+    const std::wstring& fontFamilyName,
+    float fontSize,
+    const XMFLOAT4& color
+)
 {
-    IDWriteTextFormat* format = GetTextFormat(fontSize);
+    if (fontFamilyName.empty()) {}
+
+    IDWriteTextFormat* format = GetTextFormat(fontSize, fontFamilyName.c_str());
 
     D2D1_RECT_F rect = D2D1::RectF(
         x, y,
-        x + 1000.0f,
-        y + 200.0f    //юс╫ц
+        x + width,
+        y + height
     );
 
-    m_textBrush->SetColor(D2D1::ColorF(color.x, color.y, color.z, color.w));
+    float r = color.x / 255.0f;
+    float g = color.y / 255.0f;
+    float b = color.z / 255.0f;
+    float a = color.w / 255.0f;
+
+    m_textBrush->SetColor(D2D1::ColorF(r, g, b, a));
 
     m_d2dRenderTarget->DrawTextW(
         text.c_str(),
@@ -123,16 +137,18 @@ void UIRenderer::RenderText(const std::wstring& text, float x, float y, float fo
     );
 }
 
-IDWriteTextFormat* UIRenderer::GetTextFormat(float fontSize)
+IDWriteTextFormat* UIRenderer::GetTextFormat(float fontSize, const WCHAR* fontFamilyName)
 {
-    auto it = m_textFormats.find(fontSize);
+    TextFormatKey key{fontFamilyName, fontSize};
+
+    auto it = m_textFormats.find(key);
     if (it != m_textFormats.end())
         return it->second.Get();
 
     ComPtr<IDWriteTextFormat> format;
 
     HRESULT hr = m_dwriteFactory->CreateTextFormat(
-        L"Malgun Gothic",
+        fontFamilyName,
         nullptr,
         DWRITE_FONT_WEIGHT_NORMAL,
         DWRITE_FONT_STYLE_NORMAL,
@@ -144,7 +160,30 @@ IDWriteTextFormat* UIRenderer::GetTextFormat(float fontSize)
 
     if (FAILED(hr)) return nullptr;
 
-    m_textFormats.emplace(fontSize, format);
+    m_textFormats.emplace(key, format);
 
     return format.Get();
+}
+
+bool UIRenderer::LoadFontsFromDirectory(const std::wstring& directory)
+{
+    namespace fs = std::filesystem;
+
+    for (const auto& entry : fs::directory_iterator(directory))
+    {
+        if (!entry.is_regular_file()) continue;
+ 
+        auto ext = entry.path().extension().wstring();
+
+        if (ext == L".ttf" || ext == L".ttc" || ext == L".otf")
+        {
+            AddFontResourceExW(entry.path().c_str(),
+                FR_PRIVATE, nullptr);
+        }
+    }
+
+    ComPtr<IDWriteFontCollection> collection;
+    HRESULT hr = m_dwriteFactory->GetSystemFontCollection(&collection, TRUE);
+
+    return SUCCEEDED(hr);
 }

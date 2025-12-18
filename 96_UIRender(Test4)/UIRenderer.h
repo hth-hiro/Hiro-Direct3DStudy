@@ -12,11 +12,26 @@
 #include <directxtk/SpriteFont.h>
 
 #include "../Common/Helper.h"
-#include <unordered_map>
+#include <map>
 
 using namespace std;
 using Microsoft::WRL::ComPtr;
 using namespace DirectX;
+
+struct TextFormatKey
+{
+    std::wstring family;
+    float size;
+
+    bool operator<(const TextFormatKey& other) const
+    {
+        if (family != other.family)
+            return family < other.family;
+
+        return size < other.size;
+    }
+
+};
 
 class UIRenderer
 {
@@ -34,10 +49,11 @@ public:
 
     void RenderText(
         const std::wstring& text,
-        float x,
-        float y,
+        float x, float y,
+        float width, float height,
+        const std::wstring& fontFamilyName = L"Malgun Gothic",
         float fontSize = 24.0f,
-        const XMFLOAT4& color = {1, 1, 1, 1}
+        const XMFLOAT4& color = {255, 255, 255, 255}
     );
 
 private:
@@ -48,10 +64,12 @@ private:
     // 기본 리소스
     ComPtr<IDWriteTextFormat>  m_textFormat;
     ComPtr<ID2D1SolidColorBrush> m_textBrush;
+    ComPtr<IDWriteFontCollection> m_fontCollection;
 
-    std::unordered_map<float, ComPtr<IDWriteTextFormat>> m_textFormats;
+    std::map<TextFormatKey, ComPtr<IDWriteTextFormat>> m_textFormats;
 
-    IDWriteTextFormat* GetTextFormat(float fontSize);
+    IDWriteTextFormat* GetTextFormat(float fontSize, const WCHAR* fontFamilyName);
+    bool LoadFontsFromDirectory(const std::wstring& directory);
 
     float                   m_screenWidth = 0.0f;
     float                   m_screenHeight = 0.0f;

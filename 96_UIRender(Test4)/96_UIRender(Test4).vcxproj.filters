@@ -22,6 +22,9 @@
     <Filter Include="Meshes\StaticMesh">
       <UniqueIdentifier>{f445f476-480c-432d-a813-e4045f79673b}</UniqueIdentifier>
     </Filter>
+    <Filter Include="UIRenderer">
+      <UniqueIdentifier>{78745cd3-5ea5-45db-8a73-1f34fc0c4401}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="framework.h">
@@ -58,7 +61,7 @@
       <Filter>Meshes</Filter>
     </ClInclude>
     <ClInclude Include="UIRenderer.h">
-      <Filter>헤더 파일</Filter>
+      <Filter>UIRenderer</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -78,7 +81,7 @@
       <Filter>Meshes\SkeletalMesh</Filter>
     </ClCompile>
     <ClCompile Include="UIRenderer.cpp">
-      <Filter>소스 파일</Filter>
+      <Filter>UIRenderer</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
