@@ -2,6 +2,8 @@
 #include "UIManager.h"
 #include "UIRenderer.h"
 
+#include <algorithm>
+
 UIManager::UIManager()
 {
 }
@@ -69,4 +71,10 @@ void UIManager::ProcessMouseMove(int x, int y)
 
 void UIManager::SortByZOrder()
 {
+    std::stable_sort(m_uiList.begin(), m_uiList.end(),
+        [](const UIBase* a, const UIBase* b)
+        {
+            return a->GetZOrder() < b->GetZOrder();
+        }
+        );
 }

@@ -5,7 +5,8 @@
 class UIBase
 {
 public:
-    virtual ~UIBase() = default;
+    UIBase();
+    virtual ~UIBase();
 
     virtual bool Initialize() { return true; }
     virtual void Update(float dt) {}
@@ -16,6 +17,9 @@ public:
 
     void SetActive(bool active);
     bool IsActive() const;
+
+    int GetZOrder() const { return m_zOrder; }
+    void SetZOrder(int z) { m_zOrder = z; }
 
     void AddChild(std::unique_ptr<UIBase> child);
 

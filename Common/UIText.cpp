@@ -4,12 +4,12 @@
 
 UIText::UIText()
 {
-    Initialize();
+    //Initialize();
 }
 
 UIText::~UIText()
 {
-    Shutdown();
+    //Shutdown();
 }
 
 bool UIText::Initialize()

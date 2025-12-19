@@ -1,6 +1,16 @@
 #include "pch.h"
 #include "UIBase.h"
 
+UIBase::UIBase()
+{
+    Initialize();
+}
+
+UIBase::~UIBase()
+{
+    Shutdown();
+}
+
 bool UIBase::HitTest(const POINT& mousePos)
 {
     return false;
