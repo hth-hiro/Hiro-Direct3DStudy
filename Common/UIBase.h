@@ -5,8 +5,7 @@
 class UIBase
 {
 public:
-    UIBase();
-    virtual ~UIBase();
+    virtual ~UIBase() = default;
 
     virtual bool Initialize() { return true; }
     virtual void Update(float dt) {}
