@@ -148,6 +148,7 @@
     <ClInclude Include="Helper.h" />
     <ClInclude Include="InputSystem.h" />
     <ClInclude Include="pch.h" />
+    <ClInclude Include="Singleton.h" />
     <ClInclude Include="TimeSystem.h" />
     <ClInclude Include="Transform.h" />
     <ClInclude Include="UIBase.h" />
