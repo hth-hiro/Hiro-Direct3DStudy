@@ -120,6 +120,11 @@ void UIText::SetColor(Vector4 color)
     m_color.a = color.w;
 }
 
+void UIText::SetLayer(int layer)
+{
+    SetZOrder(layer);
+}
+
 IDWriteTextFormat* UIText::GetTextFormat(float fontSize, const WCHAR* fontFamilyName)
 {
     TextFormatKey key{ fontFamilyName, fontSize };
