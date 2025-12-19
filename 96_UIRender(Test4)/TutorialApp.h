@@ -21,7 +21,10 @@
 #include <Psapi.h>
 
 // UI
-#include "UIRenderer.h"
+#include "../Common/UIManager.h"
+
+//
+#include "../Common/UIText.h"
 
 using namespace DirectX::SimpleMath;
 using namespace DirectX;
@@ -72,6 +75,23 @@ struct Object
 struct Light
 {
     Vector3 Direction = {0, -1, 1};
+};
+
+struct Text
+{
+    UIText* text;
+    bool textActive = false;
+    Vector4 textColor = { 1, 1, 1, 1 };
+    Vector2 position = {0, 0};
+    Vector2 textBox = {1000, 200};
+
+    void Reset()
+    {
+        //textActive = false;
+        textColor = { 1,1,1,1 };
+        position = { 0, 0 };
+        textBox = { 1000, 200 };
+    }
 };
 
 struct Environment
@@ -194,13 +214,10 @@ public:
     StaticMesh ground;
 
     /*------ UI ------*/
-    UIRenderer ui;
+    UIManager m_uiManager;
+    float m_masterFontSize = 24.0f;
 
-
-
-
-
-
+    Text m_title;
 
 	// ModelLoad
 	//Model* GetModelByName(const std::string& name)

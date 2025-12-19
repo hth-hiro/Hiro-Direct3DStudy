@@ -37,7 +37,7 @@ TutorialApp::TutorialApp(HINSTANCE hInstance) : GameApp(hInstance)
 TutorialApp::~TutorialApp()
 {
     UninitImGUI();
-    ui.ShutDown();
+    m_uiManager.Shutdown();
 
     if (m_pDeviceContext)
     {
@@ -62,7 +62,7 @@ bool TutorialApp::Initialize(UINT Width, UINT Height)
     if (!InitD3D())
         return false;
 
-    if (!ui.Initialize(m_hWnd, m_pDevice, m_pDeviceContext, m_pSwapChain))
+    if (!m_uiManager.Initialize(m_hWnd, m_pDevice, m_pDeviceContext, m_pSwapChain))
         return false;
 
     if (!InitImGUI())
@@ -227,6 +227,14 @@ void TutorialApp::Update()
     m_ShadowPos = m_ShadowLookAt + (-m_Light.Direction * m_ShadowUpDistFromLookAt);
     m_ShadowView = XMMatrixLookAtLH(m_ShadowPos, m_ShadowLookAt, Vector3(0.0f, 1.0f, 0.0f));
     m_pDeviceContext->RSSetViewports(1, &m_ShadowViewport);
+
+    // UI update
+    m_title.text->SetActive(m_title.textActive);
+    m_title.text->SetText(L"Text");
+    m_title.text->SetFont(L"Gulim");
+    m_title.text->SetFontSize(m_masterFontSize);
+    m_title.text->SetColor(m_title.textColor);
+    m_title.text->SetRect(m_title.position.x, m_title.position.y, m_title.textBox.x, m_title.textBox.y);
 }
 
 void TutorialApp::Render()
@@ -630,19 +638,31 @@ void TutorialApp::Render()
     ImGui::Checkbox(u8"텍스처 적용", &useTexture);
     ImGui::Checkbox(u8"PBR 수동 조작", &useCustomAlbedo);
     ImGui::DragFloat(u8"앰비언트 오클루전", &ambientOcclusion, 0.01f, 0.0f, 1.0f);
-
     if (ImGui::Button(u8" 초기화")) { object1.Reset(); ambientOcclusion = 1.0f; }
     ImGui::Text("");
     ImGui::End();
+
+    ImGui::Begin(u8"텍스트 관련 설정");
+    ImGui::Checkbox(u8"텍스트 활성화", &m_title.textActive);
+    ImGui::ColorEdit4(u8"텍스트 색", &m_title.textColor.x);
+    ImGui::DragFloat(u8"텍스트 크기", &m_masterFontSize, 0.1f, 1.0f, 500.0f, "%.1f");
+    ImGui::DragFloat(u8"텍스트 위치", &m_title.position.x, 1.f, 0.0f, m_ClientWidth, "%.0f");
+    ImGui::DragFloat(u8"aaa", &m_title.position.y, 1.f, 0.0f, m_ClientHeight, "%.0f");
+    ImGui::DragFloat(u8"텍스트박스 크기", &m_title.textBox.x, 1.0, 1.0f, 1000.0f); 
+    ImGui::DragFloat(u8"aa", &m_title.textBox.y, 1.0, 1.0, 1000.0f); 
+    ImGui::End();
+
+    // etc... ImGui...
+
+
 
     //m_ImGuiManager.Render();
     ImGui::Render();
     ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
 
-    // UI - Text
-    ui.BeginFrame();
-    ui.RenderText(L"텍스트", 200, 40, 1000, 200, L"Gulim", 100.0f, { 10, 255, 255, 255 });
-    ui.EndFrame();
+
+
+    m_uiManager.Render();
 
     // 5. Present
     m_pSwapChain->Present(0, 0);
@@ -823,6 +843,10 @@ void TutorialApp::UninitImGUI()
 
 bool TutorialApp::InitScene()
 {
+    // UI - Text
+    m_title.text = new UIText();
+    m_uiManager.AddUI(m_title.text);
+
     HRESULT hr = 0;
     ID3D10Blob* errorMessage = nullptr;
 

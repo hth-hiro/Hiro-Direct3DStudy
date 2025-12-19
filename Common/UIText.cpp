@@ -4,7 +4,7 @@
 
 UIText::UIText()
 {
-
+    Initialize();
 }
 
 UIText::~UIText()
@@ -22,13 +22,16 @@ bool UIText::Initialize()
     if (!rt || !dw)
         return false;
 
+    m_fontFamily = L"Malgun Gothic";
+    m_fontSize = 24.0f;
+
     hr = dw->CreateTextFormat(
-        L"Malgun Gothic",
+        m_fontFamily.c_str(),
         nullptr,
         DWRITE_FONT_WEIGHT_NORMAL,
         DWRITE_FONT_STYLE_NORMAL,
         DWRITE_FONT_STRETCH_NORMAL,
-        24.0f,
+        m_fontSize,
         L"ko-kr",
         m_textFormat.GetAddressOf()
     );
@@ -55,9 +58,9 @@ void UIText::Shutdown()
 void UIText::Render()
 {
     auto* rt = UIRenderer::Get().GetRenderTarget();
-    auto* wf = UIRenderer::Get().GetDWriteFactory();
+    auto* dw = UIRenderer::Get().GetDWriteFactory();
 
-    wf->CreateTextFormat(
+    dw->CreateTextFormat(
         L"",
         nullptr,
         DWRITE_FONT_WEIGHT_NORMAL,
@@ -67,6 +70,9 @@ void UIText::Render()
         L"ko-kr",
         m_textFormat.GetAddressOf()
     );
+
+    m_textBrush->SetColor(m_color);
+
 
     IDWriteTextFormat* format = GetTextFormat(m_fontSize, m_fontFamily.c_str());
 
@@ -98,12 +104,20 @@ void UIText::SetFont(const std::wstring& fontFamilyName)
 
 void UIText::SetFontSize(float fontSize)
 {
-    m_fontSize = fontSize;
+    m_fontSize = max(fontSize, 1.0f);
 }
 
 void UIText::SetColor(D2D1::ColorF color)
 {
     m_color = color;
+}
+
+void UIText::SetColor(Vector4 color)
+{
+    m_color.r = color.x;
+    m_color.g = color.y;
+    m_color.b = color.z;
+    m_color.a = color.w;
 }
 
 IDWriteTextFormat* UIText::GetTextFormat(float fontSize, const WCHAR* fontFamilyName)
@@ -138,7 +152,7 @@ IDWriteTextFormat* UIText::GetTextFormat(float fontSize, const WCHAR* fontFamily
 
 bool UIText::LoadFontsFromDirectory(const std::wstring& directory)
 {
-    auto* wf = UIRenderer::Get().GetDWriteFactory();
+    auto* dw = UIRenderer::Get().GetDWriteFactory();
 
     namespace fs = std::filesystem;
 
@@ -156,7 +170,7 @@ bool UIText::LoadFontsFromDirectory(const std::wstring& directory)
     }
 
     ComPtr<IDWriteFontCollection> collection;
-    HRESULT hr = wf->GetSystemFontCollection(&collection, TRUE);
+    HRESULT hr = dw->GetSystemFontCollection(&collection, TRUE);
 
     return SUCCEEDED(hr);
 }

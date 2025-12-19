@@ -47,6 +47,7 @@ public:
     void SetFont(const std::wstring& fontFamilyName = L"Malgun Gothic");
     void SetFontSize(float fontSize);
     void SetColor(D2D1::ColorF color);
+    void SetColor(Vector4 color);
 
 private:
     // 기본 리소스
@@ -60,9 +61,9 @@ private:
     bool LoadFontsFromDirectory(const std::wstring& directory);
 
 private:
-    std::wstring     m_text;
-    std::wstring     m_fontFamily;
-    float            m_fontSize;
+    std::wstring     m_text = L"";
+    std::wstring     m_fontFamily = L"Malgun Gothic";
+    float            m_fontSize = 24.0f;
     D2D1_RECT_F      m_rect;
     D2D1::ColorF     m_color = D2D1::ColorF(D2D1::ColorF::White);
 };

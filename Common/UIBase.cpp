@@ -8,11 +8,12 @@ bool UIBase::HitTest(const POINT& mousePos)
 
 void UIBase::SetActive(bool active)
 {
+    m_active = active;
 }
 
 bool UIBase::IsActive() const
 {
-    return false;
+    return m_active;
 }
 
 void UIBase::AddChild(std::unique_ptr<UIBase> child)
