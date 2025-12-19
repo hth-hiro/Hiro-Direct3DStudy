@@ -648,6 +648,7 @@ void TutorialApp::Render()
     ImGui::DragFloat(u8"텍스트 크기", &m_masterFontSize, 0.1f, 1.0f, 500.0f, "%.1f");
     ImGui::DragFloat2(u8"텍스트 위치", &m_title.position.x, 1.f, 0.0f, m_ClientWidth, "%.0f");
     ImGui::DragFloat2(u8"텍스트박스 크기", &m_title.textBox.x, 1.0, 1.0f, 1000.0f); 
+    if (ImGui::Button(u8" 초기화")) { m_title.Reset(); }
     ImGui::End();
 
     // etc... ImGui...
