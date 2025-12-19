@@ -16,6 +16,8 @@ UIRenderer::~UIRenderer()
 
 bool UIRenderer::Initialize(HWND hWnd, ID3D11Device* device, ID3D11DeviceContext* context, IDXGISwapChain* swapChain)
 {
+    ScreenSpaceRenderer::Initialize(hWnd, device, context, swapChain);
+
     HRESULT hr;
 
     // Direct2D Factory

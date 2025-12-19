@@ -1,5 +1,6 @@
 #pragma once
 #include "Utility/Singleton.h"
+#include "ScreenSpaceRenderer.h"
 
 #include <wrl/client.h>
 #include <d3d11.h>
@@ -20,7 +21,7 @@ using namespace std;
 using Microsoft::WRL::ComPtr;
 using namespace DirectX;
 
-class UIRenderer : public Singleton<UIRenderer>
+class UIRenderer : public Singleton<UIRenderer>, public ScreenSpaceRenderer
 {
 public:
     UIRenderer();

@@ -4,17 +4,17 @@
 
 UIImage::UIImage()
 {
-    //Initialize();
+    Initialize();
 }
 
 UIImage::~UIImage()
 {
-    //Shutdown();
+    Shutdown();
 }
 
 bool UIImage::Initialize()
 {
-    return false;
+    return true;
 }
 
 void UIImage::Shutdown()

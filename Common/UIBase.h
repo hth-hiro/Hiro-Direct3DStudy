@@ -2,6 +2,21 @@
 #include <iostream> 
 #include "Helper.h"
 
+#include <wrl/client.h>
+#include <d3d11.h>
+#include <dxgi1_2.h>
+#include <d2d1_1.h>
+#include <dwrite.h>
+#include <string>
+
+#include <DirectXMath.h>
+#include <map>
+
+#include <filesystem>
+
+using Microsoft::WRL::ComPtr;
+using namespace DirectX;
+
 class UIBase
 {
 public:

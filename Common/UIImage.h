@@ -14,8 +14,10 @@ public:
 
 public:
     // TODO: 여기에 이미지 띄울 함수 추가
+    void SetTexture(ID3D11ShaderResourceView* tex);
 
 private:
     // TODO: 이미지를 띄울 리소스
+    ComPtr<ID3D11ShaderResourceView> m_Texture;
 };
 
