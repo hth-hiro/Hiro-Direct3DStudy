@@ -2,8 +2,6 @@
 #include "UIManager.h"
 #include "UIRenderer.h"
 
-#include <algorithm>
-
 UIManager::UIManager()
 {
 }
@@ -57,7 +55,6 @@ void UIManager::Render()
     UIRenderer::Get().EndFrame();
 }
 
-// 추후 추가하기
 void UIManager::ProcessMouseDown(int x, int y)
 {
 }
@@ -72,10 +69,4 @@ void UIManager::ProcessMouseMove(int x, int y)
 
 void UIManager::SortByZOrder()
 {
-    // 같은 zOrder끼리는 추가된 순서로 유지한다.
-    std::stable_sort(m_uiList.begin(), m_uiList.end(),
-        [](const UIBase* a, const UIBase* b)
-        {
-            return a->GetZOrder() < b->GetZOrder();
-        });
 }

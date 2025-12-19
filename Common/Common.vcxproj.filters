@@ -72,9 +72,6 @@
     <ClInclude Include="UIRenderer.h">
       <Filter>Renderer</Filter>
     </ClInclude>
-    <ClInclude Include="UIImage.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Common.cpp">
@@ -112,9 +109,6 @@
     </ClCompile>
     <ClCompile Include="UIRenderer.cpp">
       <Filter>Renderer</Filter>
-    </ClCompile>
-    <ClCompile Include="UIImage.cpp">
-      <Filter>소스 파일</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

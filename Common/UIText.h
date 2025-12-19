@@ -48,7 +48,6 @@ public:
     void SetFontSize(float fontSize);
     void SetColor(D2D1::ColorF color);
     void SetColor(Vector4 color);
-    void SetLayer(int layer);
 
 private:
     // 기본 리소스

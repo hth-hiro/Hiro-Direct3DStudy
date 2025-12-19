@@ -17,13 +17,10 @@ public:
     void SetActive(bool active);
     bool IsActive() const;
 
-    int GetZOrder() const { return m_zOrder; }
-    void SetZOrder(int z) { m_zOrder = z; }
-
     void AddChild(std::unique_ptr<UIBase> child);
 
 protected:
-    //RECT m_bounds;
+    RECT m_bounds;
     bool m_active = true;
     int m_zOrder = 0;
 };
