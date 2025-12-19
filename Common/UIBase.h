@@ -17,6 +17,8 @@
 using Microsoft::WRL::ComPtr;
 using namespace DirectX;
 
+// UIBase는 UI의 부모입니다.
+// 모든 UI들을 UIBase가 보관하고, UIManager가 UIBase를 관리합니다.
 class UIBase
 {
 public:
