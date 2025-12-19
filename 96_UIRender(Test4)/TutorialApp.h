@@ -44,7 +44,7 @@ struct Object
     Vector4 albedo = { 1.f, 1.f, 1.f, 1.0f };
     float roughness = 0.04f;
     float metallic = 0.0f;
-    float gamma = 2.2f;
+    float gamma = 1.0f;
 
     void PosReset()
     {
@@ -65,7 +65,7 @@ struct Object
         albedo = { 1.f, 1.f, 1.f, 1.0f };
         roughness = 0.04f;
         metallic = 0.0f;
-        gamma = 2.2f;
+        gamma = 1.0f;
     }
 };
 
