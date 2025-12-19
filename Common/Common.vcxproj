@@ -113,6 +113,7 @@
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
+      <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>
@@ -149,6 +150,8 @@
     <ClInclude Include="pch.h" />
     <ClInclude Include="TimeSystem.h" />
     <ClInclude Include="Transform.h" />
+    <ClInclude Include="UIBase.h" />
+    <ClInclude Include="UIManager.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Camera.cpp" />
@@ -164,6 +167,8 @@
     </ClCompile>
     <ClCompile Include="TimeSystem.cpp" />
     <ClCompile Include="Transform.cpp" />
+    <ClCompile Include="UIBase.cpp" />
+    <ClCompile Include="UIManager.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
