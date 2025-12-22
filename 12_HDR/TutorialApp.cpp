@@ -304,6 +304,10 @@ void TutorialApp::Render()
     m_pDeviceContext->RSSetViewports(1, &m_MainViewport);
     m_pDeviceContext->OMSetDepthStencilState(nullptr, 0);
 
+    float hdrClear[4] = { 4.0f, 0.0f, 4.0f, 1.0f };
+    m_pDeviceContext->ClearRenderTargetView(m_sceneHDRRTV.Get(), hdrClear);
+    m_pDeviceContext->ClearDepthStencilView(m_pDepthStencilView.Get(), D3D11_CLEAR_DEPTH, 1.0f, 0);
+
     // 2. 스카이박스 렌더 =================================================================================================================
     m_pDeviceContext->OMSetDepthStencilState(m_pSkyboxDepthStencilState, 0);
     m_pDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
@@ -528,6 +532,9 @@ void TutorialApp::Render()
 
     m_pDeviceContext->PSSetShaderResources(7, 1, nullSRV);
 
+    //float hdrClear[4] = { 4.0f, 0.0f, 4.0f, 1.0f };
+    //m_pDeviceContext->ClearRenderTargetView(m_sceneHDRRTV.Get(), hdrClear);
+
     // Tone Mapping
     m_pDeviceContext->OMSetDepthStencilState(nullptr, 0);
     m_pDeviceContext->OMSetRenderTargets(1, m_pRenderTargetView.GetAddressOf(), nullptr);
@@ -694,7 +701,8 @@ void TutorialApp::Render()
     ImGui::Begin("HDR");
     //ImGui::Image((ImTextureID)m_sceneHDRSRV.Get(), ImVec2(256, 256));
     ImGui::DragFloat(u8"카메라 노출", &m_exposure, 0.001f);
-    ImGui::DragFloat(u8"카메라 감마", &m_gamma, 0.001f);
+    ImGui::DragFloat(u8"카메라 감마", &m_gamma, 0.001f, 0.0f, 10.0f);
+    if (ImGui::Button(u8"초기화")) { m_exposure = 0.0f; m_gamma = 1.0f; }
     ImGui::End();
 
     // etc... ImGui...

@@ -13,7 +13,8 @@ float4 main(PS_INPUT_TONEMAP input) : SV_Target
     float3 hdr = SceneHDR.Sample(LinearSamp, input.Tex).rgb;
     
     // Exposure
-    float exposure = max(0.01, Exposure);
+    float exposure = pow(2.0f, Exposure);
+    
     hdr *= exposure;
     
     // ToneMap

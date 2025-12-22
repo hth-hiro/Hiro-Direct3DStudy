@@ -182,7 +182,8 @@ float4 main(PS_INPUT input) : SV_Target
     
     float3 directIBL = ambient.rgb + diffuse.rgb * shadowFactor * vDiffuseColor.rgb + specular.rgb * shadowFactor * vSpecularColor.rgb;
     float3 lit = directIBL + indirectIBL;
-    float4 final = pow(float4(lit + txEmissive.rgb, surface.a), (1 / gamma));
+    //float4 final = pow(float4(lit + txEmissive.rgb, surface.a), (1 / gamma));
+    float4 final = float4(lit + txEmissive.rgb, surface.a);
 
     return final;
 }
