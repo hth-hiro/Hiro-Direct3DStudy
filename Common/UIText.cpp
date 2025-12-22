@@ -90,6 +90,11 @@ void UIText::SetText(const std::wstring& text)
     m_text = text;
 }
 
+void UIText::SetText(const std::string& text)
+{
+    m_text = Utf8ToWString(text);
+}
+
 void UIText::SetRect(int x, int y, int width, int height)
 {
     m_rect = D2D1::RectF(

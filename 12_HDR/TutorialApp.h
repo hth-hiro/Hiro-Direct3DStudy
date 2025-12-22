@@ -20,6 +20,10 @@
 #include <imgui_impl_dx11.h>
 #include <Psapi.h>
 
+// UI
+#include "../Common/UIManager.h"
+#include "../Common/UIText.h"
+
 using namespace DirectX::SimpleMath;
 using namespace DirectX;
 
@@ -64,6 +68,19 @@ struct Object
         metallic = 0.0f;
         gamma = 1.0f;
     }
+};
+
+struct FullScreenVertex
+{
+    XMFLOAT3 Pos;
+    XMFLOAT2 Tex;
+};
+
+struct ToneMapCB
+{
+    float Exposure;
+    float Gamma;
+    Vector2 pad;
 };
 
 struct Light
@@ -129,6 +146,11 @@ public:
 
     D3D11_VIEWPORT m_MainViewport;
 
+    /*--------UI--------*/
+    UIManager m_uiManager;
+    float m_masterFontSize= 24.0f;
+    Text m_title;
+
     /*-------PBR-------*/
     float ambientOcclusion = 1.0f;
 
@@ -146,6 +168,22 @@ public:
     Environment Env_Street;
     Environment Env_BakerSample;
     Environment Env_Hanako; // Hanako
+
+    /*-------HDR-------*/
+    ComPtr<ID3D11RenderTargetView>      m_sceneHDRRTV;
+    ComPtr<ID3D11Texture2D>             m_sceneHDRTex;
+    ComPtr<ID3D11ShaderResourceView>    m_sceneHDRSRV;
+
+    ComPtr<ID3D11VertexShader>          m_toneMapVertexShader;
+    ComPtr<ID3D11PixelShader>           m_toneMapPixelShader;
+    ComPtr<ID3D11InputLayout>           m_toneMapInputLayout;
+
+    ComPtr<ID3D11Buffer>                m_fullscreenVB;
+
+    ComPtr<ID3D11Buffer>                m_toneMapConstantBuffer;
+
+    float m_exposure = 1.0f;
+    float m_gamma = 1.0f;
 
     /*-----Shadow Map-----*/
     ComPtr<ID3D11Texture2D> m_pShadowMap;

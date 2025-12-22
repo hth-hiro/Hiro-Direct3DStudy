@@ -36,7 +36,8 @@ TutorialApp::TutorialApp(HINSTANCE hInstance) : GameApp(hInstance)
 
 TutorialApp::~TutorialApp()
 {
-    UninitScene();
+    UninitImGUI();
+    m_uiManager.Shutdown();
 
     if (m_pDeviceContext)
     {
@@ -44,10 +45,12 @@ TutorialApp::~TutorialApp()
         m_pDeviceContext->Flush();
     }
 
-    UninitImGUI();
-    CheckDXGIDebug();
-    UninitD3D();
+    m_pRenderTargetView.Reset();
+    m_pDepthStencilView.Reset();
 
+    UninitScene();
+    UninitD3D();
+    CheckDXGIDebug();
 }
 
 bool TutorialApp::Initialize(UINT Width, UINT Height)
@@ -57,6 +60,9 @@ bool TutorialApp::Initialize(UINT Width, UINT Height)
     m_Time.Initialize();
 
     if (!InitD3D())
+        return false;
+
+    if (!m_uiManager.Initialize(m_hWnd, m_pDevice, m_pDeviceContext, m_pSwapChain))
         return false;
 
     if (!InitImGUI())
@@ -179,7 +185,7 @@ void TutorialApp::Update()
     // Light
     m_InitialLightDirs = { lightDir.x, lightDir.y, lightDir.z, 0.0f };
     m_LightDirsEvaluated = m_InitialLightDirs;
-    m_Light.Direction = { lightDir.x, lightDir.y, lightDir.z  };
+    m_Light.Direction = { lightDir.x, lightDir.y, lightDir.z };
 
     m_AmbientColor = { ambientLight };
     m_DiffuseColor = { diffuseLight };
@@ -221,6 +227,14 @@ void TutorialApp::Update()
     m_ShadowPos = m_ShadowLookAt + (-m_Light.Direction * m_ShadowUpDistFromLookAt);
     m_ShadowView = XMMatrixLookAtLH(m_ShadowPos, m_ShadowLookAt, Vector3(0.0f, 1.0f, 0.0f));
     m_pDeviceContext->RSSetViewports(1, &m_ShadowViewport);
+
+    // UI update
+    m_title.uiText->SetActive(m_title.active);
+    m_title.uiText->SetText(L"Text");
+    m_title.uiText->SetFont(L"Gulim");
+    m_title.uiText->SetFontSize(m_masterFontSize);
+    m_title.uiText->SetColor(m_title.textColor);
+    m_title.uiText->SetRect(m_title.position.x, m_title.position.y, m_title.textBox.x, m_title.textBox.y);
 }
 
 void TutorialApp::Render()
@@ -279,9 +293,13 @@ void TutorialApp::Render()
         m_pDeviceContext->DrawIndexed(static_cast<UINT>(section.Indices.size()), 0, 0);
     }
 
-    ID3D11RenderTargetView* rtv = m_pRenderTargetView.Get(); // 내부 포인터
-    m_pDeviceContext->OMSetRenderTargets(1, &rtv, m_pDepthStencilView.Get());
-    m_pDeviceContext->ClearRenderTargetView(rtv, color);
+    //ID3D11RenderTargetView* rtv = m_pRenderTargetView.Get(); // 내부 포인터
+    //m_pDeviceContext->OMSetRenderTargets(1, &rtv, m_pDepthStencilView.Get());
+    //m_pDeviceContext->ClearRenderTargetView(rtv, color);
+
+    // HDR
+    m_pDeviceContext->OMSetRenderTargets(1, m_sceneHDRRTV.GetAddressOf(), m_pDepthStencilView.Get());
+    m_pDeviceContext->ClearRenderTargetView(m_sceneHDRRTV.Get(), color);
     m_pDeviceContext->ClearDepthStencilView(m_pDepthStencilView.Get(), D3D11_CLEAR_DEPTH, 1.0f, 0);
     m_pDeviceContext->RSSetViewports(1, &m_MainViewport);
     m_pDeviceContext->OMSetDepthStencilState(nullptr, 0);
@@ -294,20 +312,20 @@ void TutorialApp::Render()
     m_pDeviceContext->IASetInputLayout(m_pSkyboxInputLayout.Get());
     m_pDeviceContext->VSSetShader(m_pSkyboxVertexShader.Get(), nullptr, 0);
     m_pDeviceContext->PSSetShader(m_pSkyboxPixelShader.Get(), nullptr, 0);
-    
+
     // 상수 버퍼 업데이트
     SkyBoxCB cbSky;
     cbSky.mView = XMMatrixTranspose(XMMatrixScaling(10, 10, 10) * m_Camera.GetViewMatrixNoTranslation(m_View));
     cbSky.mProjection = XMMatrixTranspose(m_Projection);
     m_pDeviceContext->VSSetConstantBuffers(1, 1, &m_pSkyboxConstantBuffer);
     m_pDeviceContext->UpdateSubresource(m_pSkyboxConstantBuffer, 0, nullptr, &cbSky, 0, 0);
-    
+
     m_pDeviceContext->PSSetShaderResources(0, 1, currentEnv->SkyBox.GetAddressOf());
     m_pDeviceContext->PSSetSamplers(0, 1, m_pSamplerLinear.GetAddressOf());
     m_pDeviceContext->DrawIndexed(m_nSkyboxIndices, 0, 0);
     // 원래 상태 복원
     m_pDeviceContext->OMSetDepthStencilState(nullptr, 0);
-    
+
     // 3. 일반 오브젝트 렌더 ===========================================================================================
     m_pDeviceContext->IASetInputLayout(m_pInputLayout.Get());
     m_pDeviceContext->VSSetShader(m_pVertexShader.Get(), nullptr, 0);
@@ -317,7 +335,7 @@ void TutorialApp::Render()
     m_pDeviceContext->PSSetSamplers(0, 1, m_pSamplerLinear.GetAddressOf());
     // ShadowMapSRV
     m_pDeviceContext->PSSetShaderResources(7, 1, m_pShadowMapSRV.GetAddressOf());
-    
+
     // IBL 적용 여부 분기, 매핑 여부 결정
     if (useIBL)
     {
@@ -510,6 +528,41 @@ void TutorialApp::Render()
 
     m_pDeviceContext->PSSetShaderResources(7, 1, nullSRV);
 
+    // Tone Mapping
+    m_pDeviceContext->OMSetDepthStencilState(nullptr, 0);
+    m_pDeviceContext->OMSetRenderTargets(1, m_pRenderTargetView.GetAddressOf(), nullptr);
+    m_pDeviceContext->RSSetViewports(1, &m_MainViewport);
+
+    // Pipeline
+    m_pDeviceContext->IASetInputLayout(m_toneMapInputLayout.Get());
+    m_pDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+
+    UINT fsStride = sizeof(FullScreenVertex);
+    UINT fsOffset = 0;
+    ID3D11Buffer* fsVB = m_fullscreenVB.Get();
+    m_pDeviceContext->IASetVertexBuffers(0, 1, &fsVB, &fsStride, &fsOffset);
+
+    m_pDeviceContext->VSSetShader(m_toneMapVertexShader.Get(), nullptr, 0);
+    m_pDeviceContext->PSSetShader(m_toneMapPixelShader.Get(), nullptr, 0);
+
+    ToneMapCB toneCB = {};
+    toneCB.Exposure = m_exposure;
+    toneCB.Gamma = m_gamma;
+
+    m_pDeviceContext->UpdateSubresource(m_toneMapConstantBuffer.Get(), 0, nullptr, &toneCB, 0, 0);
+    m_pDeviceContext->PSSetConstantBuffers(5, 1, m_toneMapConstantBuffer.GetAddressOf());
+
+    m_pDeviceContext->PSSetShaderResources(13, 1, m_sceneHDRSRV.GetAddressOf());
+
+    m_pDeviceContext->PSSetSamplers(2, 1, m_pSamplerLinear.GetAddressOf());
+
+    // 인덱스 없이 VB에 6개를 넣음
+    m_pDeviceContext->Draw(6, 0);
+
+    // 텍스처 해제
+    ID3D11ShaderResourceView* nullSrv[1] = { nullptr };
+    m_pDeviceContext->PSSetShaderResources(13, 1, nullSrv);
+
     // 4. GUI 렌더 ======================================================================================
     ImGui_ImplDX11_NewFrame();
     ImGui_ImplWin32_NewFrame();
@@ -620,18 +673,37 @@ void TutorialApp::Render()
     ImGui::SliderFloat(u8"Metallic", &object1.metallic, 0.0f, 1.0f);
     ImGui::SliderFloat(u8"Roughness", &object1.roughness, 0.0f, 1.0f);
     ImGui::SliderFloat(u8"Gamma", &object1.gamma, 1.f, 3.0f);
-    
+
     ImGui::Checkbox(u8"텍스처 적용", &useTexture);
     ImGui::Checkbox(u8"PBR 수동 조작", &useCustomAlbedo);
     ImGui::DragFloat(u8"앰비언트 오클루전", &ambientOcclusion, 0.01f, 0.0f, 1.0f);
-
     if (ImGui::Button(u8" 초기화")) { object1.Reset(); ambientOcclusion = 1.0f; }
     ImGui::Text("");
     ImGui::End();
 
+    ImGui::Begin(u8"텍스트 관련 설정");
+    ImGui::Checkbox(u8"텍스트 활성화", &m_title.active);
+    ImGui::ColorEdit4(u8"텍스트 색", &m_title.textColor.x);
+    ImGui::DragFloat(u8"텍스트 크기", &m_masterFontSize, 0.1f, 1.0f, 500.0f, "%.1f");
+    ImGui::DragFloat2(u8"텍스트 위치", &m_title.position.x, 1.f, 0.0f, m_ClientWidth, "%.0f");
+    ImGui::DragFloat2(u8"텍스트박스 크기", &m_title.textBox.x, 1.0, 1.0f, 1000.0f);
+    
+    if (ImGui::Button(u8" 초기화")) { m_title.Reset(); }
+    ImGui::End();
+
+    ImGui::Begin("HDR");
+    //ImGui::Image((ImTextureID)m_sceneHDRSRV.Get(), ImVec2(256, 256));
+    ImGui::DragFloat(u8"카메라 노출", &m_exposure, 0.001f);
+    ImGui::DragFloat(u8"카메라 감마", &m_gamma, 0.001f);
+    ImGui::End();
+
+    // etc... ImGui...
+
     //m_ImGuiManager.Render();
     ImGui::Render();
     ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
+
+    m_uiManager.Render();
 
     // 5. Present
     m_pSwapChain->Present(0, 0);
@@ -646,7 +718,7 @@ bool TutorialApp::InitD3D()
     swapDesc.BufferCount = 1;
     swapDesc.BufferDesc.Width = m_ClientWidth;
     swapDesc.BufferDesc.Height = m_ClientHeight;
-    swapDesc.BufferDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+    swapDesc.BufferDesc.Format = DXGI_FORMAT_B8G8R8A8_UNORM;
     swapDesc.BufferDesc.RefreshRate.Numerator = 60;
     swapDesc.BufferDesc.RefreshRate.Denominator = 1;
     swapDesc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
@@ -657,7 +729,7 @@ bool TutorialApp::InitD3D()
     swapDesc.SwapEffect = DXGI_SWAP_EFFECT_DISCARD;
     swapDesc.Flags = 0;
 
-    hr = D3D11CreateDeviceAndSwapChain(NULL, D3D_DRIVER_TYPE_HARDWARE, NULL, D3D11_CREATE_DEVICE_DEBUG, NULL, NULL,
+    hr = D3D11CreateDeviceAndSwapChain(NULL, D3D_DRIVER_TYPE_HARDWARE, NULL, /*D3D11_CREATE_DEVICE_DEBUG |*/ D3D11_CREATE_DEVICE_BGRA_SUPPORT, NULL, NULL,
         D3D11_SDK_VERSION, &swapDesc, &m_pSwapChain, &m_pDevice, NULL, &m_pDeviceContext);
     if (FAILED(hr))
     {
@@ -775,8 +847,8 @@ bool TutorialApp::InitD3D()
 
 void TutorialApp::UninitD3D()
 {
-    SAFE_RELEASE(m_pDeviceContext);
     SAFE_RELEASE(m_pSwapChain);
+    SAFE_RELEASE(m_pDeviceContext);
     SAFE_RELEASE(m_pDevice);
 }
 
@@ -812,11 +884,35 @@ void TutorialApp::UninitImGUI()
 
 bool TutorialApp::InitScene()
 {
+    // UI - Text
+    m_title.uiText = new UIText();
+    m_uiManager.AddUI(m_title.uiText);
+
     HRESULT hr = 0;
     ID3D10Blob* errorMessage = nullptr;
 
     //m_SkeletalModelLoader.Load(m_pDevice, m_pDeviceContext, "../Resource/Vampire_SkinningTest.fbx", "model");
     //m_SkeletalModelLoader.Load(m_pDevice, m_pDeviceContext, "../Resource/SkinningTest.fbx", "SkinningTest");
+
+    FullScreenVertex v[6] =
+    {
+        { {-1.0f, -1.0f, 0.0f}, {0.0f, 1.0f} },
+        { {-1.0f,  1.0f, 0.0f}, {0.0f, 0.0f} },
+        { { 1.0f,  1.0f, 0.0f}, {1.0f, 0.0f} },
+
+        { {-1.0f, -1.0f, 0.0f}, {0.0f, 1.0f} },
+        { { 1.0f,  1.0f, 0.0f}, {1.0f, 0.0f} },
+        { { 1.0f, -1.0f, 0.0f}, {1.0f, 1.0f} },
+    };
+
+    D3D11_BUFFER_DESC bdToneMap = {};
+    bdToneMap.Usage = D3D11_USAGE_DEFAULT;
+    bdToneMap.ByteWidth = sizeof(v);
+    bdToneMap.BindFlags = D3D11_BIND_VERTEX_BUFFER;
+    D3D11_SUBRESOURCE_DATA init = {};
+    init.pSysMem = v;
+
+    HR_T(m_pDevice->CreateBuffer(&bdToneMap, &init, m_fullscreenVB.GetAddressOf()));
 
     Skybox skybox[] =
     {
@@ -1007,11 +1103,11 @@ bool TutorialApp::InitScene()
 
     // Texture 파일 로드
     // Baker_Sample
-    HR_T(CreateDDSTextureFromFile(m_pDevice, L"../Resource/Environment/BakerSample/BakerSampleEnvHDR.dds",nullptr, Env_BakerSample.SkyBox.GetAddressOf()));
+    HR_T(CreateDDSTextureFromFile(m_pDevice, L"../Resource/Environment/BakerSample/BakerSampleEnvHDR.dds", nullptr, Env_BakerSample.SkyBox.GetAddressOf()));
     HR_T(CreateDDSTextureFromFile(m_pDevice, L"../Resource/Environment/BakerSample/BakerSampleDiffuseHDR.dds", nullptr, Env_BakerSample.Diffuse.GetAddressOf()));
     HR_T(CreateDDSTextureFromFile(m_pDevice, L"../Resource/Environment/BakerSample/BakerSampleSpecularHDR.dds", nullptr, Env_BakerSample.Specular.GetAddressOf()));
     HR_T(CreateDDSTextureFromFile(m_pDevice, L"../Resource/Environment/BakerSample/BakerSampleBrdf.dds", nullptr, Env_BakerSample.BRDF_LUT.GetAddressOf()));
-    
+
     // DayLight
     HR_T(CreateDDSTextureFromFile(m_pDevice, L"../Resource/Environment/DayLight/DayLightEnvHDR.dds", nullptr, Env_DayLight.SkyBox.GetAddressOf()));
     HR_T(CreateDDSTextureFromFile(m_pDevice, L"../Resource/Environment/DayLight/DayLightDiffuseHDR.dds", nullptr, Env_DayLight.Diffuse.GetAddressOf()));
@@ -1029,13 +1125,13 @@ bool TutorialApp::InitScene()
     HR_T(CreateDDSTextureFromFile(m_pDevice, L"../Resource/Environment/Museum/MuseumDiffuseHDR.dds", nullptr, Env_Museum.Diffuse.GetAddressOf()));
     HR_T(CreateDDSTextureFromFile(m_pDevice, L"../Resource/Environment/Museum/MuseumSpecularHDR.dds", nullptr, Env_Museum.Specular.GetAddressOf()));
     HR_T(CreateDDSTextureFromFile(m_pDevice, L"../Resource/Environment/Museum/MuseumBrdf.dds", nullptr, Env_Museum.BRDF_LUT.GetAddressOf()));
-    
+
     // Night
     HR_T(CreateDDSTextureFromFile(m_pDevice, L"../Resource/Environment/Night/NightEnvHDR.dds", nullptr, Env_Night.SkyBox.GetAddressOf()));
     HR_T(CreateDDSTextureFromFile(m_pDevice, L"../Resource/Environment/Night/NightDiffuseHDR.dds", nullptr, Env_Night.Diffuse.GetAddressOf()));
     HR_T(CreateDDSTextureFromFile(m_pDevice, L"../Resource/Environment/Night/NightSpecularHDR.dds", nullptr, Env_Night.Specular.GetAddressOf()));
     HR_T(CreateDDSTextureFromFile(m_pDevice, L"../Resource/Environment/Night/NightBrdf.dds", nullptr, Env_Night.BRDF_LUT.GetAddressOf()));
-    
+
     // Street
     HR_T(CreateDDSTextureFromFile(m_pDevice, L"../Resource/Environment/Street/StreetEnvHDR.dds", nullptr, Env_Street.SkyBox.GetAddressOf()));
     HR_T(CreateDDSTextureFromFile(m_pDevice, L"../Resource/Environment/Street/StreetDiffuseHDR.dds", nullptr, Env_Street.Diffuse.GetAddressOf()));
@@ -1044,6 +1140,58 @@ bool TutorialApp::InitScene()
 
     currentEnv = &Env_BakerSample;
 
+    // HDR
+    D3D11_TEXTURE2D_DESC hdrDesc = {};
+    hdrDesc.Width = m_ClientWidth;
+    hdrDesc.Height = m_ClientHeight;
+    hdrDesc.ArraySize = 1;
+    hdrDesc.MipLevels = 1;
+    hdrDesc.SampleDesc.Count = 1;
+    hdrDesc.Usage = D3D11_USAGE_DEFAULT;
+    hdrDesc.Format = DXGI_FORMAT_R16G16B16A16_FLOAT;
+    hdrDesc.BindFlags = D3D11_BIND_RENDER_TARGET | D3D11_BIND_SHADER_RESOURCE;
+    hdrDesc.MiscFlags = 0;
+    HR_T(m_pDevice->CreateTexture2D(&hdrDesc, nullptr, m_sceneHDRTex.GetAddressOf()));
+    // RTV만들기
+    HR_T(m_pDevice->CreateRenderTargetView(m_sceneHDRTex.Get(), nullptr, m_sceneHDRRTV.GetAddressOf()));
+    // SRV 만들기
+    HR_T(m_pDevice->CreateShaderResourceView(m_sceneHDRTex.Get(), nullptr, m_sceneHDRSRV.GetAddressOf()));
+
+    // IA
+    ID3DBlob* vsBlobToneMap = nullptr;
+    CompileShaderFromFile(L"Shader/VS_ToneMapping.hlsl", "main", "vs_4_0", &vsBlobToneMap);
+
+    HR_T(m_pDevice->CreateVertexShader(vsBlobToneMap->GetBufferPointer(),
+        vsBlobToneMap->GetBufferSize(), NULL, m_toneMapVertexShader.GetAddressOf()));
+
+    D3D11_INPUT_ELEMENT_DESC tonelayout[] =
+    {
+        {"POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0},
+        {"TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 12, D3D11_INPUT_PER_VERTEX_DATA, 0},
+    };
+
+    HR_T(m_pDevice->CreateInputLayout(tonelayout, ARRAYSIZE(tonelayout), vsBlobToneMap->GetBufferPointer(),
+        vsBlobToneMap->GetBufferSize(), m_toneMapInputLayout.GetAddressOf()));
+
+    SAFE_RELEASE(vsBlobToneMap);
+
+    ID3DBlob* psBlobToneMap = nullptr;
+    CompileShaderFromFile(L"Shader/PS_ToneMapping.hlsl", "main", "ps_4_0", &psBlobToneMap);
+    HR_T(m_pDevice->CreatePixelShader(psBlobToneMap->GetBufferPointer(),
+        psBlobToneMap->GetBufferSize(), NULL, m_toneMapPixelShader.GetAddressOf()));
+
+    SAFE_RELEASE(psBlobToneMap);
+
+    D3D11_BUFFER_DESC bdToneMapCB = {};
+    bdToneMapCB.Usage = D3D11_USAGE_DEFAULT;
+    bdToneMapCB.ByteWidth = sizeof(ToneMapCB);
+    bdToneMapCB.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+    bdToneMapCB.CPUAccessFlags = 0;
+    bdToneMapCB.MiscFlags = 0;
+
+    HR_T(m_pDevice->CreateBuffer(&bdToneMapCB, nullptr, m_toneMapConstantBuffer.GetAddressOf()));
+
+    // MainPass
     m_MainViewport.TopLeftX = 0.0f;
     m_MainViewport.TopLeftY = 0.0f;
     m_MainViewport.Width = static_cast<float>(m_ClientWidth);
@@ -1101,7 +1249,7 @@ bool TutorialApp::InitScene()
     m_ShadowPos = m_ShadowLookAt + (m_Light.Direction * m_ShadowUpDistFromLookAt);
 
     m_ShadowView = XMMatrixLookAtLH(m_ShadowPos, m_ShadowLookAt, Vector3(0.0f, 1.0f, 0.0f));
-    
+
     m_pDeviceContext->RSSetViewports(1, &m_ShadowViewport);
 
     // Create Vertex Buffer
@@ -1139,6 +1287,8 @@ bool TutorialApp::InitScene()
 
 void TutorialApp::UninitScene()
 {
+    m_pRenderTargetView.Reset();
+    m_pDepthStencilView.Reset();
 
     SAFE_RELEASE(m_pSkyboxVertexBuffer);
     SAFE_RELEASE(m_pSkyboxIndexBuffer);
@@ -1147,7 +1297,4 @@ void TutorialApp::UninitScene()
 
     SAFE_RELEASE(m_pShadowConstantBuffer);
     SAFE_RELEASE(m_pStaticMeshConstantBuffer);
-
-    m_pRenderTargetView.Reset();
-    m_pDepthStencilView.Reset();
 }

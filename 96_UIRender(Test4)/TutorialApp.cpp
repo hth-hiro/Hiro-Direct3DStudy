@@ -229,12 +229,12 @@ void TutorialApp::Update()
     m_pDeviceContext->RSSetViewports(1, &m_ShadowViewport);
 
     // UI update
-    m_title.text->SetActive(m_title.textActive);
-    m_title.text->SetText(L"Text");
-    m_title.text->SetFont(L"Gulim");
-    m_title.text->SetFontSize(m_masterFontSize);
-    m_title.text->SetColor(m_title.textColor);
-    m_title.text->SetRect(m_title.position.x, m_title.position.y, m_title.textBox.x, m_title.textBox.y);
+    m_title.uiText->SetActive(m_title.active);
+    m_title.uiText->SetText(m_title.message);
+    m_title.uiText->SetFont(L"Gulim");
+    m_title.uiText->SetFontSize(m_masterFontSize);
+    m_title.uiText->SetColor(m_title.textColor);
+    m_title.uiText->SetRect(m_title.position.x, m_title.position.y, m_title.textBox.x, m_title.textBox.y);
 }
 
 void TutorialApp::Render()
@@ -643,11 +643,21 @@ void TutorialApp::Render()
     ImGui::End();
 
     ImGui::Begin(u8"텍스트 관련 설정");
-    ImGui::Checkbox(u8"텍스트 활성화", &m_title.textActive);
+    ImGui::Checkbox(u8"텍스트 활성화", &m_title.active);
     ImGui::ColorEdit4(u8"텍스트 색", &m_title.textColor.x);
     ImGui::DragFloat(u8"텍스트 크기", &m_masterFontSize, 0.1f, 1.0f, 500.0f, "%.1f");
     ImGui::DragFloat2(u8"텍스트 위치", &m_title.position.x, 1.f, 0.0f, m_ClientWidth, "%.0f");
     ImGui::DragFloat2(u8"텍스트박스 크기", &m_title.textBox.x, 1.0, 1.0f, 1000.0f); 
+    static char buffer[256] = "";
+    if (ImGui::InputTextWithHint(
+        u8"입력",
+        u8"텍스트를 입력하세요",
+        buffer,
+        sizeof(buffer),
+        ImGuiInputTextFlags_EnterReturnsTrue))
+    {
+        m_title.message = buffer; // 엔터 시에만 반영
+    }
     if (ImGui::Button(u8" 초기화")) { m_title.Reset(); }
     ImGui::End();
 
@@ -843,8 +853,8 @@ void TutorialApp::UninitImGUI()
 bool TutorialApp::InitScene()
 {
     // UI - Text
-    m_title.text = new UIText();
-    m_uiManager.AddUI(m_title.text);
+    m_title.uiText = new UIText();
+    m_uiManager.AddUI(m_title.uiText);
 
     HRESULT hr = 0;
     ID3D10Blob* errorMessage = nullptr;
