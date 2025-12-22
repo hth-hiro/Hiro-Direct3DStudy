@@ -161,28 +161,44 @@ void Camera::OnInputProcess(const Keyboard::State& KeyState, const Keyboard::Key
 	//	SetSpeed(20.0f);
 	//}
 
-	if (KeyTracker.IsKeyPressed(Keyboard::Keys::R))
-	{
-		Reset();
-	}
+    if (MouseState.positionMode == Mouse::MODE_RELATIVE)
+    {
+        if (KeyTracker.IsKeyPressed(Keyboard::Keys::R))
+        {
+            Reset();
+        }
 
-	if (KeyState.IsKeyDown(Keyboard::Keys::W))
-	{
-		AddInputVector(forward);
-	}
-	else if (KeyState.IsKeyDown(Keyboard::Keys::S))
-	{
-		AddInputVector(-forward);
-	}
+        if (KeyState.IsKeyDown(Keyboard::Keys::W))
+        {
+            AddInputVector(forward);
+        }
+        else if (KeyState.IsKeyDown(Keyboard::Keys::S))
+        {
+            AddInputVector(-forward);
+        }
 
-	if (KeyState.IsKeyDown(Keyboard::Keys::A))
-	{
-		AddInputVector(-right);
-	}
-	else if (KeyState.IsKeyDown(Keyboard::Keys::D))
-	{
-		AddInputVector(right);
-	}
+        if (KeyState.IsKeyDown(Keyboard::Keys::A))
+        {
+            AddInputVector(-right);
+        }
+        else if (KeyState.IsKeyDown(Keyboard::Keys::D))
+        {
+            AddInputVector(right);
+        }
+
+        if (KeyState.IsKeyDown(Keyboard::Keys::LeftShift) || KeyState.IsKeyDown(Keyboard::Keys::Q))
+        {
+            // 월드 좌표계로 상하이동
+            AddInputVector(Vector3(0.0f, -1.0f, 0.0f));
+        }
+        else if (KeyState.IsKeyDown(Keyboard::Keys::Space) || KeyState.IsKeyDown(Keyboard::Keys::E))
+        {
+            // 월드 좌표계로 상하이동
+            AddInputVector(Vector3(0.0f, 1.0f, 0.0f));
+        }
+    }
+
+	
 
 	//if (KeyTracker.IsKeyPressed(Keyboard::Keys::Escape) && isFPSMode)
 	//{
@@ -207,16 +223,7 @@ void Camera::OnInputProcess(const Keyboard::State& KeyState, const Keyboard::Key
 		AddYaw(delta.x);
 	}
 
-	if (KeyState.IsKeyDown(Keyboard::Keys::LeftShift) || KeyState.IsKeyDown(Keyboard::Keys::Q))
-	{
-		// 월드 좌표계로 상하이동
-		AddInputVector(Vector3(0.0f, -1.0f, 0.0f));
-	}
-	else if (KeyState.IsKeyDown(Keyboard::Keys::Space) || KeyState.IsKeyDown(Keyboard::Keys::E))
-	{
-		// 월드 좌표계로 상하이동
-		AddInputVector(Vector3(0.0f, 1.0f, 0.0f));
-	}
+	
 
 	InputSystem::Instance->m_Mouse->SetMode(MouseState.rightButton ? Mouse::MODE_RELATIVE : Mouse::MODE_ABSOLUTE);
 	if (MouseState.positionMode == Mouse::MODE_RELATIVE)
