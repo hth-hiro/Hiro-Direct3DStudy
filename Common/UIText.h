@@ -1,6 +1,23 @@
 #pragma once
 #include "UIBase.h"
 
+struct Text
+{
+    UIText* text;
+    bool textActive = false;
+    Vector4 textColor = { 1, 1, 1, 1 };
+    Vector2 position = { 0, 0 };
+    Vector2 textBox = { 1000, 200 };
+
+    void Reset()
+    {
+        //textActive = false;
+        textColor = { 1,1,1,1 };
+        position = { 0, 0 };
+        textBox = { 1000, 200 };
+    }
+};
+
 struct TextFormatKey
 {
     std::wstring family;
