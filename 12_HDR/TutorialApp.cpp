@@ -528,9 +528,9 @@ void TutorialApp::Render()
     if (ImGui::Button(u8" 오브젝트 초기화")) object1.PosReset();
 
     ImGui::SeparatorText(u8"빛 조절");
-    ImGui::ColorEdit4(u8" Ambient 색상", &ambientLight.x);
-    ImGui::ColorEdit4(u8" Diffuse 색상", &diffuseLight.x);
-    ImGui::ColorEdit4(u8" Specular 색상", &specularLight.x);
+    //ImGui::ColorEdit4(u8" Ambient 색상", &ambientLight.x);
+    //ImGui::ColorEdit4(u8" Diffuse 색상", &diffuseLight.x);
+    //ImGui::ColorEdit4(u8" Specular 색상", &specularLight.x);
     ImGui::DragFloat3(u8" 방향", &lightDir.x, 0.1, -1.0f, 1.0f, "%.1f");
 
     // 안전하게 x나 z가 0이 되어도 그림자 생성
