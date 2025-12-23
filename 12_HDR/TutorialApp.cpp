@@ -554,7 +554,7 @@ void TutorialApp::Render()
 
     ToneMapCB toneCB = {};
     toneCB.Exposure = m_exposure;
-    toneCB.Gamma = m_gamma;
+    //toneCB.Gamma = m_gamma;
 
     m_pDeviceContext->UpdateSubresource(m_toneMapConstantBuffer.Get(), 0, nullptr, &toneCB, 0, 0);
     m_pDeviceContext->PSSetConstantBuffers(5, 1, m_toneMapConstantBuffer.GetAddressOf());
@@ -652,6 +652,9 @@ void TutorialApp::Render()
     }
 
     ImGui::Text("");
+    ImGui::SeparatorText(u8" 그림자 맵");
+    ImGui::Image((ImTextureID)m_pShadowMapSRV.Get(), ImVec2(256, 256));
+    ImGui::Text("");
     ImGui::Separator();
     ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / io.Framerate, io.Framerate);
 
@@ -661,11 +664,11 @@ void TutorialApp::Render()
     ImGui::End();
 
     //m_ImGuiManager.DrawShadowSRV(m_pShadowMapSRV.Get(), (float)SHADOW_WIDTH, (float)SHADOW_HEIGHT);
-    ImGui::SetNextWindowPos(ImVec2(440, 30), ImGuiCond_FirstUseEver);
-    ImGui::SetNextWindowSize(ImVec2(272, 298), ImGuiCond_FirstUseEver);
-    ImGui::Begin(u8"그림자 맵");
-    ImGui::Image((ImTextureID)m_pShadowMapSRV.Get(), ImVec2(256, 256));
-    ImGui::End();
+    //ImGui::SetNextWindowPos(ImVec2(440, 30), ImGuiCond_FirstUseEver);
+    //ImGui::SetNextWindowSize(ImVec2(272, 298), ImGuiCond_FirstUseEver);
+    //ImGui::Begin(u8"그림자 맵");
+    //ImGui::Image((ImTextureID)m_pShadowMapSRV.Get(), ImVec2(256, 256));
+    //ImGui::End();
 
     ImGui::SetNextWindowPos(ImVec2(440, 340), ImGuiCond_FirstUseEver);
     ImGui::SetNextWindowSize(ImVec2(408, 311), ImGuiCond_FirstUseEver);
@@ -677,8 +680,8 @@ void TutorialApp::Render()
     //ImGui::SliderFloat(u8" 오브젝트 광택지수", &object1.shininess, 200.0f, 20000.0f);
 
     ImGui::ColorEdit4(u8"알베도", &object1.albedo.x);
-    ImGui::SliderFloat(u8"Metallic", &object1.metallic, 0.0f, 1.0f);
-    ImGui::SliderFloat(u8"Roughness", &object1.roughness, 0.0f, 1.0f);
+    ImGui::DragFloat(u8"Metallic", &object1.metallic, 0.001f, 0.0f, 1.0f);
+    ImGui::DragFloat(u8"Roughness", &object1.roughness, 0.001f, 0.0f, 1.0f);
     //ImGui::SliderFloat(u8"Gamma", &object1.gamma, 1.f, 3.0f);
 
     ImGui::Checkbox(u8"텍스처 적용", &useTexture);
@@ -701,8 +704,8 @@ void TutorialApp::Render()
     ImGui::Begin("HDR");
     //ImGui::Image((ImTextureID)m_sceneHDRSRV.Get(), ImVec2(256, 256));
     ImGui::DragFloat(u8"카메라 노출", &m_exposure, 0.001f);
-    ImGui::DragFloat(u8"카메라 감마", &m_gamma, 0.001f, 0.0f, 10.0f);
-    if (ImGui::Button(u8"초기화")) { m_exposure = 0.0f; m_gamma = 1.0f; }
+    //ImGui::DragFloat(u8"카메라 감마", &m_gamma, 0.001f, 0.0f, 10.0f);
+    if (ImGui::Button(u8"초기화")) { m_exposure = 0.0f; }
     ImGui::End();
 
     // etc... ImGui...

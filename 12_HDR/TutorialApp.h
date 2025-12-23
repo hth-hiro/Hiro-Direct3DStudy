@@ -183,7 +183,7 @@ public:
     ComPtr<ID3D11Buffer>                m_toneMapConstantBuffer;
 
     float m_exposure = 0.0f;
-    float m_gamma = 1.0f;
+    //float m_gamma = 1.0f;
 
     /*-----Shadow Map-----*/
     ComPtr<ID3D11Texture2D> m_pShadowMap;
