@@ -304,9 +304,12 @@ void TutorialApp::Render()
     m_pDeviceContext->RSSetViewports(1, &m_MainViewport);
     m_pDeviceContext->OMSetDepthStencilState(nullptr, 0);
 
-    float hdrClear[4] = { 4.0f, 0.0f, 4.0f, 1.0f };
-    m_pDeviceContext->ClearRenderTargetView(m_sceneHDRRTV.Get(), hdrClear);
-    m_pDeviceContext->ClearDepthStencilView(m_pDepthStencilView.Get(), D3D11_CLEAR_DEPTH, 1.0f, 0);
+    //float hdrClear[4] = { 1.0f, 1.0f, 1.0f, 1.0f };
+    //m_pDeviceContext->ClearRenderTargetView(m_sceneHDRRTV.Get(), hdrClear);
+    //m_pDeviceContext->ClearDepthStencilView(m_pDepthStencilView.Get(), D3D11_CLEAR_DEPTH, 1.0f, 0);
+
+    m_pDeviceContext->RSSetState(m_pRasterStateNoCull.Get());
+    m_pDeviceContext->OMSetBlendState(nullptr, nullptr, 0xffffffff); // 블렌딩 OFF
 
     // 2. 스카이박스 렌더 =================================================================================================================
     m_pDeviceContext->OMSetDepthStencilState(m_pSkyboxDepthStencilState, 0);
@@ -325,7 +328,7 @@ void TutorialApp::Render()
     m_pDeviceContext->UpdateSubresource(m_pSkyboxConstantBuffer, 0, nullptr, &cbSky, 0, 0);
 
     m_pDeviceContext->PSSetShaderResources(0, 1, currentEnv->SkyBox.GetAddressOf());
-    m_pDeviceContext->PSSetSamplers(0, 1, m_pSamplerLinear.GetAddressOf());
+    m_pDeviceContext->PSSetSamplers(2, 1, m_pSamplerLinear.GetAddressOf());
     m_pDeviceContext->DrawIndexed(m_nSkyboxIndices, 0, 0);
     // 원래 상태 복원
     m_pDeviceContext->OMSetDepthStencilState(nullptr, 0);
@@ -532,9 +535,6 @@ void TutorialApp::Render()
 
     m_pDeviceContext->PSSetShaderResources(7, 1, nullSRV);
 
-    //float hdrClear[4] = { 4.0f, 0.0f, 4.0f, 1.0f };
-    //m_pDeviceContext->ClearRenderTargetView(m_sceneHDRRTV.Get(), hdrClear);
-
     // Tone Mapping
     m_pDeviceContext->OMSetDepthStencilState(nullptr, 0);
     m_pDeviceContext->OMSetRenderTargets(1, m_pRenderTargetView.GetAddressOf(), nullptr);
@@ -726,7 +726,7 @@ bool TutorialApp::InitD3D()
     swapDesc.BufferCount = 1;
     swapDesc.BufferDesc.Width = m_ClientWidth;
     swapDesc.BufferDesc.Height = m_ClientHeight;
-    swapDesc.BufferDesc.Format = DXGI_FORMAT_B8G8R8A8_UNORM;
+    swapDesc.BufferDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
     swapDesc.BufferDesc.RefreshRate.Numerator = 60;
     swapDesc.BufferDesc.RefreshRate.Denominator = 1;
     swapDesc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
@@ -798,9 +798,9 @@ bool TutorialApp::InitD3D()
 
     D3D11_DEPTH_STENCIL_DESC skyDesc = {};
     skyDesc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ZERO;
-    //skyDesc.DepthEnable = true;
+    skyDesc.DepthEnable = true;
     skyDesc.DepthFunc = D3D11_COMPARISON_LESS_EQUAL;
-
+    skyDesc.StencilEnable = false;
     m_pDevice->CreateDepthStencilState(&skyDesc, &m_pSkyboxDepthStencilState);
 
     /*-------Create RenderTarget View-------*/
@@ -1117,10 +1117,10 @@ bool TutorialApp::InitScene()
     HR_T(CreateDDSTextureFromFile(m_pDevice, L"../Resource/Environment/BakerSample/BakerSampleBrdf.dds", nullptr, Env_BakerSample.BRDF_LUT.GetAddressOf()));
 
     // DayLight
-    HR_T(CreateDDSTextureFromFile(m_pDevice, L"../Resource/Environment/DayLight/DayLightEnvHDR.dds", nullptr, Env_DayLight.SkyBox.GetAddressOf()));
-    HR_T(CreateDDSTextureFromFile(m_pDevice, L"../Resource/Environment/DayLight/DayLightDiffuseHDR.dds", nullptr, Env_DayLight.Diffuse.GetAddressOf()));
-    HR_T(CreateDDSTextureFromFile(m_pDevice, L"../Resource/Environment/DayLight/DayLightSpecularHDR.dds", nullptr, Env_DayLight.Specular.GetAddressOf()));
-    HR_T(CreateDDSTextureFromFile(m_pDevice, L"../Resource/Environment/DayLight/DayLightBrdf.dds", nullptr, Env_DayLight.BRDF_LUT.GetAddressOf()));
+    HR_T(CreateDDSTextureFromFile(m_pDevice, L"../Resource/Environment/DayLight/Daylight2EnvHDR.dds", nullptr, Env_DayLight.SkyBox.GetAddressOf()));
+    HR_T(CreateDDSTextureFromFile(m_pDevice, L"../Resource/Environment/DayLight/Daylight2DiffuseHDR.dds", nullptr, Env_DayLight.Diffuse.GetAddressOf()));
+    HR_T(CreateDDSTextureFromFile(m_pDevice, L"../Resource/Environment/DayLight/Daylight2SpecularHDR.dds", nullptr, Env_DayLight.Specular.GetAddressOf()));
+    HR_T(CreateDDSTextureFromFile(m_pDevice, L"../Resource/Environment/DayLight/Daylight2Brdf.dds", nullptr, Env_DayLight.BRDF_LUT.GetAddressOf()));
 
     // Hanako
     HR_T(CreateDDSTextureFromFile(m_pDevice, L"../Resource/Environment/Hanako/HanakoEnvHDR.dds", nullptr, Env_Hanako.SkyBox.GetAddressOf()));

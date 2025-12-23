@@ -3,9 +3,13 @@
 //--------------------------------------------------------------------------------------
 // Pixel Shader
 //--------------------------------------------------------------------------------------
-float3 ToneMap_Reinhard(float3 hdr)
+
+// LDR
+
+// 선형 공간 값을 비선형으로 바꾸는 단계
+float3 LinearToSRGB(float3 linearColor)
 {
-    return hdr / (1.0f + hdr);
+    return pow(linearColor, 1.0f / 2.2f);
 }
 
 float4 main(PS_INPUT_TONEMAP input) : SV_Target
@@ -14,17 +18,18 @@ float4 main(PS_INPUT_TONEMAP input) : SV_Target
     
     // Exposure
     float exposure = pow(2.0f, Exposure);
-    
     hdr *= exposure;
     
-    // ToneMap
-    float3 ldr = ToneMap_Reinhard(hdr);
+    // ToneMapping
+    float3 toneMapped;
+    toneMapped = ACESFilm(hdr);
     
-    // Gamma
-    ldr = pow(saturate(ldr), 1.0f / max(Gamma, E));
+    float3 final;
+    final = LinearToSRGB(toneMapped);
     
+
+
+    return float4(final, 1.0f);
     
-    //return float4(hdr, 1);
-    //return float4(0.5, 0.5, 0.5, 1);
-    return float4(ldr, 1.0f);
+
 }

@@ -3,7 +3,7 @@
 //--------------------------------------------------------------------------------------
 
 #define PI 3.14159265359
-#define E 1e-6f
+#define EPSILON  1e-6f
 
 //Shared.hlsli
 SamplerState samLinear : register(s0);
@@ -177,6 +177,16 @@ float3 DecodeNormal(float3 N)
     return N * 2 - 1;
 }
 
-
+// 입력 : Linear 공간의 HDR RGB 색상값
+// 출력 : 0.0 ~ 1.0 범위의 압축된 선형 RGB값 (float3)
+float3 ACESFilm(float3 x)
+{
+    float a = 2.51f;
+    float b = 0.03f;
+    float c = 2.43f;
+    float d = 0.59f;
+    float e = 0.14f;
+    return saturate(x * (a * x + b) / (x * (c * x + d) + e));
+}
 
 
