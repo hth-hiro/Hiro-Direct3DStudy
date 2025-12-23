@@ -161,12 +161,13 @@ void Camera::OnInputProcess(const Keyboard::State& KeyState, const Keyboard::Key
 	//	SetSpeed(20.0f);
 	//}
 
-    if (MouseState.positionMode == Mouse::MODE_RELATIVE)
+    if (KeyTracker.IsKeyPressed(Keyboard::Keys::R))
     {
-        if (KeyTracker.IsKeyPressed(Keyboard::Keys::R))
-        {
-            Reset();
-        }
+        Reset();
+    }
+
+    //if (MouseState.positionMode == Mouse::MODE_RELATIVE)
+    //{
 
         if (KeyState.IsKeyDown(Keyboard::Keys::W))
         {
@@ -196,9 +197,7 @@ void Camera::OnInputProcess(const Keyboard::State& KeyState, const Keyboard::Key
             // 월드 좌표계로 상하이동
             AddInputVector(Vector3(0.0f, 1.0f, 0.0f));
         }
-    }
-
-	
+    //}
 
 	//if (KeyTracker.IsKeyPressed(Keyboard::Keys::Escape) && isFPSMode)
 	//{
@@ -222,8 +221,6 @@ void Camera::OnInputProcess(const Keyboard::State& KeyState, const Keyboard::Key
 		AddPitch(delta.y);
 		AddYaw(delta.x);
 	}
-
-	
 
 	InputSystem::Instance->m_Mouse->SetMode(MouseState.rightButton ? Mouse::MODE_RELATIVE : Mouse::MODE_ABSOLUTE);
 	if (MouseState.positionMode == Mouse::MODE_RELATIVE)
