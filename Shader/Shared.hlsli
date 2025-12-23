@@ -2,10 +2,13 @@
 // Constant Buffer Variables
 //--------------------------------------------------------------------------------------
 
+#define PI 3.14159265359
+#define EPSILON  1e-6f
+
 //Shared.hlsli
 SamplerState samLinear : register(s0);
-
 SamplerState ShadowSampler : register(s1);
+SamplerState LinearSamp : register(s2);
 
 cbuffer ConstantBuffer : register(b0)
 {
@@ -77,6 +80,13 @@ cbuffer BoneOffsetMatrix : register(b4)
     matrix gBoneOffset[128];
 }
 
+cbuffer ToneMapCB : register(b5)
+{
+    float Exposure;
+    float Gamma;
+    float2 pad;
+}
+
 // SkyBox
 TextureCube txCube : register(t0);
 
@@ -95,6 +105,9 @@ Texture2D<float> txShadow : register(t7);
 TextureCube txIBL_Diffuse : register(t10);
 TextureCube txIBL_Specular : register(t11);
 Texture2D txIBL_Specular_LUT : register(t12);
+
+// ToneMapping
+Texture2D SceneHDR : register(t13);
 
 //--------------------------------------------------------------------------------------
 
@@ -141,6 +154,19 @@ struct VS_INPUT_BONED
     float4 BlendWeights : BLENDWEIGHT;
 };
 
+//
+struct VS_INPUT_TONEMAP
+{
+    float3 Pos : POSITION;
+    float2 Tex : TEXCOORD0;
+};
+
+struct PS_INPUT_TONEMAP
+{
+    float4 Pos : SV_Position;
+    float2 Tex : TEXCOORD0;
+};
+
 float3 EncodeNormal(float3 N)
 {
     return N * 0.5 + 0.5;
@@ -151,6 +177,16 @@ float3 DecodeNormal(float3 N)
     return N * 2 - 1;
 }
 
-
+// 입력 : Linear 공간의 HDR RGB 색상값
+// 출력 : 0.0 ~ 1.0 범위의 압축된 선형 RGB값 (float3)
+float3 ACESFilm(float3 x)
+{
+    float a = 2.51f;
+    float b = 0.03f;
+    float c = 2.43f;
+    float d = 0.59f;
+    float e = 0.14f;
+    return saturate(x * (a * x + b) / (x * (c * x + d) + e));
+}
 
 
