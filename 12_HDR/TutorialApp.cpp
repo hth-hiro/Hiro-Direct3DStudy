@@ -232,7 +232,7 @@ void TutorialApp::Update()
     m_title.uiText->SetActive(m_title.active);
     m_title.uiText->SetText(L"Text");
     m_title.uiText->SetFont(L"Gulim");
-    m_title.uiText->SetFontSize(m_masterFontSize);
+    m_title.uiText->SetFontSize(m_title.fontSize);
     m_title.uiText->SetColor(m_title.textColor);
     m_title.uiText->SetRect(m_title.position.x, m_title.position.y, m_title.textBox.x, m_title.textBox.y);
 }
@@ -691,7 +691,7 @@ void TutorialApp::Render()
     ImGui::Begin(u8"텍스트 관련 설정");
     ImGui::Checkbox(u8"텍스트 활성화", &m_title.active);
     ImGui::ColorEdit4(u8"텍스트 색", &m_title.textColor.x);
-    ImGui::DragFloat(u8"텍스트 크기", &m_masterFontSize, 0.1f, 1.0f, 500.0f, "%.1f");
+    ImGui::DragFloat(u8"텍스트 크기", &m_title.fontSize, 0.1f, 1.0f, 500.0f, "%.1f");
     ImGui::DragFloat2(u8"텍스트 위치", &m_title.position.x, 1.f, 0.0f, m_ClientWidth, "%.0f");
     ImGui::DragFloat2(u8"텍스트박스 크기", &m_title.textBox.x, 1.0, 1.0f, 1000.0f);
     

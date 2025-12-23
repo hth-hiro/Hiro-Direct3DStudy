@@ -148,8 +148,8 @@ public:
 
     /*--------UI--------*/
     UIManager m_uiManager;
-    float m_masterFontSize= 24.0f;
     Text m_title;
+    //float m_masterFontSize= 24.0f;
 
     /*-------PBR-------*/
     float ambientOcclusion = 1.0f;

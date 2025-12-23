@@ -47,6 +47,7 @@ struct Text
 {
     UIText* uiText;
     std::string message;
+    float fontSize = 24.0f;
     bool active = true;
     Vector4 textColor = { 1, 1, 1, 1 };
     Vector2 position = { 0, 0 };
@@ -56,6 +57,7 @@ struct Text
     {
         //textActive = false;
         //message
+        fontSize = 24.0f;
         textColor = { 1,1,1,1 };
         position = { 0, 0 };
         textBox = { 1000, 200 };
