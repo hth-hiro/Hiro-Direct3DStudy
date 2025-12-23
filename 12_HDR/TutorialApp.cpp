@@ -304,9 +304,9 @@ void TutorialApp::Render()
     m_pDeviceContext->RSSetViewports(1, &m_MainViewport);
     m_pDeviceContext->OMSetDepthStencilState(nullptr, 0);
 
-    //float hdrClear[4] = { 1.0f, 1.0f, 1.0f, 1.0f };
-    //m_pDeviceContext->ClearRenderTargetView(m_sceneHDRRTV.Get(), hdrClear);
-    //m_pDeviceContext->ClearDepthStencilView(m_pDepthStencilView.Get(), D3D11_CLEAR_DEPTH, 1.0f, 0);
+    float hdrClear[4] = { 4.0f, 0.0f, 4.0f, 1.0f };
+    m_pDeviceContext->ClearRenderTargetView(m_sceneHDRRTV.Get(), hdrClear);
+    m_pDeviceContext->ClearDepthStencilView(m_pDepthStencilView.Get(), D3D11_CLEAR_DEPTH, 1.0f, 0);
 
     m_pDeviceContext->RSSetState(m_pRasterStateNoCull.Get());
     m_pDeviceContext->OMSetBlendState(nullptr, nullptr, 0xffffffff); // ºí·»µù OFF
