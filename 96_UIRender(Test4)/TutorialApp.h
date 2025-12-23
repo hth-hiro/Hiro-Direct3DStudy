@@ -72,6 +72,19 @@ struct Object
     }
 };
 
+struct FullScreenVertex
+{
+    XMFLOAT3 Pos;
+    XMFLOAT2 Tex;
+};
+
+struct ToneMapCB
+{
+    float Exposure;
+    float Gamma;
+    Vector2 pad;
+};
+
 struct Light
 {
     Vector3 Direction = {0, -1, 1};

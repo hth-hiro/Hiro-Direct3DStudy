@@ -110,6 +110,20 @@
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
+    <PostBuildEvent>
+      <Command>xcopy /E /I /Y "$(ProjectDir)..\Shader" "$(OutDir)..\Shader\"
+
+xcopy /E /I /Y "$(ProjectDir)..\Resource" "$(OutDir)..\Resource\"
+
+xcopy /Y /D "$(VcpkgRoot)\installed\$(TripletDynamic)\debug\bin\assimp-vc143-mt.dll" "$(OutDir)"
+xcopy /Y /D "$(VcpkgRoot)\installed\$(TripletDynamic)\debug\bin\assimp-vc143-mtd.dll" "$(OutDir)"
+xcopy /Y /D "$(VcpkgRoot)\installed\$(TripletDynamic)\debug\bin\kubazip.dll" "$(OutDir)"
+xcopy /Y /D "$(VcpkgRoot)\installed\$(TripletDynamic)\debug\bin\minizip.dll" "$(OutDir)"
+xcopy /Y /D "$(VcpkgRoot)\installed\$(TripletDynamic)\debug\bin\poly2tri.dll" "$(OutDir)"
+xcopy /Y /D "$(VcpkgRoot)\installed\$(TripletDynamic)\debug\bin\pugixml.dll" "$(OutDir)"
+xcopy /Y /D "$(VcpkgRoot)\installed\$(TripletDynamic)\debug\bin\zlib1.dll" "$(OutDir)"
+xcopy /Y /D "$(VcpkgRoot)\installed\$(TripletDynamic)\debug\bin\zlibd1.dll" "$(OutDir)"</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
