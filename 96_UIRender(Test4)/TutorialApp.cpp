@@ -631,9 +631,9 @@ void TutorialApp::Render()
     //ImGui::SliderFloat(u8" 오브젝트 광택지수", &object1.shininess, 200.0f, 20000.0f);
 
     ImGui::ColorEdit4(u8"알베도", &object1.albedo.x);
-    ImGui::SliderFloat(u8"Metallic", &object1.metallic, 0.0f, 1.0f);
-    ImGui::SliderFloat(u8"Roughness", &object1.roughness, 0.0f, 1.0f);
-    ImGui::SliderFloat(u8"Gamma", &object1.gamma, 1.f, 3.0f);
+    ImGui::DragFloat(u8"Metallic", &object1.metallic, 0.001f, 0.0f, 1.0f);
+    ImGui::DragFloat(u8"Roughness", &object1.roughness, 0.001f, 0.0f, 1.0f);
+    //ImGui::SliderFloat(u8"Gamma", &object1.gamma, 1.f, 3.0f);
     
     ImGui::Checkbox(u8"텍스처 적용", &useTexture);
     ImGui::Checkbox(u8"PBR 수동 조작", &useCustomAlbedo);
@@ -659,6 +659,13 @@ void TutorialApp::Render()
         m_title.message = buffer; // 엔터 시에만 반영
     }
     if (ImGui::Button(u8" 초기화")) { m_title.Reset(); }
+    ImGui::End();
+
+    ImGui::Begin("HDR");
+    //ImGui::Image((ImTextureID)m_sceneHDRSRV.Get(), ImVec2(256, 256));
+    ImGui::DragFloat(u8"카메라 노출", &m_exposure, 0.001f);
+    //ImGui::DragFloat(u8"카메라 감마", &m_gamma, 0.001f, 0.0f, 10.0f);
+    if (ImGui::Button(u8"초기화")) { m_exposure = 0.0f; }
     ImGui::End();
 
     // etc... ImGui...
@@ -1150,7 +1157,7 @@ bool TutorialApp::InitScene()
 
     // Create Vertex Buffer
     ID3DBlob* vsBlob;
-    CompileShaderFromFile(L"Shader/DepthOnlyPass.hlsl", "main", "vs_5_0", &vsBlob);
+    CompileShaderFromFile(L"Shader/DepthOnly_VS.hlsl", "main", "vs_5_0", &vsBlob);
 
     HR_T(m_pDevice->CreateVertexShader(vsBlob->GetBufferPointer(),
         vsBlob->GetBufferSize(), nullptr, m_pShadowVS.GetAddressOf()));

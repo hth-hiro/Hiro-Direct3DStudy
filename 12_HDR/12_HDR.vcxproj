@@ -111,7 +111,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
     <PostBuildEvent>
-      <Command>xcopy /E /I /Y "$(ProjectDir)Shader" "$(OutDir)Shader"
+      <Command>xcopy /E /I /Y "$(ProjectDir)..\Shader" "$(OutDir)..\Shader\"
 
 xcopy /E /I /Y "$(ProjectDir)..\Resource" "$(OutDir)..\Resource\"
 

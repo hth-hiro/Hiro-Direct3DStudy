@@ -153,6 +153,21 @@ public:
     Environment Env_BakerSample;
     Environment Env_Hanako; // Hanako
 
+    /*-------HDR-------*/
+    ComPtr<ID3D11RenderTargetView>      m_sceneHDRRTV;
+    ComPtr<ID3D11Texture2D>             m_sceneHDRTex;
+    ComPtr<ID3D11ShaderResourceView>    m_sceneHDRSRV;
+
+    ComPtr<ID3D11VertexShader>          m_toneMapVertexShader;
+    ComPtr<ID3D11PixelShader>           m_toneMapPixelShader;
+    ComPtr<ID3D11InputLayout>           m_toneMapInputLayout;
+
+    ComPtr<ID3D11Buffer>                m_fullscreenVB;
+
+    ComPtr<ID3D11Buffer>                m_toneMapConstantBuffer;
+
+    float m_exposure = 0.0f;
+
     /*-----Shadow Map-----*/
     ComPtr<ID3D11Texture2D> m_pShadowMap;
     ComPtr<ID3D11DepthStencilView> m_pShadowMapDSV;
