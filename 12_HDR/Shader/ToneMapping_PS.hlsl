@@ -26,10 +26,6 @@ float4 main(PS_INPUT_TONEMAP input) : SV_Target
     
     float3 final;
     final = LinearToSRGB(toneMapped);
-    
-
 
     return float4(final, 1.0f);
-    
-
 }
