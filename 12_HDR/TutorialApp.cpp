@@ -679,7 +679,7 @@ void TutorialApp::Render()
     ImGui::ColorEdit4(u8"알베도", &object1.albedo.x);
     ImGui::SliderFloat(u8"Metallic", &object1.metallic, 0.0f, 1.0f);
     ImGui::SliderFloat(u8"Roughness", &object1.roughness, 0.0f, 1.0f);
-    ImGui::SliderFloat(u8"Gamma", &object1.gamma, 1.f, 3.0f);
+    //ImGui::SliderFloat(u8"Gamma", &object1.gamma, 1.f, 3.0f);
 
     ImGui::Checkbox(u8"텍스처 적용", &useTexture);
     ImGui::Checkbox(u8"PBR 수동 조작", &useCustomAlbedo);
@@ -951,7 +951,7 @@ bool TutorialApp::InitScene()
     /*--------Vertex Shader--------*/
     ID3DBlob* vertexShaderBuffer = nullptr;
     //CompileShaderFromFile(L"BasicVertexShader.hlsl", "main", "vs_4_0", &vertexShaderBuffer);
-    CompileShaderFromFile(L"Shader/BasicVertexShader.hlsl", "main", "vs_4_0", &vertexShaderBuffer);
+    CompileShaderFromFile(L"Shader/BasicColor_VS.hlsl", "main", "vs_4_0", &vertexShaderBuffer);
 
     HR_T(m_pDevice->CreateVertexShader(vertexShaderBuffer->GetBufferPointer(),
         vertexShaderBuffer->GetBufferSize(), NULL, &m_pVertexShader));
@@ -973,7 +973,7 @@ bool TutorialApp::InitScene()
 
     /*--------Pixel Shader Stage--------*/
     ID3DBlob* pixelShaderBuffer = nullptr;
-    CompileShaderFromFile(L"Shader/BasicPixelShader.hlsl", "main", "ps_5_0", &pixelShaderBuffer);
+    CompileShaderFromFile(L"Shader/BasicColor_PS.hlsl", "main", "ps_5_0", &pixelShaderBuffer);
 
     HR_T(m_pDevice->CreatePixelShader(pixelShaderBuffer->GetBufferPointer(),
         pixelShaderBuffer->GetBufferSize(), NULL, &m_pPixelShader));
@@ -1021,7 +1021,7 @@ bool TutorialApp::InitScene()
 
     /*--------Vertex Shader--------*/
     ID3DBlob* boneShader = nullptr;
-    CompileShaderFromFile(L"Shader/BoneModelVS.hlsl", "main", "vs_5_0", &boneShader);
+    CompileShaderFromFile(L"Shader/BoneModel_VS.hlsl", "main", "vs_5_0", &boneShader);
 
     HR_T(m_pDevice->CreateVertexShader(boneShader->GetBufferPointer(),
         boneShader->GetBufferSize(), NULL, &m_pSkeletalVS));
@@ -1072,7 +1072,7 @@ bool TutorialApp::InitScene()
     HR_T(m_pDevice->CreateBuffer(&skyVBDesc, &skyIBData, &m_pSkyboxIndexBuffer));
 
     ID3DBlob* vsBlobSkybox = nullptr;
-    CompileShaderFromFile(L"Shader/SkyboxVertexShader.hlsl", "main", "vs_4_0", &vsBlobSkybox);
+    CompileShaderFromFile(L"Shader/Skybox_VS.hlsl", "main", "vs_4_0", &vsBlobSkybox);
 
     HR_T(m_pDevice->CreateVertexShader(vsBlobSkybox->GetBufferPointer(),
         vsBlobSkybox->GetBufferSize(), NULL, &m_pSkyboxVertexShader));
@@ -1088,7 +1088,7 @@ bool TutorialApp::InitScene()
     SAFE_RELEASE(vsBlobSkybox);
 
     ID3DBlob* psBlobSkybox = nullptr;
-    CompileShaderFromFile(L"Shader/SkyboxPixelShader.hlsl", "main", "ps_4_0", &psBlobSkybox);
+    CompileShaderFromFile(L"Shader/Skybox_PS.hlsl", "main", "ps_4_0", &psBlobSkybox);
     HR_T(m_pDevice->CreatePixelShader(psBlobSkybox->GetBufferPointer(),
         psBlobSkybox->GetBufferSize(), NULL, &m_pSkyboxPixelShader));
 
@@ -1167,7 +1167,7 @@ bool TutorialApp::InitScene()
 
     // IA
     ID3DBlob* vsBlobToneMap = nullptr;
-    CompileShaderFromFile(L"Shader/VS_ToneMapping.hlsl", "main", "vs_4_0", &vsBlobToneMap);
+    CompileShaderFromFile(L"Shader/ToneMapping_VS.hlsl", "main", "vs_4_0", &vsBlobToneMap);
 
     HR_T(m_pDevice->CreateVertexShader(vsBlobToneMap->GetBufferPointer(),
         vsBlobToneMap->GetBufferSize(), NULL, m_toneMapVertexShader.GetAddressOf()));
@@ -1184,7 +1184,7 @@ bool TutorialApp::InitScene()
     SAFE_RELEASE(vsBlobToneMap);
 
     ID3DBlob* psBlobToneMap = nullptr;
-    CompileShaderFromFile(L"Shader/PS_ToneMapping.hlsl", "main", "ps_4_0", &psBlobToneMap);
+    CompileShaderFromFile(L"Shader/ToneMapping_PS.hlsl", "main", "ps_4_0", &psBlobToneMap);
     HR_T(m_pDevice->CreatePixelShader(psBlobToneMap->GetBufferPointer(),
         psBlobToneMap->GetBufferSize(), NULL, m_toneMapPixelShader.GetAddressOf()));
 
@@ -1262,7 +1262,7 @@ bool TutorialApp::InitScene()
 
     // Create Vertex Buffer
     ID3DBlob* vsBlob;
-    CompileShaderFromFile(L"Shader/DepthOnlyPass.hlsl", "main", "vs_5_0", &vsBlob);
+    CompileShaderFromFile(L"Shader/DepthOnly_VS.hlsl", "main", "vs_5_0", &vsBlob);
 
     HR_T(m_pDevice->CreateVertexShader(vsBlob->GetBufferPointer(),
         vsBlob->GetBufferSize(), nullptr, m_pShadowVS.GetAddressOf()));
