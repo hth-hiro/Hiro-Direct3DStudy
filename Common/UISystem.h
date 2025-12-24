@@ -44,13 +44,13 @@
 class UIBase;
 class UIRenderer;
 
-class UIManager : public Singleton<UIManager>
+class UISystem : public Singleton<UISystem>
 {
 public:
     std::vector<UIBase*> m_uiList;
 
-    UIManager();
-    ~UIManager();
+    UISystem();
+    ~UISystem();
 
 public:
     bool Initialize(
@@ -83,5 +83,5 @@ private:
     void SortByZOrder();
 
 private:
-    friend class Singleton<UIManager>;
+    friend class Singleton<UISystem>;
 };

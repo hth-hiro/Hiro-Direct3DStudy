@@ -73,7 +73,7 @@ public:
 
     // 버튼과 상호작용하는 함수, UIManager가 호출
     virtual void OnMouseEnter() {}
-    virtual void OnMouseLeve() {}
+    virtual void OnMouseLeave() {}
     virtual void OnMouseMove(const POINT&) {}
     virtual void OnMouseDown(const POINT&) {}
     virtual void OnMouseUp(const POINT&) {}

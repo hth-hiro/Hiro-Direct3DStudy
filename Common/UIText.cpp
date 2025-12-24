@@ -58,29 +58,19 @@ void UIText::Shutdown()
 void UIText::Render()
 {
     auto* rt = UIRenderer::Get().GetRenderTarget();
-    auto* dw = UIRenderer::Get().GetDWriteFactory();
-
-    dw->CreateTextFormat(
-        L"",
-        nullptr,
-        DWRITE_FONT_WEIGHT_NORMAL,
-        DWRITE_FONT_STYLE_NORMAL,
-        DWRITE_FONT_STRETCH_NORMAL,
-        24.0f,
-        L"ko-kr",
-        m_textFormat.GetAddressOf()
-    );
 
     m_textBrush->SetColor(m_color);
 
-
     IDWriteTextFormat* format = GetTextFormat(m_fontSize, m_fontFamily.c_str());
+
+    RECT wr = GetWorldBounds();
+    D2D1_RECT_F r = D2D1::RectF((float)wr.left, (float)wr.top, (float)wr.right, (float)wr.bottom);
 
     rt->DrawTextW(
         m_text.c_str(),
         (UINT32)m_text.length(),
         format,
-        m_rect,
+        r,
         m_textBrush.Get()
     );
 }
@@ -97,9 +87,11 @@ void UIText::SetText(const std::string& text)
 
 void UIText::SetRect(int x, int y, int width, int height)
 {
-    m_rect = D2D1::RectF(
-        x, y,
-        x + width, y + height);
+    SetBounds({ x, y, x + width, y + height });
+
+    //m_rect = D2D1::RectF(
+    //    x, y,
+    //    x + width, y + height);
 }
 
 void UIText::SetFont(const std::wstring& fontFamilyName)

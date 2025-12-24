@@ -1,24 +1,24 @@
 #include "pch.h"
-#include "UIManager.h"
+#include "UISystem.h"
 #include "UIRenderer.h"
 
 #include <algorithm>
 
-UIManager::UIManager()
+UISystem::UISystem()
 {
 }
 
-UIManager::~UIManager()
+UISystem::~UISystem()
 {
     Shutdown();
 }
 
-void UIManager::Shutdown()
+void UISystem::Shutdown()
 {
     m_uiList.clear();
 }
 
-void UIManager::AddUI(UIBase* ui)
+void UISystem::AddUI(UIBase* ui)
 {
     if (!ui)
         return;
@@ -26,14 +26,14 @@ void UIManager::AddUI(UIBase* ui)
     SortByZOrder();
 }
 
-void UIManager::RemoveUI(UIBase* ui)
+void UISystem::RemoveUI(UIBase* ui)
 {
     auto it = std::find(m_uiList.begin(), m_uiList.end(), ui);
     if (it != m_uiList.end())
         m_uiList.erase(it);
 }
 
-void UIManager::Update(float deltaTime)
+void UISystem::Update(float deltaTime)
 {
     for (UIBase* ui : m_uiList)
     {
@@ -42,7 +42,7 @@ void UIManager::Update(float deltaTime)
     }
 }
 
-void UIManager::Render()
+void UISystem::Render()
 {
     UIRenderer::Get().BeginFrame();
 
@@ -57,19 +57,19 @@ void UIManager::Render()
     UIRenderer::Get().EndFrame();
 }
 
-void UIManager::ProcessMouseDown(int x, int y)
+void UISystem::ProcessMouseDown(int x, int y)
 {
 }
 
-void UIManager::ProcessMouseUp(int x, int y)
+void UISystem::ProcessMouseUp(int x, int y)
 {
 }
 
-void UIManager::ProcessMouseMove(int x, int y)
+void UISystem::ProcessMouseMove(int x, int y)
 {
 }
 
-void UIManager::SortByZOrder()
+void UISystem::SortByZOrder()
 {
     std::stable_sort(m_uiList.begin(), m_uiList.end(),
         [](const UIBase* a, const UIBase* b)

@@ -48,7 +48,7 @@ SIZE UIBase::GetSize() const
 
 RECT UIBase::GetWorldBounds() const
 {
-    return RECT();
+    return m_bounds;
 }
 
 void UIBase::AddChild(std::unique_ptr<UIBase> child)
