@@ -30,27 +30,59 @@ bool UIBase::HitTest(const POINT& mousePos) const
 
 void UIBase::SetPosition(int x, int y)
 {
+    int w = m_bounds.right - m_bounds.left;
+    int h = m_bounds.bottom - m_bounds.top;
+
+    m_bounds.left = x;
+    m_bounds.right = y;
+    m_bounds.right = x + w;
+    m_bounds.bottom = y + h;
 }
 
 POINT UIBase::GetPosition() const
 {
-    return POINT();
+    return POINT{ m_bounds.left, m_bounds.top };
 }
 
 void UIBase::SetSize(int w, int h)
 {
+    w = max(w, 0);
+    h = max(h, 0);
+
+    m_bounds.right = m_bounds.left + w;
+    m_bounds.bottom = m_bounds.top + h;
 }
 
 SIZE UIBase::GetSize() const
 {
-    return SIZE();
+    return SIZE{
+        m_bounds.right - m_bounds.left,
+        m_bounds.bottom - m_bounds.top
+    };
 }
 
 RECT UIBase::GetWorldBounds() const
 {
-    return m_bounds;
+    RECT wr = m_bounds;
+    const UIBase* p = m_parent;
+    while (p)
+    {
+        int px = p->m_bounds.left;
+        int py = p->m_bounds.top;
+
+        OffsetRect(&wr, px, py);
+        p = p->m_parent;
+    }
+    
+    // 최종 부모(월드)의 바운드
+    return wr;
 }
 
 void UIBase::AddChild(std::unique_ptr<UIBase> child)
 {
+    if (!child)
+        return;
+
+    child->m_parent = this;
+    m_children.emplace_back(std::move(child));
 }

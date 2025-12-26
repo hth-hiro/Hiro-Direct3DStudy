@@ -2,6 +2,7 @@
 #include "UIBase.h"
 #include "Utility/Singleton.h"
 #include "UIRenderer.h"
+#include "InputSystem.h"
 
 // 아래 코드는 추후 협업을 위한 엔진 작업용 코드입니다.
 //namespace engine
@@ -44,10 +45,10 @@
 class UIBase;
 class UIRenderer;
 
-class UISystem : public Singleton<UISystem>
+class UISystem : public Singleton<UISystem>, public InputProcesser
 {
 public:
-    std::vector<UIBase*> m_uiList;
+    std::vector<UIBase*> m_roots;
 
     UISystem();
     ~UISystem();
@@ -82,6 +83,16 @@ public:
 private:
     void SortByZOrder();
 
+    UIBase* FindTopHit(const POINT& pt);
+
+    static UIBase* FindTopHitRecursive(UIBase* node, const POINT& pt);
+
 private:
+    UIBase* m_hovered = nullptr;
+    UIBase* m_captured = nullptr;
+
+    void OnInputProcess(const Keyboard::State&, const Keyboard::KeyboardStateTracker&,
+        const Mouse::State& mouse, const Mouse::ButtonStateTracker& mouseTracker) override;
+    
     friend class Singleton<UISystem>;
 };

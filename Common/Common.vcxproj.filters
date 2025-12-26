@@ -28,6 +28,9 @@
     <Filter Include="UI\UIBuuton">
       <UniqueIdentifier>{a8d0ecb3-00ce-43d7-bf0b-a78afc087be1}</UniqueIdentifier>
     </Filter>
+    <Filter Include="UI\UIPanel">
+      <UniqueIdentifier>{5893e42e-3d0b-4e7c-9769-4941ee14163a}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="framework.h">
@@ -84,8 +87,11 @@
     <ClInclude Include="Live2DRenderer.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
+    <ClInclude Include="UIButton.h">
+      <Filter>UI\UIBuuton</Filter>
+    </ClInclude>
     <ClInclude Include="UIPanel.h">
-      <Filter>헤더 파일</Filter>
+      <Filter>UI\UIPanel</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -134,8 +140,11 @@
     <ClCompile Include="Live2DRenderer.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
+    <ClCompile Include="UIButton.cpp">
+      <Filter>UI\UIBuuton</Filter>
+    </ClCompile>
     <ClCompile Include="UIPanel.cpp">
-      <Filter>소스 파일</Filter>
+      <Filter>UI\UIPanel</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
