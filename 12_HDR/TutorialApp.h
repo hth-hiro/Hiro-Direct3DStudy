@@ -21,7 +21,7 @@
 #include <Psapi.h>
 
 // UI
-#include "../Common/UIManager.h"
+#include "../Common/UISystem.h"
 #include "../Common/UIText.h"
 
 using namespace DirectX::SimpleMath;
@@ -147,7 +147,7 @@ public:
     D3D11_VIEWPORT m_MainViewport;
 
     /*--------UI--------*/
-    UIManager m_uiManager;
+    UISystem m_uiManager;
     Text m_title;
     //float m_masterFontSize= 24.0f;
 

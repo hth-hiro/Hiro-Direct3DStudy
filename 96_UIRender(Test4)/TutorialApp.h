@@ -21,7 +21,7 @@
 #include <Psapi.h>
 
 // UI
-#include "../Common/UIManager.h"
+#include "../Common/UISystem.h"
 
 //
 #include "../Common/UIText.h"
@@ -225,7 +225,7 @@ public:
     StaticMesh ground;
 
     /*------ UI ------*/
-    UIManager m_uiManager;
+    UISystem m_uiManager;
     float m_masterFontSize = 24.0f;
 
     Text m_title;

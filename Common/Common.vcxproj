@@ -156,8 +156,10 @@
     <ClInclude Include="TimeSystem.h" />
     <ClInclude Include="Transform.h" />
     <ClInclude Include="UIBase.h" />
+    <ClInclude Include="UIButton.h" />
     <ClInclude Include="UIImage.h" />
-    <ClInclude Include="UIManager.h" />
+    <ClInclude Include="UISystem.h" />
+    <ClInclude Include="UIPanel.h" />
     <ClInclude Include="UIRenderer.h" />
     <ClInclude Include="UIText.h" />
   </ItemGroup>
@@ -178,8 +180,10 @@
     <ClCompile Include="TimeSystem.cpp" />
     <ClCompile Include="Transform.cpp" />
     <ClCompile Include="UIBase.cpp" />
+    <ClCompile Include="UIButton.cpp" />
     <ClCompile Include="UIImage.cpp" />
-    <ClCompile Include="UIManager.cpp" />
+    <ClCompile Include="UISystem.cpp" />
+    <ClCompile Include="UIPanel.cpp" />
     <ClCompile Include="UIRenderer.cpp" />
     <ClCompile Include="UIText.cpp" />
   </ItemGroup>

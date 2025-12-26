@@ -71,13 +71,20 @@ public:
     void AddChild(std::unique_ptr<UIBase> child);
     UIBase* GetParent() const { return m_parent; }
 
-    // 버튼과 상호작용하는 함수, UIManager가 호출
+    // 버튼과 상호작용하는 함수, UISystem이 호출
     virtual void OnMouseEnter() {}
-    virtual void OnMouseLeve() {}
+    virtual void OnMouseLeave() {}
     virtual void OnMouseMove(const POINT&) {}
     virtual void OnMouseDown(const POINT&) {}
     virtual void OnMouseUp(const POINT&) {}
     virtual void OnClick() {}
+
+    
+
+public:
+    // 자식 노드 수를 가져옴
+    int GetChildCount() const { return m_children.size(); }
+    UIBase* GetChild(int i) const { return m_children[i].get(); }
 
 protected:
     RECT m_bounds = {0, 0, 0, 0};
