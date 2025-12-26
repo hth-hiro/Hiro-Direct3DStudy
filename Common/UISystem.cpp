@@ -143,6 +143,13 @@ UIBase* UISystem::FindTopHit(const POINT& pt)
         UIBase* root = m_roots[i];
         if (!root) continue;
 
+        // 만약 입력 차단 패널이면
+        if (root->BlocksInput())
+        {
+            UIBase* hit = hit = FindTopHitRecursive(root, pt);
+            return hit;
+        }
+
         UIBase* hit = FindTopHitRecursive(root, pt);
         if (hit)
             return hit;
@@ -169,7 +176,7 @@ UIBase* UISystem::FindTopHitRecursive(UIBase* node, const POINT& pt)
     }
 
     // 자식에서 못찾으면 자신을 검사
-    if (node->HitTest(pt))
+    if (node->IsEnabled() && node->HitTest(pt))
         return node;
 
     return nullptr;

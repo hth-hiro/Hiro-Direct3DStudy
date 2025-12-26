@@ -26,7 +26,7 @@ void UIButton::Render()
 
 void UIButton::OnMouseEnter()
 {
-    if (!IsEnabled) return;
+    if (!IsEnabled()) return;
     SetState(State::Hovered);
 }
 
@@ -42,7 +42,7 @@ void UIButton::OnMouseMove(const POINT&)
 
 void UIButton::OnMouseDown(const POINT&)
 {
-    if (!IsEnabled) return;
+    if (!IsEnabled()) return;
     SetState(State::Pressed);
 }
 

@@ -24,6 +24,7 @@
 #include "../Common/UISystem.h"
 
 //
+#include "../Common/UIPanel.h"
 #include "../Common/UIText.h"
 
 using namespace DirectX::SimpleMath;
@@ -224,12 +225,6 @@ public:
     StaticMesh m_StaticMesh;
     StaticMesh ground;
 
-    /*------ UI ------*/
-    UISystem m_uiManager;
-    float m_masterFontSize = 24.0f;
-
-    Text m_title;
-
 	// ModelLoad
 	//Model* GetModelByName(const std::string& name)
 	//{
@@ -330,4 +325,14 @@ public:
 
 	bool InitScene();
 	void UninitScene();
+
+    /*------ UI ------*/
+    void CreateUISystem();
+    void ReleaseUISystem();
+
+    UISystem m_uiManager;
+    float m_masterFontSize = 24.0f;
+
+    Text m_title;
+    Panel m_option;
 };

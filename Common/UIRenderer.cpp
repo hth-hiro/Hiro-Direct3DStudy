@@ -93,3 +93,23 @@ IDWriteFactory* UIRenderer::GetDWriteFactory()
 {
     return m_dwriteFactory.Get();
 }
+
+void UIRenderer::FillRect(const RECT& rc, const D2D1_COLOR_F& color)
+{
+    auto* rt = m_d2dRenderTarget.Get();
+    if (!rt) return;
+
+    if (!m_solidBrush)
+    {
+        rt->CreateSolidColorBrush(D2D1::ColorF(1, 1, 1, 1), m_solidBrush.GetAddressOf());
+    }
+
+    m_solidBrush->SetColor(color);
+
+    D2D1_RECT_F r = D2D1::RectF(
+        (float)rc.left, (float)rc.top,
+        (float)rc.right, (float)rc.bottom
+    );
+
+    rt->FillRectangle(r, m_solidBrush.Get());
+}

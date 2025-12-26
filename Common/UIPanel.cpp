@@ -10,6 +10,14 @@ void UIPanel::Render()
     if (m_drawBackground)
     {
         RECT wr = GetWorldBounds();
-        //UIRenderer::Get().DrawFill
+
+        UIRenderer::Get().FillRect(wr, m_bgColor);
     }
+
+    RenderChilren();
+}
+
+void UIPanel::SetRect(int x, int y, int width, int height)
+{
+    SetBounds({ x, y, width, height });
 }

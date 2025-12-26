@@ -77,12 +77,3 @@ RECT UIBase::GetWorldBounds() const
     // 최종 부모(월드)의 바운드
     return wr;
 }
-
-void UIBase::AddChild(std::unique_ptr<UIBase> child)
-{
-    if (!child)
-        return;
-
-    child->m_parent = this;
-    m_children.emplace_back(std::move(child));
-}

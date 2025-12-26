@@ -92,11 +92,11 @@ public:
 public:
     void SetText(const std::wstring& text);
     void SetText(const std::string& text);
-    void SetRect(int x, int y, int width, int height);
     void SetFont(const std::wstring& fontFamilyName = L"Malgun Gothic");
     void SetFontSize(float fontSize);
     void SetColor(D2D1::ColorF color);
     void SetColor(Vector4 color);
+    void SetRect(int x, int y, int width, int height);
 
 private:
     // 기본 리소스

@@ -229,6 +229,10 @@ void TutorialApp::Update()
     m_pDeviceContext->RSSetViewports(1, &m_ShadowViewport);
 
     // UI update
+    m_option.uiPanel->SetActive(m_option.active);
+    m_option.uiPanel->SetBackgroundColor(D2D1::ColorF(m_option.panelColor.x, m_option.panelColor.y, m_option.panelColor.z, m_option.panelColor.w));
+    m_option.uiPanel->SetRect(100, 100, 1820, 980);
+
     m_title.uiText->SetActive(m_title.active);
     m_title.uiText->SetText(m_title.message);
     m_title.uiText->SetFont(L"Gulim");
@@ -906,9 +910,7 @@ void TutorialApp::UninitImGUI()
 
 bool TutorialApp::InitScene()
 {
-    // UI - Text
-    m_title.uiText = new UIText();
-    m_uiManager.AddUI(m_title.uiText);
+    CreateUISystem();
 
     HRESULT hr = 0;
     ID3D10Blob* errorMessage = nullptr;
@@ -1318,4 +1320,23 @@ void TutorialApp::UninitScene()
 
     SAFE_RELEASE(m_pShadowConstantBuffer);
     SAFE_RELEASE(m_pStaticMeshConstantBuffer);
+}
+
+void TutorialApp::CreateUISystem()
+{
+    // UI - Text(old)
+    //m_title.uiText = new UIText();
+    //m_uiManager.AddUI(m_title.uiText);
+
+    // UI - Panel
+    m_option.uiPanel = new UIPanel();
+    m_option.panelBox = { 1920, 1080 };
+
+    m_title.uiText = m_option.uiPanel->AddChild<UIText>();
+
+    m_uiManager.AddUI(m_option.uiPanel);
+}
+
+void TutorialApp::ReleaseUISystem()
+{
 }

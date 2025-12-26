@@ -1,5 +1,11 @@
 #pragma once
 #include "UIBase.h"
+#include "UIText.h"
+#include "UIImage.h"
+#include "UIButton.h"
+//#include "UISlider.h"
+//#include "UICheckbox.h"
+//#include "UIRadiobox.h"
 
 class UIPanel : public UIBase
 {
@@ -19,10 +25,27 @@ public:
 
     void Render() override;
 
+    void SetRect(int x, int y, int width, int height);
+
+    bool BlocksInput() const override { return true; }
+
 private:
     bool m_drawBackground = false;
-    bool m_blockInput = false;
     
     D2D1_COLOR_F m_bgColor = D2D1::ColorF(0.2f, 0.2f, 0.2f, 0.8f);
 };
 
+struct Panel
+{
+    UIPanel* uiPanel;
+    bool active = true;
+    Vector4 panelColor = { 0.2, 0.2, 0.2, 0.8 };
+    Vector2 position = { 0, 0 };
+    Vector2 panelBox = { 1920, 1080 };
+
+    void Reset()
+    {
+        panelColor = { 0.2, 0.2, 0.2, 0.8 };
+        position = { 0, 0 };
+    }
+};

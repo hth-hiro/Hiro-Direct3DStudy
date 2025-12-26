@@ -72,8 +72,10 @@ public:
 
     RECT GetWorldBounds() const;
 
-    // Tree구조를 만든다.
-    void AddChild(std::unique_ptr<UIBase> child);
+    // Tree구조를 만든다. - 템플릿으로 자식객체 추가
+
+    template <typename T, typename...Args>
+    T* AddChild(Args&&... args);
     UIBase* GetParent() const { return m_parent; }
 
     // UIButton과 상호작용하는 함수, UISystem이 호출
@@ -85,6 +87,16 @@ public:
     virtual void OnClick() {}
 
     // UIPanel과 상호작용하는 함수
+    virtual bool BlocksInput() const { return false; }
+    void RenderChilren()
+    {
+        for (auto& c : m_children)
+        {
+            if (!c) continue;
+            if (!c->IsActive() || !c->IsVisible())continue;
+            c->Render();
+        }
+    }
 
 public:
     // 자식 노드 수를 가져옴
@@ -106,3 +118,16 @@ protected:
     State m_state = State::Normal;
 };
 
+template<typename T, typename ...Args>
+inline T* UIBase::AddChild(Args && ...args)
+{
+    static_assert(std::is_base_of_v<UIBase, T>, "T must derive from, UIBase");
+
+    auto child = std::make_unique<T>(std::forward<Args>(args)...);
+    child->m_parent = this;
+
+    T* raw = child.get();
+    m_children.emplace_back(std::move(child));
+
+    return raw;
+}

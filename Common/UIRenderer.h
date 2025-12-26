@@ -36,8 +36,12 @@ public:
     ID2D1RenderTarget* GetRenderTarget();
     IDWriteFactory* GetDWriteFactory();
 
+    void FillRect(const RECT& rc, const D2D1_COLOR_F& color);
+
 private:
     ComPtr<ID2D1RenderTarget>  m_d2dRenderTarget;
     ComPtr<ID2D1Factory>       m_d2dFactory;
     ComPtr<IDWriteFactory>     m_dwriteFactory;
+
+    ComPtr<ID2D1SolidColorBrush> m_solidBrush;
 };
