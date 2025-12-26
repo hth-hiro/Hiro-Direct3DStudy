@@ -18,7 +18,7 @@ using Microsoft::WRL::ComPtr;
 using namespace DirectX;
 
 // UIBase는 UI의 부모입니다.
-// 모든 UI들을 UIBase가 보관하고, UIManager가 UIBase를 관리합니다.
+// 모든 UI들을 UIBase가 보관하고, UISystem이 UIBase를 관리합니다.
 class UIBase
 {
 public:
@@ -37,12 +37,15 @@ public:
 
     virtual bool HitTest(const POINT& mousePos) const;
 
+    // Active - UI Update 여부
     void SetActive(bool active) { m_active = active; }
     bool IsActive() const { return m_active; }
 
+    // Visible - Render 대상 여부 (투명이지만 입력을 받는 경우, 미리 생성하고 나중에 보여질때)
     void SetVisible(bool visible) { m_visible = visible; }
     bool IsVisible() const { return m_visible; }
 
+    // Enable - 조작 가능 여부 (Render/Update는 되지만 입력을 안 받는 UI)
     void SetEnabled(bool enabled)
     {
         m_enabled = enabled;
@@ -53,6 +56,8 @@ public:
     State GetState() const { return m_state; }
     void SetState(State s) { m_state = s; }
 
+    // 표시할 레이어를 구분합니다.
+    // 레이어 관련 내용은 enum class로 정리하면 좋을 것 같습니다.
     int GetZOrder() const { return m_zOrder; }
     void SetZOrder(int z) { m_zOrder = z; }
 
@@ -71,7 +76,7 @@ public:
     void AddChild(std::unique_ptr<UIBase> child);
     UIBase* GetParent() const { return m_parent; }
 
-    // 버튼과 상호작용하는 함수, UISystem이 호출
+    // UIButton과 상호작용하는 함수, UISystem이 호출
     virtual void OnMouseEnter() {}
     virtual void OnMouseLeave() {}
     virtual void OnMouseMove(const POINT&) {}
@@ -79,7 +84,7 @@ public:
     virtual void OnMouseUp(const POINT&) {}
     virtual void OnClick() {}
 
-    
+    // UIPanel과 상호작용하는 함수
 
 public:
     // 자식 노드 수를 가져옴
