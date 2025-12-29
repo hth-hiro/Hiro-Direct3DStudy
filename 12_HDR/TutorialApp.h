@@ -147,7 +147,7 @@ public:
     D3D11_VIEWPORT m_MainViewport;
 
     /*--------UI--------*/
-    UISystem m_uiManager;
+    UISystem m_uiSystem;
     Text m_title;
     //float m_masterFontSize= 24.0f;
 

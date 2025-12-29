@@ -13,11 +13,16 @@ public:
     void Render() override;
 
 public:
-    // TODO: 여기에 이미지 띄울 함수 추가
-    void SetTexture(ID3D11ShaderResourceView* tex);
+    //void SetTexture(ID3D11ShaderResourceView* tex);
+
+    bool SetImage(const std::wstring& path);
+    void SetBitmap(ID2D1Bitmap* bmp) { m_bitmap = bmp; }
+
+    //void SetTintColor(const Vector4& color);
 
 private:
     // TODO: 이미지를 띄울 리소스
-    ComPtr<ID3D11ShaderResourceView> m_Texture;
+    //ComPtr<ID3D11ShaderResourceView> m_Texture;
+    ComPtr<ID2D1Bitmap> m_bitmap;
 };
 

@@ -54,7 +54,7 @@ public:
     bool IsEnabled() const { return m_enabled; }
 
     State GetState() const { return m_state; }
-    void SetState(State s) { m_state = s; }
+    virtual void SetState(State s) { m_state = s; }
 
     // 표시할 레이어를 구분합니다.
     // 레이어 관련 내용은 enum class로 정리하면 좋을 것 같습니다.
@@ -88,7 +88,7 @@ public:
 
     // UIPanel과 상호작용하는 함수
     virtual bool BlocksInput() const { return false; }
-    void RenderChilren()
+    void RenderChidren()
     {
         for (auto& c : m_children)
         {
@@ -125,6 +125,8 @@ inline T* UIBase::AddChild(Args && ...args)
 
     auto child = std::make_unique<T>(std::forward<Args>(args)...);
     child->m_parent = this;
+
+    child->Initialize();
 
     T* raw = child.get();
     m_children.emplace_back(std::move(child));

@@ -14,7 +14,7 @@ void UIPanel::Render()
         UIRenderer::Get().FillRect(wr, m_bgColor);
     }
 
-    RenderChilren();
+    RenderChidren();
 }
 
 void UIPanel::SetRect(int x, int y, int width, int height)

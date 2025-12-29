@@ -16,6 +16,8 @@
 
 #include "../Common/Helper.h"
 #include <map>
+#include <wincodec.h>
+#pragma comment(lib, "windowscodecs.lib")
 
 using namespace std;
 using Microsoft::WRL::ComPtr;
@@ -36,12 +38,19 @@ public:
     ID2D1RenderTarget* GetRenderTarget();
     IDWriteFactory* GetDWriteFactory();
 
+    // UIImage가 호출
+    void DrawImage(ID2D1Bitmap* bmp, const RECT& dst);
+    ComPtr<ID2D1Bitmap> LoadBitmapFromFile(const std::wstring& path);
+
+    // UIPanel이 호출
     void FillRect(const RECT& rc, const D2D1_COLOR_F& color);
 
 private:
     ComPtr<ID2D1RenderTarget>  m_d2dRenderTarget;
     ComPtr<ID2D1Factory>       m_d2dFactory;
     ComPtr<IDWriteFactory>     m_dwriteFactory;
+
+    ComPtr<IWICImagingFactory> m_wicFactory;
 
     ComPtr<ID2D1SolidColorBrush> m_solidBrush;
 };

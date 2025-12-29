@@ -37,7 +37,7 @@ TutorialApp::TutorialApp(HINSTANCE hInstance) : GameApp(hInstance)
 TutorialApp::~TutorialApp()
 {
     UninitImGUI();
-    m_uiManager.Shutdown();
+    m_uiSystem.Shutdown();
 
     if (m_pDeviceContext)
     {
@@ -62,7 +62,7 @@ bool TutorialApp::Initialize(UINT Width, UINT Height)
     if (!InitD3D())
         return false;
 
-    if (!m_uiManager.Initialize(m_hWnd, m_pDevice, m_pDeviceContext, m_pSwapChain))
+    if (!m_uiSystem.Initialize(m_hWnd, m_pDevice, m_pDeviceContext, m_pSwapChain))
         return false;
 
     if (!InitImGUI())
@@ -718,7 +718,7 @@ void TutorialApp::Render()
     ImGui::Render();
     ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
 
-    m_uiManager.Render();
+    m_uiSystem.Render();
 
     // 5. Present
     m_pSwapChain->Present(0, 0);
@@ -901,7 +901,7 @@ bool TutorialApp::InitScene()
 {
     // UI - Text
     m_title.uiText = new UIText();
-    m_uiManager.AddUI(m_title.uiText);
+    m_uiSystem.AddUI(m_title.uiText);
 
     HRESULT hr = 0;
     ID3D10Blob* errorMessage = nullptr;

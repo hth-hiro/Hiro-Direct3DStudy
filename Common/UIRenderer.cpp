@@ -20,6 +20,7 @@ bool UIRenderer::Initialize(HWND hWnd, ID3D11Device* device, ID3D11DeviceContext
 
     HRESULT hr;
 
+    // UIText =============================================================
     // Direct2D Factory
     hr = D2D1CreateFactory(
         D2D1_FACTORY_TYPE_SINGLE_THREADED,
@@ -60,6 +61,15 @@ bool UIRenderer::Initialize(HWND hWnd, ID3D11Device* device, ID3D11DeviceContext
     );
     if (FAILED(hr)) return false;
 
+    // UIImage ========================================================
+    hr = CoCreateInstance(
+        CLSID_WICImagingFactory,
+        nullptr,
+        CLSCTX_INPROC_SERVER,
+        IID_PPV_ARGS(m_wicFactory.GetAddressOf())
+    );
+    if (FAILED(hr)) return false;
+
     return true;
 }
 
@@ -92,6 +102,62 @@ ID2D1RenderTarget* UIRenderer::GetRenderTarget()
 IDWriteFactory* UIRenderer::GetDWriteFactory()
 {
     return m_dwriteFactory.Get();
+}
+
+void UIRenderer::DrawImage(ID2D1Bitmap* bmp, const RECT& dst)
+{
+    auto* rt = m_d2dRenderTarget.Get();
+    if (!rt || !bmp) return;
+
+    D2D1_RECT_F r = D2D1::RectF(
+        (float)dst.left, (float)dst.top,
+        (float)dst.right, (float)dst.bottom);
+
+    rt->DrawBitmap(
+        bmp,
+        r,
+        1.0f,
+        D2D1_BITMAP_INTERPOLATION_MODE_LINEAR
+    );
+}
+
+// 경로로 비트맵 로드하기
+ComPtr<ID2D1Bitmap> UIRenderer::LoadBitmapFromFile(const std::wstring& path)
+{
+    ComPtr<ID2D1Bitmap> out;
+
+    if (!m_wicFactory || !m_d2dRenderTarget) return out;
+
+    ComPtr<IWICBitmapDecoder> decoder;
+    HRESULT hr = m_wicFactory->CreateDecoderFromFilename(
+        path.c_str(), nullptr, GENERIC_READ, WICDecodeMetadataCacheOnLoad, decoder.GetAddressOf());
+    if (FAILED(hr)) return out;
+
+    ComPtr<IWICBitmapFrameDecode> frame;
+    hr = decoder->GetFrame(0, frame.GetAddressOf());
+    if (FAILED(hr)) return out;
+
+    ComPtr<IWICFormatConverter> converter;
+    hr = m_wicFactory->CreateFormatConverter(converter.GetAddressOf());
+    if (FAILED(hr)) return out;
+
+    hr = converter->Initialize(
+        frame.Get(),
+        GUID_WICPixelFormat32bppPBGRA,
+        WICBitmapDitherTypeNone,
+        nullptr,
+        0.0,
+        WICBitmapPaletteTypeMedianCut
+    );
+    if (FAILED(hr)) return out;
+
+    hr = m_d2dRenderTarget->CreateBitmapFromWicBitmap(
+        converter.Get(),
+        nullptr,
+        out.GetAddressOf()
+    );
+
+    return SUCCEEDED(hr) ? out : ComPtr<ID2D1Bitmap>{};
 }
 
 void UIRenderer::FillRect(const RECT& rc, const D2D1_COLOR_F& color)

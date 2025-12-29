@@ -34,8 +34,8 @@ void UIBase::SetPosition(int x, int y)
     int h = m_bounds.bottom - m_bounds.top;
 
     m_bounds.left = x;
-    m_bounds.right = y;
     m_bounds.right = x + w;
+    m_bounds.top = y;
     m_bounds.bottom = y + h;
 }
 

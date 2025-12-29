@@ -37,7 +37,7 @@ TutorialApp::TutorialApp(HINSTANCE hInstance) : GameApp(hInstance)
 TutorialApp::~TutorialApp()
 {
     UninitImGUI();
-    m_uiManager.Shutdown();
+    m_uiSystem.Shutdown();
 
     if (m_pDeviceContext)
     {
@@ -62,7 +62,7 @@ bool TutorialApp::Initialize(UINT Width, UINT Height)
     if (!InitD3D())
         return false;
 
-    if (!m_uiManager.Initialize(m_hWnd, m_pDevice, m_pDeviceContext, m_pSwapChain))
+    if (!m_uiSystem.Initialize(m_hWnd, m_pDevice, m_pDeviceContext, m_pSwapChain))
         return false;
 
     if (!InitImGUI())
@@ -229,16 +229,7 @@ void TutorialApp::Update()
     m_pDeviceContext->RSSetViewports(1, &m_ShadowViewport);
 
     // UI update
-    m_option.uiPanel->SetActive(m_option.active);
-    m_option.uiPanel->SetBackgroundColor(D2D1::ColorF(m_option.panelColor.x, m_option.panelColor.y, m_option.panelColor.z, m_option.panelColor.w));
-    m_option.uiPanel->SetRect(100, 100, 1820, 980);
-
-    m_title.uiText->SetActive(m_title.active);
-    m_title.uiText->SetText(m_title.message);
-    m_title.uiText->SetFont(L"Gulim");
-    m_title.uiText->SetFontSize(m_masterFontSize);
-    m_title.uiText->SetColor(m_title.textColor);
-    m_title.uiText->SetRect(m_title.position.x, m_title.position.y, m_title.textBox.x, m_title.textBox.y);
+    UpdateUISystem();
 }
 
 void TutorialApp::Render()
@@ -693,7 +684,7 @@ void TutorialApp::Render()
 
     ImGui::SetNextWindowPos(ImVec2(1500, 30), ImGuiCond_FirstUseEver);
     ImGui::SetNextWindowSize(ImVec2(410, 218), ImGuiCond_FirstUseEver);
-    ImGui::Begin(u8"텍스트 관련 설정");
+    ImGui::Begin(u8"UI 관련 설정");
     ImGui::Checkbox(u8"텍스트 활성화", &m_title.active);
     ImGui::ColorEdit4(u8"텍스트 색", &m_title.textColor.x);
     ImGui::DragFloat(u8"텍스트 크기", &m_masterFontSize, 0.1f, 1.0f, 500.0f, "%.1f");
@@ -729,7 +720,7 @@ void TutorialApp::Render()
 
 
 
-    m_uiManager.Render();
+    m_uiSystem.Render();
 
     // 5. Present
     m_pSwapChain->Present(0, 0);
@@ -1322,6 +1313,7 @@ void TutorialApp::UninitScene()
     SAFE_RELEASE(m_pStaticMeshConstantBuffer);
 }
 
+// UI
 void TutorialApp::CreateUISystem()
 {
     // UI - Text(old)
@@ -1333,8 +1325,40 @@ void TutorialApp::CreateUISystem()
     m_option.panelBox = { 1920, 1080 };
 
     m_title.uiText = m_option.uiPanel->AddChild<UIText>();
+    m_button.uiButton = m_option.uiPanel->AddChild<UIButton>();
 
-    m_uiManager.AddUI(m_option.uiPanel);
+    m_image = m_option.uiPanel->AddChild<UIImage>();
+    m_image->SetImage(L"../Resource/ApiMiku.png");
+    m_image->SetSize(100, 100);
+    m_image->SetPosition(50, 50);
+
+    m_button.uiButton->SetImage(L"../Resource/UI/Button_Normal.png", UIBase::State::Normal);
+    m_button.uiButton->SetImage(L"../Resource/UI/Button_Hovered.png", UIBase::State::Hovered);
+    m_button.uiButton->SetImage(L"../Resource/UI/Button_Pressed.png", UIBase::State::Pressed);
+    m_button.uiButton->SetState(UIBase::State::Normal);
+
+    m_uiSystem.AddUI(m_option.uiPanel);
+}
+
+void TutorialApp::UpdateUISystem()
+{
+    float dt = m_TimeSystem.GetDeltaTime();
+
+    m_uiSystem.Update(dt);
+
+    m_option.uiPanel->SetActive(m_option.active);
+    m_option.uiPanel->SetBackgroundColor(D2D1::ColorF(m_option.panelColor.x, m_option.panelColor.y, m_option.panelColor.z, m_option.panelColor.w));
+    m_option.uiPanel->SetRect(100, 100, 1820, 980);
+
+    m_title.uiText->SetActive(m_title.active);
+    m_title.uiText->SetText(m_title.message);
+    m_title.uiText->SetFont(L"Gulim");
+    m_title.uiText->SetFontSize(m_masterFontSize);
+    m_title.uiText->SetColor(m_title.textColor);
+    m_title.uiText->SetRect(m_title.position.x, m_title.position.y, m_title.textBox.x, m_title.textBox.y);
+
+    //m_button.uiButton->SetState(UIBase::State::Normal);
+
 }
 
 void TutorialApp::ReleaseUISystem()

@@ -22,10 +22,10 @@
 
 // UI
 #include "../Common/UISystem.h"
-
-//
+#include "../Common/UIBase.h"
 #include "../Common/UIPanel.h"
 #include "../Common/UIText.h"
+#include "../Common/UIButton.h"
 
 using namespace DirectX::SimpleMath;
 using namespace DirectX;
@@ -328,11 +328,15 @@ public:
 
     /*------ UI ------*/
     void CreateUISystem();
+    void UpdateUISystem();
     void ReleaseUISystem();
 
-    UISystem m_uiManager;
+    UISystem m_uiSystem;
     float m_masterFontSize = 24.0f;
 
     Text m_title;
     Panel m_option;
+    Button m_button;
+    UIImage* m_image;
+
 };
