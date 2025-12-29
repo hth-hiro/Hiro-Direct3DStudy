@@ -13,9 +13,15 @@
 #include <map>
 
 #include <filesystem>
+#include <concepts>
 
 using Microsoft::WRL::ComPtr;
 using namespace DirectX;
+
+class UIBase;
+
+template <typename T>
+concept Bases = std::derived_from<T, UIBase>;
 
 // UIBase는 UI의 부모입니다.
 // 모든 UI들을 UIBase가 보관하고, UISystem이 UIBase를 관리합니다.
@@ -73,10 +79,43 @@ public:
     RECT GetWorldBounds() const;
 
     // Tree구조를 만든다. - 템플릿으로 자식객체 추가
-
     template <typename T, typename...Args>
     T* AddChild(Args&&... args);
     UIBase* GetParent() const { return m_parent; }
+
+    template <class T>
+    T* FindFirst()
+    {
+        for (auto& c : m_children)
+        {
+            if (auto* p = dynamic_cast<T*>(c.get())) return p;
+            if (auto* r = c->FindFirst<T>()) return r;
+        }
+
+        return nullptr;
+    }
+
+    UIBase* Pick(const POINT& p)
+    {
+        if (!IsActive() || !IsVisible() || !IsEnabled()) return nullptr;
+
+        for (auto it = m_children.rbegin(); it != m_children.rend(); ++it)
+        {
+            if (UIBase* hit = (*it)->Pick(p)) return hit;
+        }
+
+        if (HitTest(p)) return this;
+
+        return nullptr;
+    }
+
+    template<Bases T>
+    T* PickAs(const POINT& p)
+    {
+        if (UIBase* hit = Pick(p))
+            return dynamic_cast<T*>(hit);
+        return nullptr;
+    }
 
     // UIButton과 상호작용하는 함수, UISystem이 호출
     virtual void OnMouseEnter() {}
