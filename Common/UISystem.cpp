@@ -115,10 +115,19 @@ void UISystem::ProcessMouseMove(int x, int y)
     {
         if (m_hovered)
         {
+            m_hovered->OnMouseLeave();
+
+            if (m_hovered->GetState() != UIBase::State::Disabled)
+                m_hovered->SetState(UIBase::State::Normal);
+        }
+
+        m_hovered = hit;
+
+        if (m_hovered)
+        {
+            m_hovered->OnMouseEnter();
             if (m_hovered->GetState() != UIBase::State::Disabled)
                 m_hovered->SetState(UIBase::State::Hovered);
-
-            m_hovered->OnMouseEnter();
         }
     }
 
@@ -144,14 +153,17 @@ UIBase* UISystem::FindTopHit(const POINT& pt)
         if (!root) continue;
 
         // 만약 입력 차단 패널이면
-        if (root->BlocksInput())
-        {
-            UIBase* hit = hit = FindTopHitRecursive(root, pt);
-            return hit;
-        }
+        //if (root->BlocksInput())
+        //{
+        //    UIBase* hit = hit = FindTopHitRecursive(root, pt);
+        //    return hit;
+        //}
 
-        UIBase* hit = FindTopHitRecursive(root, pt);
-        if (hit)
+        //UIBase* hit = FindTopHitRecursive(root, pt);
+        //if (hit)
+        //    return hit;
+
+        if (UIBase* hit = root->Pick(pt))
             return hit;
     }
 
@@ -160,7 +172,7 @@ UIBase* UISystem::FindTopHit(const POINT& pt)
 
 UIBase* UISystem::FindTopHitRecursive(UIBase* node, const POINT& pt)
 {
-    if (!node || !node->IsActive() || !node->IsVisible() || node->IsEnabled())
+    if (!node || !node->IsActive() || !node->IsVisible() || !node->IsEnabled())
         return nullptr;
 
     // 자식이 위에 그려짐.

@@ -1,6 +1,7 @@
 #include "pch.h"
 #include "GameApp.h"
 #include "Helper.h"
+#include "UISystem.h"
 
 #include <dwmapi.h>
 #pragma comment(lib, "dwmapi.lib")
@@ -18,7 +19,7 @@ LRESULT CALLBACK DefaultWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM l
 }
 
 GameApp::GameApp(HINSTANCE hInstance)
-	:m_hInstance(hInstance), m_szWindowClass(L"DefaultWindowClass"), m_szTitle(L"D3D Class"), m_ClientWidth(1024), m_ClientHeight(768)
+	:m_hInstance(hInstance), m_szWindowClass(L"DefaultWindowClass"), m_szTitle(L"HiroEngine"), m_ClientWidth(1024), m_ClientHeight(768)
 {
 	GameApp::m_pInstance = this;
 	m_wcex.hInstance = hInstance;

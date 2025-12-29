@@ -1328,7 +1328,6 @@ void TutorialApp::CreateUISystem()
     m_option.handle = new UIPanel();
     m_option.panelBox = { 1920, 1080 };
 
-
     m_title.handle = m_option.handle->AddChild<UIText>();
     m_button.handle = m_option.handle->AddChild<UIButton>();
     m_image = m_option.handle->AddChild<UIImage>();
@@ -1366,7 +1365,24 @@ void TutorialApp::UpdateUISystem()
     m_title.handle->SetColor(m_title.textColor);
     m_title.handle->SetRect(m_title.position.x, m_title.position.y, m_title.textBox.x, m_title.textBox.y);
 
+    m_image->SetEnabled(true);
 
+    m_title.handle->SetEnabled(true);
+    m_option.handle->SetEnabled(true);
+
+    auto& mouse = m_Input.m_MouseState;
+    auto& tracker = m_Input.m_MouseStateTracker;
+
+    const int mx = (int)mouse.x;
+    const int my = (int)mouse.y;
+
+    m_uiSystem.ProcessMouseMove(mx, my);
+
+    if (tracker.leftButton == Mouse::ButtonStateTracker::PRESSED)
+        m_uiSystem.ProcessMouseDown(mx, my);
+
+    if (tracker.leftButton == Mouse::ButtonStateTracker::RELEASED)
+        m_uiSystem.ProcessMouseUp(mx, my);
 
 }
 

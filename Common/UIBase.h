@@ -120,9 +120,9 @@ public:
     // UIButton과 상호작용하는 함수, UISystem이 호출
     virtual void OnMouseEnter() {}
     virtual void OnMouseLeave() {}
-    virtual void OnMouseMove(const POINT&) {}
-    virtual void OnMouseDown(const POINT&) {}
-    virtual void OnMouseUp(const POINT&) {}
+    virtual void OnMouseMove(const POINT& p) {}
+    virtual void OnMouseDown(const POINT& p) {}
+    virtual void OnMouseUp(const POINT& p) {}
     virtual void OnClick() {}
 
     // UIPanel과 상호작용하는 함수

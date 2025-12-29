@@ -33,6 +33,26 @@ void UIImage::Render()
     UIRenderer::Get().DrawImage(m_bitmap.Get(), r);
 }
 
+void UIImage::OnMouseDown(const POINT& p)
+{
+    m_dragging = true;
+
+    POINT pos = GetPosition();
+    m_dragOffset = { p.x - pos.x, p.y - pos.y };
+}
+
+void UIImage::OnMouseMove(const POINT& p)
+{
+    if (!m_dragging) return;
+
+    SetPosition(p.x - m_dragOffset.x, p.y - m_dragOffset.y);
+}
+
+void UIImage::OnMouseUp(const POINT& p)
+{
+    m_dragging = false;
+}
+
 bool UIImage::SetImage(const std::wstring& path)
 {
     auto bmp = UIRenderer::Get().LoadBitmapFromFile(path);
