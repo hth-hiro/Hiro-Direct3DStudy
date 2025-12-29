@@ -5,6 +5,7 @@ bool UIButton::Initialize()
 {
     m_background = AddChild<UIImage>();
     m_background->SetZOrder(10);
+    
 
     m_text = AddChild<UIText>();
     m_text->SetZOrder(11);
@@ -21,6 +22,10 @@ void UIButton::Render()
     if (!IsVisible() || !IsActive()) return;
 
     //UpdateVisual();
+    RECT r = GetWorldBounds();
+    if (r.left == r.right || r.top == r.bottom) return;
+
+    UIRenderer::Get().DrawImage(m_stateImages[m_state].Get(), r);
 
     RenderChidren();
 }

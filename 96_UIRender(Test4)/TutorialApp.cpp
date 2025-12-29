@@ -685,6 +685,9 @@ void TutorialApp::Render()
     ImGui::SetNextWindowPos(ImVec2(1500, 30), ImGuiCond_FirstUseEver);
     ImGui::SetNextWindowSize(ImVec2(410, 218), ImGuiCond_FirstUseEver);
     ImGui::Begin(u8"UI 관련 설정");
+    ImGui::SeparatorText(u8"패널 설정");
+    ImGui::Checkbox(u8"패널 활성화", &m_option.active);
+    ImGui::SeparatorText(u8"텍스트 설정");
     ImGui::Checkbox(u8"텍스트 활성화", &m_title.active);
     ImGui::ColorEdit4(u8"텍스트 색", &m_title.textColor.x);
     ImGui::DragFloat(u8"텍스트 크기", &m_masterFontSize, 0.1f, 1.0f, 500.0f, "%.1f");
@@ -1335,6 +1338,10 @@ void TutorialApp::CreateUISystem()
     m_button.uiButton->SetImage(L"../Resource/UI/Button_Normal.png", UIBase::State::Normal);
     m_button.uiButton->SetImage(L"../Resource/UI/Button_Hovered.png", UIBase::State::Hovered);
     m_button.uiButton->SetImage(L"../Resource/UI/Button_Pressed.png", UIBase::State::Pressed);
+
+    //m_button
+
+
     m_button.uiButton->SetState(UIBase::State::Normal);
 
     m_uiSystem.AddUI(m_option.uiPanel);
