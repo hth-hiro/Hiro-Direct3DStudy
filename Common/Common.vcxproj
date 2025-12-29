@@ -144,6 +144,7 @@
   <ItemGroup>
     <ClInclude Include="Camera.h" />
     <ClInclude Include="ConstantBuffer.h" />
+    <ClInclude Include="Define.h" />
     <ClInclude Include="Draggable.h" />
     <ClInclude Include="framework.h" />
     <ClInclude Include="GameApp.h" />
