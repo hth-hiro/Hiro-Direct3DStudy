@@ -273,10 +273,10 @@ public:
 
     float FOV = 1.0f;
 
-    Vector4 ambientLight = {  };
-    Vector4 diffuseLight = {  };
-    Vector4 specularLight = {  };
-    Vector3 lightDir = {  };
+    Vector4 ambientLight = { 0.1f, 0.1f, 0.1f, 0.1f };
+    Vector4 diffuseLight = { 1.0f, 1.0f, 1.0f, 1.0f };
+    Vector4 specularLight = { 1.0f, 1.0f, 1.0f, 1.0f };
+    Vector3 lightDir = { 0.0f, -1.0f, 1.0f };
 
     //bool viewChanger = false;
 
@@ -300,18 +300,18 @@ public:
         lightDir = { 0.0f, -1.0f, 1.0f };
     }
 
-    void RenderObjectUI(const char* label, Object& obj)
-    {
-        ImGui::SliderFloat3((std::string(label) + u8" 크기").c_str(), &obj.transform.scale.x, 1.0f, 100.0f);
-        ImGui::SliderFloat3((std::string(label) + u8" 위치").c_str(), &obj.transform.position.x, -100.0f, 100.0f, "%.1f");
-        ImGui::DragFloat3((std::string(label) + u8" 회전").c_str(), &obj.transform.rotation.x, 0.1f);
-        ImGui::ColorEdit4((std::string(label) + u8" Material Ambient").c_str(), &obj.ambient.x);
-        ImGui::ColorEdit4((std::string(label) + u8" Material Diffuse").c_str(), &obj.diffuse.x);
-        ImGui::ColorEdit4((std::string(label) + u8" Material Specular").c_str(), &obj.specular.x);
-        ImGui::SliderFloat((std::string(label) + u8" 광택지수").c_str(), &obj.shininess, 200.0f, 20000.0f);
-        if (ImGui::Button((std::string(label) + u8" 초기화").c_str())) obj.Reset();
-        ImGui::Text("");
-    }
+    //void RenderObjectUI(const char* label, Object& obj)
+    //{
+    //    ImGui::SliderFloat3((std::string(label) + u8" 크기").c_str(), &obj.transform.scale.x, 1.0f, 100.0f);
+    //    ImGui::SliderFloat3((std::string(label) + u8" 위치").c_str(), &obj.transform.position.x, -100.0f, 100.0f, "%.1f");
+    //    ImGui::DragFloat3((std::string(label) + u8" 회전").c_str(), &obj.transform.rotation.x, 0.1f);
+    //    ImGui::ColorEdit4((std::string(label) + u8" Material Ambient").c_str(), &obj.ambient.x);
+    //    ImGui::ColorEdit4((std::string(label) + u8" Material Diffuse").c_str(), &obj.diffuse.x);
+    //    ImGui::ColorEdit4((std::string(label) + u8" Material Specular").c_str(), &obj.specular.x);
+    //    ImGui::SliderFloat((std::string(label) + u8" 광택지수").c_str(), &obj.shininess, 200.0f, 20000.0f);
+    //    if (ImGui::Button((std::string(label) + u8" 초기화").c_str())) obj.Reset();
+    //    ImGui::Text("");
+    //}
 
 	bool Initialize(UINT Width, UINT Height) override;
 	void Update() override;
