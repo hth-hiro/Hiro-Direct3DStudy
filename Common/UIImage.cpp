@@ -35,6 +35,8 @@ void UIImage::Render()
 
 void UIImage::OnMouseDown(const POINT& p)
 {
+    if (!IsDebugUI()) return;
+
     m_dragging = true;
 
     POINT pos = GetPosition();

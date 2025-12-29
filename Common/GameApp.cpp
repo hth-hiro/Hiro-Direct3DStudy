@@ -79,6 +79,8 @@ bool GameApp::Initialize(UINT Width, UINT Height)
 	m_Time.Initialize();
 	m_Input.Initialize(m_hWnd,this);
 
+    g_RunMode = RunMode::Running;
+
 	return true;
 }
 
@@ -131,6 +133,19 @@ void GameApp::Update()
 void GameApp::OnInputProcess(const Keyboard::State& KeyState, const Keyboard::KeyboardStateTracker& KeyTracker, const Mouse::State& MouseState, const Mouse::ButtonStateTracker& MouseTracker)
 {
 	m_Camera.OnInputProcess(KeyState, KeyTracker, MouseState, MouseTracker);
+
+    if (KeyTracker.pressed.F6)
+    {
+        if (g_RunMode == RunMode::Running) g_RunMode = RunMode::Paused;
+        else if (g_RunMode == RunMode::Paused) g_RunMode = RunMode::Running;
+        else if (g_RunMode == RunMode::DebugUI) g_RunMode = RunMode::Running;
+    }
+
+    if (KeyTracker.pressed.F1)
+    {
+        if (g_RunMode == RunMode::DebugUI) g_RunMode = RunMode::Running;
+        else                               g_RunMode = RunMode::DebugUI;
+    }
 }
 
 LRESULT GameApp::WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)

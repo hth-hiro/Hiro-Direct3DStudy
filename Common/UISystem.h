@@ -80,6 +80,8 @@ public:
     void ProcessMouseUp(int x, int y);
     void ProcessMouseMove(int x, int y);
 
+    void OnInputProcess(const Keyboard::State&, const Keyboard::KeyboardStateTracker&,
+        const Mouse::State& mouse, const Mouse::ButtonStateTracker& mouseTracker) override;
 private:
     void SortByZOrder();
 
@@ -91,8 +93,6 @@ private:
     UIBase* m_hovered = nullptr;
     UIBase* m_captured = nullptr;
 
-    void OnInputProcess(const Keyboard::State&, const Keyboard::KeyboardStateTracker&,
-        const Mouse::State& mouse, const Mouse::ButtonStateTracker& mouseTracker) override;
     
     friend class Singleton<UISystem>;
 };

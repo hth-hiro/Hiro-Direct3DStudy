@@ -6,6 +6,8 @@
 #include "InputSystem.h"
 #include "Camera.h"
 
+#include "Define.h"
+
 #define MAX_LOADSTRING 100
 
 struct ColorF

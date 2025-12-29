@@ -1,5 +1,6 @@
 #pragma once
 #include "UIBase.h"
+#include "Define.h"
 
 class UIImage : public UIBase
 {

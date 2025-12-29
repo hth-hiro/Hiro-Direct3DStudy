@@ -12,5 +12,6 @@
 
 #include <cassert>
 
+#include "Define.h"
 
 #endif //PCH_H
