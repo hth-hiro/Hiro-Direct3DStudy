@@ -45,7 +45,7 @@ inline std::wstring Utf8ToWString(const std::string& s)
 
 struct Text
 {
-    UIText* uiText;
+    UIText* handle;
     std::string message;
     float fontSize = 24.0f;
     bool active = true;

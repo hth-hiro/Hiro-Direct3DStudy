@@ -53,5 +53,5 @@ private:
 
 struct Button
 {
-    UIButton* uiButton;
+    UIButton* handle;
 };

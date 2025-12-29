@@ -229,12 +229,12 @@ void TutorialApp::Update()
     m_pDeviceContext->RSSetViewports(1, &m_ShadowViewport);
 
     // UI update
-    m_title.uiText->SetActive(m_title.active);
-    m_title.uiText->SetText(L"Text");
-    m_title.uiText->SetFont(L"Gulim");
-    m_title.uiText->SetFontSize(m_title.fontSize);
-    m_title.uiText->SetColor(m_title.textColor);
-    m_title.uiText->SetRect(m_title.position.x, m_title.position.y, m_title.textBox.x, m_title.textBox.y);
+    m_title.handle->SetActive(m_title.active);
+    m_title.handle->SetText(L"Text");
+    m_title.handle->SetFont(L"Gulim");
+    m_title.handle->SetFontSize(m_title.fontSize);
+    m_title.handle->SetColor(m_title.textColor);
+    m_title.handle->SetRect(m_title.position.x, m_title.position.y, m_title.textBox.x, m_title.textBox.y);
 }
 
 void TutorialApp::Render()
@@ -900,8 +900,8 @@ void TutorialApp::UninitImGUI()
 bool TutorialApp::InitScene()
 {
     // UI - Text
-    m_title.uiText = new UIText();
-    m_uiSystem.AddUI(m_title.uiText);
+    m_title.handle = new UIText();
+    m_uiSystem.AddUI(m_title.handle);
 
     HRESULT hr = 0;
     ID3D10Blob* errorMessage = nullptr;

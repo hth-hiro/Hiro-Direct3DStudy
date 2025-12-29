@@ -1324,27 +1324,27 @@ void TutorialApp::CreateUISystem()
     //m_uiManager.AddUI(m_title.uiText);
 
     // UI - Panel
-    m_option.uiPanel = new UIPanel();
+    m_option.handle = new UIPanel();
     m_option.panelBox = { 1920, 1080 };
 
-    m_title.uiText = m_option.uiPanel->AddChild<UIText>();
-    m_button.uiButton = m_option.uiPanel->AddChild<UIButton>();
+    m_title.handle = m_option.handle->AddChild<UIText>();
+    m_button.handle = m_option.handle->AddChild<UIButton>();
 
-    m_image = m_option.uiPanel->AddChild<UIImage>();
+    m_image = m_option.handle->AddChild<UIImage>();
     m_image->SetImage(L"../Resource/ApiMiku.png");
     m_image->SetSize(100, 100);
     m_image->SetPosition(50, 50);
 
-    m_button.uiButton->SetImage(L"../Resource/UI/Button_Normal.png", UIBase::State::Normal);
-    m_button.uiButton->SetImage(L"../Resource/UI/Button_Hovered.png", UIBase::State::Hovered);
-    m_button.uiButton->SetImage(L"../Resource/UI/Button_Pressed.png", UIBase::State::Pressed);
+    m_button.handle->SetImage(L"../Resource/UI/Button_Normal.png", UIBase::State::Normal);
+    m_button.handle->SetImage(L"../Resource/UI/Button_Hovered.png", UIBase::State::Hovered);
+    m_button.handle->SetImage(L"../Resource/UI/Button_Pressed.png", UIBase::State::Pressed);
 
     //m_button
 
 
-    m_button.uiButton->SetState(UIBase::State::Normal);
+    m_button.handle->SetState(UIBase::State::Normal);
 
-    m_uiSystem.AddUI(m_option.uiPanel);
+    m_uiSystem.AddUI(m_option.handle);
 }
 
 void TutorialApp::UpdateUISystem()
@@ -1353,16 +1353,16 @@ void TutorialApp::UpdateUISystem()
 
     m_uiSystem.Update(dt);
 
-    m_option.uiPanel->SetActive(m_option.active);
-    m_option.uiPanel->SetBackgroundColor(D2D1::ColorF(m_option.panelColor.x, m_option.panelColor.y, m_option.panelColor.z, m_option.panelColor.w));
-    m_option.uiPanel->SetRect(100, 100, 1820, 980);
+    m_option.handle->SetActive(m_option.active);
+    m_option.handle->SetBackgroundColor(D2D1::ColorF(m_option.panelColor.x, m_option.panelColor.y, m_option.panelColor.z, m_option.panelColor.w));
+    m_option.handle->SetRect(100, 100, 1820, 980);
 
-    m_title.uiText->SetActive(m_title.active);
-    m_title.uiText->SetText(m_title.message);
-    m_title.uiText->SetFont(L"Gulim");
-    m_title.uiText->SetFontSize(m_masterFontSize);
-    m_title.uiText->SetColor(m_title.textColor);
-    m_title.uiText->SetRect(m_title.position.x, m_title.position.y, m_title.textBox.x, m_title.textBox.y);
+    m_title.handle->SetActive(m_title.active);
+    m_title.handle->SetText(m_title.message);
+    m_title.handle->SetFont(L"Gulim");
+    m_title.handle->SetFontSize(m_masterFontSize);
+    m_title.handle->SetColor(m_title.textColor);
+    m_title.handle->SetRect(m_title.position.x, m_title.position.y, m_title.textBox.x, m_title.textBox.y);
 
     //m_button.uiButton->SetState(UIBase::State::Normal);
 

@@ -37,7 +37,7 @@ private:
 
 struct Panel
 {
-    UIPanel* uiPanel;
+    UIPanel* handle;
     bool active = true;
     Vector4 panelColor = { 0.2, 0.2, 0.2, 0.8 };
     Vector2 position = { 0, 0 };
