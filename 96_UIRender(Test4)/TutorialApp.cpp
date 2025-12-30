@@ -693,7 +693,34 @@ void TutorialApp::Render()
     ImGui::SetNextWindowSize(ImVec2(410, 218), ImGuiCond_FirstUseEver);
     ImGui::Begin("UI Setting");
     ImGui::SeparatorText("Canvas Setting");
-    ImGui::Checkbox("Active Canvas", &m_canvas->active);
+    ImGui::Checkbox("Active Canvas", &m_canvas->ActiveRef());
+    //ImGui::DragFloat2("Canvas Position", &m_canvas->PositionRef().x, 1.f, - (int)m_ClientWidth, m_ClientWidth, "%.0f");
+    
+    ImGui::PushID("Image");
+    ImGui::SeparatorText("Setting");
+    ImGui::Checkbox("Active", &m_image->ActiveRef());
+    ImGui::DragFloat2("Position", &m_image->PositionRef().x, 1.f, - (int)m_ClientWidth, m_ClientWidth, "%.0f");
+
+    if (ImGui::CollapsingHeader("Pivot"))
+    {
+        ImGui::DragFloat2("Pivot##pivot", &m_image->Rect().m_pivot.x, 0.1f, 0.0f, 1.0f, "%.1f");
+    }
+
+    /*if (ImGui::CollapsingHeader("Pivot"))
+    {
+        ImGui::RadioButton(" ##LT", &m_imagePivot, (int)Pivot::TopLeft); ImGui::SameLine();
+        ImGui::RadioButton(" ##CT", &m_imagePivot, (int)Pivot::TopCenter); ImGui::SameLine();
+        ImGui::RadioButton(" ##RT", &m_imagePivot, (int)Pivot::TopRight);
+
+        ImGui::RadioButton(" ##LM", &m_imagePivot, (int)Pivot::MiddleLeft); ImGui::SameLine();
+        ImGui::RadioButton(" ##CM", &m_imagePivot, (int)Pivot::MiddleCenter); ImGui::SameLine();
+        ImGui::RadioButton(" ##RM", &m_imagePivot, (int)Pivot::MiddleRight);
+
+        ImGui::RadioButton(" ##LB", &m_imagePivot, (int)Pivot::BottomLeft); ImGui::SameLine();
+        ImGui::RadioButton(" ##CB", &m_imagePivot, (int)Pivot::BottomCenter); ImGui::SameLine();
+        ImGui::RadioButton(" ##RB", &m_imagePivot, (int)Pivot::BottomRight);
+    }*/
+    ImGui::PopID();
 
     //ImGui::SeparatorText("Text Setting");
     //ImGui::Checkbox("Active Text", &m_title.active);
@@ -1327,21 +1354,22 @@ void TutorialApp::UninitScene()
 // UI
 void TutorialApp::CreateUISystem()
 {
-    // UI - Text(old)
-    //m_title.uiText = new UIText();
-    //m_uiManager.AddUI(m_title.uiText);
+    // Canvas
+    //m_canvas = new Canvas();
+    m_canvas = new Canvas(m_ClientWidth, m_ClientHeight);
+    //m_canvas->SetBounds({ 0, 0, (int)m_ClientWidth, (int)m_ClientHeight });
 
-    // UI - Canvas
-    m_canvas = new Canvas();
-    m_canvas->SetBounds({ 0, 0, 1920, 1080 });
-    
+
+    // 이렇게 쓰면 화면 중앙이 0,0이 됨.
+    //m_canvas->Rect().SetPivot(0.5f, 0.5f);
+    //m_canvas->Rect().SetAnchoredPosition(0,0);
+    //m_canvas->Rect().SetSize(m_ClientWidth, m_ClientHeight);
+
     m_image = m_canvas->AddChild<UIImage>();
     m_image->SetImage(L"../Resource/ApiMiku.png");
     m_image->SetSize(300, 300);
-    m_image->SetPosition(90, 90);
-
-
-
+    m_image->SetPosition(0, 0);
+    m_image->Rect().SetPivot(0.5f, 0.5f);
 
     // UI - Panel
     //m_option.handle = new UIPanel();
@@ -1375,7 +1403,13 @@ void TutorialApp::UpdateUISystem()
 
     m_uiSystem.Update(dt);
 
-    m_canvas->SetActive(m_canvas->active);
+    m_image->Rect().SetPivot(m_image->Rect().m_pivot.x, m_image->Rect().m_pivot.y);
+
+    //m_canvas->SetActive(m_canvas->IsActive());
+    //m_image->SetActive(m_image->IsActive());
+    //m_image->SetPosition(m_image->GetPosition());
+
+    // 추후 anchor preset 구현할 수 있으면 구현?
 
     //m_option.handle->SetActive(m_option.active);
     //m_option.handle->SetBackgroundColor(D2D1::ColorF(m_option.panelColor.x, m_option.panelColor.y, m_option.panelColor.z, m_option.panelColor.w));

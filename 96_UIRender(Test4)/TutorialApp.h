@@ -340,6 +340,8 @@ public:
 
     bool m_uiActive = true;
 
+    int m_imagePivot = 0;
+
     //Text m_title;
     //Panel m_option;
     //Button m_button;
