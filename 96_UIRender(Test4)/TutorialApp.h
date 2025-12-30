@@ -337,6 +337,7 @@ public:
     
     Canvas* m_canvas;
     UIImage* m_image;
+    UIPanel* m_optionPanel;
 
     bool m_uiActive = true;
 

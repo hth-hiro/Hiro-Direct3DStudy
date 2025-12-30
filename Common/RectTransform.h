@@ -36,7 +36,7 @@ struct UIRect
 class RectTransform
 {
 public:
-    Vector2 m_position{0.0f, 0.0f};
+    Vector2 m_anchoredPosition{0.0f, 0.0f};
     Vector2 m_anchorMin{ 0.5f, 0.5f };
     Vector2 m_anchorMax{ 0.5f, 0.5f };
     Vector2 m_pivot{ 0.5f, 0.5f };
@@ -59,9 +59,11 @@ public:
 
     void SetSize(float w, float h) { m_size = { w, h }; MarkDirty(); }
     void SetPivot(float x, float y) { m_pivot = { x, y }; MarkDirty(); }
-    void SetAnchoredPosition(float x, float y) { m_position = { x, y }; MarkDirty(); }
+    void SetAnchoredPosition(float x, float y) { m_anchoredPosition = { x, y }; MarkDirty(); }
 
-    
+    Vector2 GetAnchoredPosition() { return m_anchoredPosition; }  // 로컬
+    Vector2 GetWorldTopLeft() const { return m_worldRect.Pos(); } // 월드
+    Vector2& AnchoredPositionRef() { return m_anchoredPosition; }
 
     // 부모의 최종 rect 계산
     void Recalculate(const UIRect& parentRect)
@@ -76,7 +78,7 @@ public:
         size.y = Max(0.0f, size.y);
 
         const Vector2 parentTopLeft = parentRect.Pos();
-        const Vector2 pivotPos = parentTopLeft + m_position;
+        const Vector2 pivotPos = parentTopLeft + m_anchoredPosition;
         const Vector2 topLeft = pivotPos - Vector2(size.x * m_pivot.x, size.y * m_pivot.y);
 
         m_worldRect.x = topLeft.x;

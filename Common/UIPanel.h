@@ -13,7 +13,7 @@ public:
     UIPanel()
     {
         // 패널은 입력을 받지 않음.
-        SetEnabled(false);
+        SetEnabled(true);
     }
 
     void SetDrawBackground(bool draw) { m_drawBackground = draw; }
@@ -33,19 +33,4 @@ private:
     bool m_drawBackground = false;
     
     D2D1_COLOR_F m_bgColor = D2D1::ColorF(0.2f, 0.2f, 0.2f, 0.8f);
-};
-
-struct Panel
-{
-    UIPanel* handle;
-    bool active = true;
-    Vector4 panelColor = { 0.2, 0.2, 0.2, 0.8 };
-    Vector2 position = { 0, 0 };
-    Vector2 panelBox = { 1920, 1080 };
-
-    void Reset()
-    {
-        panelColor = { 0.2, 0.2, 0.2, 0.8 };
-        position = { 0, 0 };
-    }
 };

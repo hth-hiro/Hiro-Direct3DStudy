@@ -1,5 +1,6 @@
 #include "pch.h"
 #include "UIBase.h"
+#include "Canvas.h"
 
 static UIRect ToUIRect(const RECT& r)
 {
@@ -88,7 +89,7 @@ void UIBase::SetPosition(const POINT& p)
 POINT UIBase::GetPosition() const
 {
     //return POINT{ m_bounds.left, m_bounds.top };
-    return POINT{ (LONG)m_rect.m_position.x, (LONG)m_rect.m_position.y };
+    return POINT{ (LONG)m_rect.m_anchoredPosition.x, (LONG)m_rect.m_anchoredPosition.y };
 }
 
 void UIBase::SetSize(int w, int h)
@@ -105,13 +106,26 @@ void UIBase::SetSize(int w, int h)
 void UIBase::SetBounds(const RECT& r)
 {
     int x = r.left;
-    int y = r.right;
+    int y = r.top;
 
     int w = r.right - r.left;
     int h = r.bottom - r.top;
 
     SetPosition(x, y);
     SetSize(w, h);
+}
+
+Canvas* UIBase::GetCanvas() const
+{
+    const UIBase* p = this;
+    while (p)
+    {
+        if (auto c = dynamic_cast<const Canvas*>(p))
+            return const_cast<Canvas*>(c);
+
+        p = p->GetParent();
+    }
+    return nullptr;
 }
 
 SIZE UIBase::GetSize() const
