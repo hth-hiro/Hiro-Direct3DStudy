@@ -143,7 +143,6 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="Camera.h" />
-    <ClInclude Include="Canvas.h" />
     <ClInclude Include="ConstantBuffer.h" />
     <ClInclude Include="Define.h" />
     <ClInclude Include="Draggable.h" />
@@ -169,7 +168,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Camera.cpp" />
-    <ClCompile Include="Canvas.cpp" />
     <ClCompile Include="Common.cpp" />
     <ClCompile Include="GameApp.cpp" />
     <ClCompile Include="Helper.cpp" />
