@@ -46,8 +46,8 @@ POINT UIBase::GetPosition() const
 
 void UIBase::SetSize(int w, int h)
 {
-    w = max(w, 0);
-    h = max(h, 0);
+    w = std::max(w, 0);
+    h = std::max(h, 0);
 
     m_bounds.right = m_bounds.left + w;
     m_bounds.bottom = m_bounds.top + h;

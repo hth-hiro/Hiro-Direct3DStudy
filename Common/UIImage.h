@@ -6,7 +6,7 @@ class UIImage : public UIBase
 {
 public:
     UIImage();
-    ~UIImage();
+    ~UIImage() = default;
 
     bool Initialize() override;
     void Shutdown() override;
@@ -21,7 +21,7 @@ public:
     //void SetTexture(ID3D11ShaderResourceView* tex);
 
     bool SetImage(const std::wstring& path);
-    void SetBitmap(ID2D1Bitmap* bmp) { m_bitmap = bmp; }
+    //void SetBitmap(ID2D1Bitmap* bmp) { }
 
     //void SetTintColor(const Vector4& color);
 
@@ -31,6 +31,8 @@ public:
 private:
     // TODO: 이미지를 띄울 리소스
     //ComPtr<ID3D11ShaderResourceView> m_Texture;
-    ComPtr<ID2D1Bitmap> m_bitmap;
+    //ComPtr<ID2D1Bitmap> m_bitmap;
+    bool m_isShutdown = false;
+    std::wstring m_path;
 };
 

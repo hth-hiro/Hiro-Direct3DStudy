@@ -78,7 +78,7 @@ public:
 
     RECT GetWorldBounds() const;
 
-    // Tree구조를 만든다. - 템플릿으로 자식객체 추가
+    // 템플릿으로 자식객체 추가
     template <typename T, typename...Args>
     T* AddChild(Args&&... args);
     UIBase* GetParent() const { return m_parent; }
@@ -125,9 +125,9 @@ public:
     virtual void OnMouseUp(const POINT& p) {}
     virtual void OnClick() {}
 
-    // UIPanel과 상호작용하는 함수
     virtual bool BlocksInput() const { return false; }
-    void RenderChidren()
+
+    void RenderChildren()
     {
         for (auto& c : m_children)
         {

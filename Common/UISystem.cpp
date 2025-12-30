@@ -10,14 +10,21 @@ UISystem::UISystem()
 
 UISystem::~UISystem()
 {
-    Shutdown();
+    //Shutdown();
 }
 
 void UISystem::Shutdown()
 {
+    if (m_isShutdown) return;
+    m_isShutdown = true;
+
     m_hovered = nullptr;
     m_captured = nullptr;
+
+    for (auto* ui : m_roots)
+        delete ui;
     m_roots.clear();
+
     UIRenderer::Get().ShutDown();
 }
 

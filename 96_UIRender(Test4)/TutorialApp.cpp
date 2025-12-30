@@ -36,8 +36,12 @@ TutorialApp::TutorialApp(HINSTANCE hInstance) : GameApp(hInstance)
 
 TutorialApp::~TutorialApp()
 {
-    UninitImGUI();
+    m_quit = true;
+
     m_uiSystem.Shutdown();
+    UIRenderer::Get().ShutDown();
+
+    UninitImGUI();
 
     if (m_pDeviceContext)
     {
@@ -76,6 +80,7 @@ bool TutorialApp::Initialize(UINT Width, UINT Height)
 
 void TutorialApp::Update()
 {
+    if (m_quit) return;
     __super::Update();
 
     //m_ImGuiManager.Update();
@@ -234,6 +239,7 @@ void TutorialApp::Update()
 
 void TutorialApp::Render()
 {
+    if (m_quit) return;
     Vector3 ObjectPos = { object1.transform.GetPosition().x, object1.transform.GetPosition().y , object1.transform.GetPosition().z };
 
     // 1. Clear
@@ -686,25 +692,26 @@ void TutorialApp::Render()
     ImGui::SetNextWindowPos(ImVec2(1500, 30), ImGuiCond_FirstUseEver);
     ImGui::SetNextWindowSize(ImVec2(410, 218), ImGuiCond_FirstUseEver);
     ImGui::Begin("UI Setting");
-    ImGui::SeparatorText("Panel Setting");
-    ImGui::Checkbox("Active Panel", &m_option.active);
-    ImGui::SeparatorText("Text Setting");
-    ImGui::Checkbox("Active Text", &m_title.active);
-    ImGui::ColorEdit4("Color", &m_title.textColor.x);
-    ImGui::DragFloat("FontSize", &m_masterFontSize, 0.1f, 1.0f, 500.0f, "%.1f");
-    ImGui::DragFloat2("Position", &m_title.position.x, 1.f, 0.0f, m_ClientWidth, "%.0f");
-    ImGui::DragFloat2("Textbox", &m_title.textBox.x, 1.0, 1.0f, 1000.0f); 
-    static char buffer[256] = "";
-    if (ImGui::InputTextWithHint(
-        "Input",
-        "Input the text ...",
-        buffer,
-        sizeof(buffer),
-        ImGuiInputTextFlags_EnterReturnsTrue))
-    {
-        m_title.message = buffer; // 엔터 시에만 반영
-    }
-    if (ImGui::Button("reset")) { m_title.Reset(); }
+    ImGui::SeparatorText("Canvas Setting");
+    ImGui::Checkbox("Active Canvas", &m_canvas->active);
+
+    //ImGui::SeparatorText("Text Setting");
+    //ImGui::Checkbox("Active Text", &m_title.active);
+    //ImGui::ColorEdit4("Color", &m_title.textColor.x);
+    //ImGui::DragFloat("FontSize", &m_masterFontSize, 0.1f, 1.0f, 500.0f, "%.1f");
+    //ImGui::DragFloat2("Position", &m_title.position.x, 1.f, 0.0f, m_ClientWidth, "%.0f");
+    //ImGui::DragFloat2("Textbox", &m_title.textBox.x, 1.0, 1.0f, 1000.0f); 
+    //static char buffer[256] = "";
+    //if (ImGui::InputTextWithHint(
+    //    "Input",
+    //    "Input the text ...",
+    //    buffer,
+    //    sizeof(buffer),
+    //    ImGuiInputTextFlags_EnterReturnsTrue))
+    //{
+    //    m_title.message = buffer; // 엔터 시에만 반영
+    //}
+    //if (ImGui::Button("reset")) { m_title.Reset(); }
     ImGui::End();
 
     ImGui::Begin("HDR");
@@ -1324,68 +1331,85 @@ void TutorialApp::CreateUISystem()
     //m_title.uiText = new UIText();
     //m_uiManager.AddUI(m_title.uiText);
 
-    // UI - Panel
-    m_option.handle = new UIPanel();
-    m_option.panelBox = { 1920, 1080 };
-
-    m_title.handle = m_option.handle->AddChild<UIText>();
-    m_button.handle = m_option.handle->AddChild<UIButton>();
-    m_image = m_option.handle->AddChild<UIImage>();
-
+    // UI - Canvas
+    m_canvas = new Canvas();
+    m_canvas->SetBounds({ 0, 0, 1920, 1080 });
+    
+    m_image = m_canvas->AddChild<UIImage>();
     m_image->SetImage(L"../Resource/ApiMiku.png");
-    m_image->SetSize(100, 100);
-    m_image->SetPosition(50, 50);
+    m_image->SetSize(300, 300);
+    m_image->SetPosition(90, 90);
 
-    m_button.handle->SetImage(L"../Resource/UI/Button_Normal.png", UIBase::State::Normal);
-    m_button.handle->SetImage(L"../Resource/UI/Button_Hovered.png", UIBase::State::Hovered);
-    m_button.handle->SetImage(L"../Resource/UI/Button_Pressed.png", UIBase::State::Pressed);
+
+
+
+    // UI - Panel
+    //m_option.handle = new UIPanel();
+    //m_option.panelBox = { 1920, 1080 };
+
+    //m_title.handle = m_option.handle->AddChild<UIText>();
+    //m_button.handle = m_option.handle->AddChild<UIButton>();
+    //m_image = m_option.handle->AddChild<UIImage>();
+
+    //m_image->SetImage(L"../Resource/ApiMiku.png");
+    //m_image->SetSize(100, 100);
+    //m_image->SetPosition(50, 50);
+
+    //m_button.handle->SetImage(L"../Resource/UI/Button_Normal.png", UIBase::State::Normal);
+    //m_button.handle->SetImage(L"../Resource/UI/Button_Hovered.png", UIBase::State::Hovered);
+    //m_button.handle->SetImage(L"../Resource/UI/Button_Pressed.png", UIBase::State::Pressed);
 
     //m_button
 
 
-    m_button.handle->SetState(UIBase::State::Normal);
+    //m_button.handle->SetState(UIBase::State::Normal);
 
-    m_uiSystem.AddUI(m_option.handle);
+    //m_uiSystem.AddUI(m_option.handle);
+    m_uiSystem.AddUI(m_canvas);
 }
 
 void TutorialApp::UpdateUISystem()
 {
+    if (m_quit) return;
     float dt = m_TimeSystem.GetDeltaTime();
 
     m_uiSystem.Update(dt);
 
-    m_option.handle->SetActive(m_option.active);
-    m_option.handle->SetBackgroundColor(D2D1::ColorF(m_option.panelColor.x, m_option.panelColor.y, m_option.panelColor.z, m_option.panelColor.w));
-    m_option.handle->SetRect(100, 100, 1820, 980);
+    m_canvas->SetActive(m_canvas->active);
 
-    m_title.handle->SetActive(m_title.active);
-    m_title.handle->SetText(m_title.message);
-    m_title.handle->SetFont(L"Gulim");
-    m_title.handle->SetFontSize(m_masterFontSize);
-    m_title.handle->SetColor(m_title.textColor);
-    m_title.handle->SetRect(m_title.position.x, m_title.position.y, m_title.textBox.x, m_title.textBox.y);
+    //m_option.handle->SetActive(m_option.active);
+    //m_option.handle->SetBackgroundColor(D2D1::ColorF(m_option.panelColor.x, m_option.panelColor.y, m_option.panelColor.z, m_option.panelColor.w));
+    //m_option.handle->SetRect(100, 100, 1820, 980);
 
-    m_image->SetEnabled(true);
+    //m_title.handle->SetActive(m_title.active);
+    //m_title.handle->SetText(m_title.message);
+    //m_title.handle->SetFont(L"Gulim");
+    //m_title.handle->SetFontSize(m_masterFontSize);
+    //m_title.handle->SetColor(m_title.textColor);
+    //m_title.handle->SetRect(m_title.position.x, m_title.position.y, m_title.textBox.x, m_title.textBox.y);
 
-    m_title.handle->SetEnabled(true);
-    m_option.handle->SetEnabled(true);
+    //m_image->SetEnabled(true);
 
-    auto& mouse = m_Input.m_MouseState;
-    auto& tracker = m_Input.m_MouseStateTracker;
+    //m_title.handle->SetEnabled(true);
+    //m_option.handle->SetEnabled(true);
 
-    const int mx = (int)mouse.x;
-    const int my = (int)mouse.y;
+    //auto& mouse = m_Input.m_MouseState;
+    //auto& tracker = m_Input.m_MouseStateTracker;
 
-    m_uiSystem.ProcessMouseMove(mx, my);
+    //const int mx = (int)mouse.x;
+    //const int my = (int)mouse.y;
 
-    if (tracker.leftButton == Mouse::ButtonStateTracker::PRESSED)
-        m_uiSystem.ProcessMouseDown(mx, my);
+    //m_uiSystem.ProcessMouseMove(mx, my);
 
-    if (tracker.leftButton == Mouse::ButtonStateTracker::RELEASED)
-        m_uiSystem.ProcessMouseUp(mx, my);
+    //if (tracker.leftButton == Mouse::ButtonStateTracker::PRESSED)
+    //    m_uiSystem.ProcessMouseDown(mx, my);
+
+    //if (tracker.leftButton == Mouse::ButtonStateTracker::RELEASED)
+    //    m_uiSystem.ProcessMouseUp(mx, my);
 
 }
 
 void TutorialApp::ReleaseUISystem()
 {
+
 }

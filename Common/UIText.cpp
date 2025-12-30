@@ -7,11 +7,6 @@ UIText::UIText()
     Initialize();
 }
 
-UIText::~UIText()
-{
-    Shutdown();
-}
-
 bool UIText::Initialize()
 {
     auto* rt = UIRenderer::Get().GetRenderTarget();

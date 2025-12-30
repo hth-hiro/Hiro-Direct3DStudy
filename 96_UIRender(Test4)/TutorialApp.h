@@ -26,6 +26,7 @@
 #include "../Common/UIPanel.h"
 #include "../Common/UIText.h"
 #include "../Common/UIButton.h"
+#include "../Common/Canvas.h"
 
 using namespace DirectX::SimpleMath;
 using namespace DirectX;
@@ -333,10 +334,15 @@ public:
 
     UISystem m_uiSystem;
     float m_masterFontSize = 24.0f;
-
-    Text m_title;
-    Panel m_option;
-    Button m_button;
+    
+    Canvas* m_canvas;
     UIImage* m_image;
 
+    bool m_uiActive = true;
+
+    //Text m_title;
+    //Panel m_option;
+    //Button m_button;
+
+    bool m_quit = false;
 };
