@@ -82,7 +82,7 @@ class UIText : public UIBase
 {
 public:
     UIText();
-    ~UIText();
+    ~UIText() = default;
 
     bool Initialize() override;
     void Shutdown() override;

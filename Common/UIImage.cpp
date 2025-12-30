@@ -6,11 +6,6 @@ UIImage::UIImage()
 {
 }
 
-UIImage::~UIImage()
-{
-    Shutdown();
-}
-
 bool UIImage::Initialize()
 {
     return true;
@@ -18,19 +13,25 @@ bool UIImage::Initialize()
 
 void UIImage::Shutdown()
 {
-    m_bitmap.Reset();
+    if (m_isShutdown) return;
+    m_isShutdown = true;
+
+    //m_bitmap.Reset();
 }
 
 void UIImage::Render()
 {
     if (!IsActive() || !IsVisible()) return;
 
-    if (!m_bitmap) return;
+    //if (!m_bitmap) return;
 
     RECT r = GetWorldBounds();
     if (r.left == r.right || r.top == r.bottom) return;
 
-    UIRenderer::Get().DrawImage(m_bitmap.Get(), r);
+    auto bmp = UIRenderer::Get().GetBitmap(m_path);
+    if (!bmp) return;
+
+    UIRenderer::Get().DrawImage(bmp.Get(), r);
 }
 
 void UIImage::OnMouseDown(const POINT& p)
@@ -57,10 +58,12 @@ void UIImage::OnMouseUp(const POINT& p)
 
 bool UIImage::SetImage(const std::wstring& path)
 {
-    auto bmp = UIRenderer::Get().LoadBitmapFromFile(path);
+    m_path = path;
 
-    if (!bmp) return false;
+    //auto bmp = UIRenderer::Get().LoadBitmapFromFile(path);
 
-    m_bitmap = bmp;
+    //if (!bmp) return false;
+
+    //m_bitmap = bmp;
     return true;
 }

@@ -27,7 +27,7 @@ void UIButton::Render()
 
     UIRenderer::Get().DrawImage(m_stateImages[m_state].Get(), r);
 
-    RenderChidren();
+    RenderChildren();
 }
 
 void UIButton::SetImage(const std::wstring& path, State state)
@@ -37,8 +37,8 @@ void UIButton::SetImage(const std::wstring& path, State state)
 
     m_stateImages[state] = bmp;
 
-    if (m_state == state && m_background)
-        m_background->SetBitmap(bmp.Get());
+    //if (m_state == state && m_background)
+    //    m_background->SetBitmap(bmp.Get());
 }
 
 void UIButton::SetState(State s)
@@ -86,9 +86,9 @@ void UIButton::UpdateVisual()
 {
     if (!m_background) return;
 
-    auto it = m_stateImages.find(m_state);
-    if (it != m_stateImages.end())
-    {
-        m_background->SetBitmap(it->second.Get());
-    }
+    //auto it = m_stateImages.find(m_state);
+    //if (it != m_stateImages.end())
+    //{
+    //    m_background->SetBitmap(it->second.Get());
+    //}
 }
