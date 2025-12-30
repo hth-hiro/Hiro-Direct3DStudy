@@ -143,6 +143,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="Camera.h" />
+    <ClInclude Include="Canvas.h" />
     <ClInclude Include="ConstantBuffer.h" />
     <ClInclude Include="Define.h" />
     <ClInclude Include="Draggable.h" />
@@ -160,6 +161,7 @@
     <ClInclude Include="Transform.h" />
     <ClInclude Include="UIBase.h" />
     <ClInclude Include="UIButton.h" />
+    <ClInclude Include="UICommon.h" />
     <ClInclude Include="UIImage.h" />
     <ClInclude Include="UISystem.h" />
     <ClInclude Include="UIPanel.h" />
@@ -168,6 +170,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Camera.cpp" />
+    <ClCompile Include="Canvas.cpp" />
     <ClCompile Include="Common.cpp" />
     <ClCompile Include="GameApp.cpp" />
     <ClCompile Include="Helper.cpp" />

@@ -11,7 +11,7 @@ UIRenderer::UIRenderer()
 
 UIRenderer::~UIRenderer()
 {
-    ShutDown();
+    //ShutDown();
 }
 
 bool UIRenderer::Initialize(HWND hWnd, ID3D11Device* device, ID3D11DeviceContext* context, IDXGISwapChain* swapChain)
@@ -75,9 +75,24 @@ bool UIRenderer::Initialize(HWND hWnd, ID3D11Device* device, ID3D11DeviceContext
 
 void UIRenderer::ShutDown()
 {
+    if (m_isShutdown) return;
+    m_isShutdown = true;
+
+    for (auto& kv : m_bitmaps)
+        kv.second.Detach();
+    m_bitmaps.clear();
+
+    m_solidBrush.Reset();
+    m_wicFactory.Reset();
     m_d2dRenderTarget.Reset();
     m_dwriteFactory.Reset();
     m_d2dFactory.Reset();
+
+    //m_solidBrush.Detach();
+    //m_wicFactory.Detach();
+    //m_d2dRenderTarget.Detach();
+    //m_dwriteFactory.Detach();
+    //m_d2dFactory.Detach();
 }
 
 void UIRenderer::BeginFrame()
@@ -130,15 +145,15 @@ ComPtr<ID2D1Bitmap> UIRenderer::LoadBitmapFromFile(const std::wstring& path)
 
     ComPtr<IWICBitmapDecoder> decoder;
     HRESULT hr = m_wicFactory->CreateDecoderFromFilename(
-        path.c_str(), nullptr, GENERIC_READ, WICDecodeMetadataCacheOnLoad, decoder.GetAddressOf());
+        path.c_str(), nullptr, GENERIC_READ, WICDecodeMetadataCacheOnLoad, decoder.ReleaseAndGetAddressOf());
     if (FAILED(hr)) return out;
 
     ComPtr<IWICBitmapFrameDecode> frame;
-    hr = decoder->GetFrame(0, frame.GetAddressOf());
+    hr = decoder->GetFrame(0, frame.ReleaseAndGetAddressOf());
     if (FAILED(hr)) return out;
 
     ComPtr<IWICFormatConverter> converter;
-    hr = m_wicFactory->CreateFormatConverter(converter.GetAddressOf());
+    hr = m_wicFactory->CreateFormatConverter(converter.ReleaseAndGetAddressOf());
     if (FAILED(hr)) return out;
 
     hr = converter->Initialize(
@@ -154,7 +169,7 @@ ComPtr<ID2D1Bitmap> UIRenderer::LoadBitmapFromFile(const std::wstring& path)
     hr = m_d2dRenderTarget->CreateBitmapFromWicBitmap(
         converter.Get(),
         nullptr,
-        out.GetAddressOf()
+        out.ReleaseAndGetAddressOf()
     );
 
     return SUCCEEDED(hr) ? out : ComPtr<ID2D1Bitmap>{};

@@ -93,6 +93,7 @@ private:
     UIBase* m_hovered = nullptr;
     UIBase* m_captured = nullptr;
 
-    
+    bool m_isShutdown = false;
+
     friend class Singleton<UISystem>;
 };

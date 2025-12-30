@@ -38,6 +38,18 @@ public:
     ID2D1RenderTarget* GetRenderTarget();
     IDWriteFactory* GetDWriteFactory();
 
+    ComPtr<ID2D1Bitmap> GetBitmap(const std::wstring& path)
+    {
+        auto it = m_bitmaps.find(path);
+        if (it != m_bitmaps.end())
+            return it->second;
+
+        auto bmp = LoadBitmapFromFile(path);
+        if (bmp) m_bitmaps.emplace(path, bmp);
+
+        return bmp;
+    }
+
     // UIImage∞° »£√‚
     void DrawImage(ID2D1Bitmap* bmp, const RECT& dst);
     ComPtr<ID2D1Bitmap> LoadBitmapFromFile(const std::wstring& path);
@@ -53,4 +65,8 @@ private:
     ComPtr<IWICImagingFactory> m_wicFactory;
 
     ComPtr<ID2D1SolidColorBrush> m_solidBrush;
+
+    std::unordered_map<std::wstring, ComPtr<ID2D1Bitmap>> m_bitmaps;
+
+    bool m_isShutdown = false;
 };

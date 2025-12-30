@@ -21,6 +21,8 @@ LRESULT CALLBACK DefaultWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM l
 GameApp::GameApp(HINSTANCE hInstance)
 	:m_hInstance(hInstance), m_szWindowClass(L"DefaultWindowClass"), m_szTitle(L"HiroEngine"), m_ClientWidth(1024), m_ClientHeight(768)
 {
+    CoInitializeEx(nullptr, COINIT_APARTMENTTHREADED);
+
 	GameApp::m_pInstance = this;
 	m_wcex.hInstance = hInstance;
 	m_wcex.cbSize = sizeof(WNDCLASSEX);
@@ -43,6 +45,7 @@ GameApp::GameApp(HINSTANCE hInstance)
 
 GameApp::~GameApp()
 {
+    CoUninitialize();
 }
 
 bool GameApp::Initialize(UINT Width, UINT Height)
