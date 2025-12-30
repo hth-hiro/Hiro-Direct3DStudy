@@ -9,9 +9,7 @@ public:
     Canvas();
     Canvas(float w, float h);
 
-    void Render() override
-    {
-        RenderChildren();
-    }
+    void Render() override;
+
 };
 

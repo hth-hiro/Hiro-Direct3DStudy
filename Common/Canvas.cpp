@@ -11,3 +11,8 @@ Canvas::Canvas(float w, float h)
     Rect().SetAnchoredPosition(0, 0);
     Rect().SetSize(w, h);
 }
+
+void Canvas::Render()
+{
+    RenderChildren();
+}

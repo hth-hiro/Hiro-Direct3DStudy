@@ -694,32 +694,47 @@ void TutorialApp::Render()
     ImGui::Begin("UI Setting");
     ImGui::SeparatorText("Canvas Setting");
     ImGui::Checkbox("Active Canvas", &m_canvas->ActiveRef());
-    //ImGui::DragFloat2("Canvas Position", &m_canvas->PositionRef().x, 1.f, - (int)m_ClientWidth, m_ClientWidth, "%.0f");
-    
+
     ImGui::PushID("Image");
-    ImGui::SeparatorText("Setting");
-    ImGui::Checkbox("Active", &m_image->ActiveRef());
-    ImGui::DragFloat2("Position", &m_image->PositionRef().x, 1.f, - (int)m_ClientWidth, m_ClientWidth, "%.0f");
-
-    if (ImGui::CollapsingHeader("Pivot"))
     {
-        ImGui::DragFloat2("Pivot##pivot", &m_image->Rect().m_pivot.x, 0.1f, 0.0f, 1.0f, "%.1f");
+        ImGui::SeparatorText("Image");
+        ImGui::Checkbox("Active", &m_image->ActiveRef());
+
+        Vector2 pos = m_image->Rect().GetAnchoredPosition();
+        if (ImGui::DragFloat2("Position", &pos.x, 1.f, -(float)m_ClientWidth, (float)m_ClientWidth, "%.0f"))
+            m_image->Rect().SetAnchoredPosition(pos.x, pos.y);
+
+        if (ImGui::CollapsingHeader("Pivot"))
+        {
+            Vector2 pv = m_image->Rect().m_pivot;
+            if (ImGui::DragFloat2("Pivot##pivot", &pv.x, 0.1f, 0.0f, 1.0f, "%.1f"))
+                m_image->Rect().SetPivot(pv.x, pv.y);
+        }
     }
+    ImGui::PopID();
 
-    /*if (ImGui::CollapsingHeader("Pivot"))
+    ImGui::PushID("OptionPanel");
     {
-        ImGui::RadioButton(" ##LT", &m_imagePivot, (int)Pivot::TopLeft); ImGui::SameLine();
-        ImGui::RadioButton(" ##CT", &m_imagePivot, (int)Pivot::TopCenter); ImGui::SameLine();
-        ImGui::RadioButton(" ##RT", &m_imagePivot, (int)Pivot::TopRight);
+        ImGui::SeparatorText("OptionPanel");
+        ImGui::Checkbox("Active", &m_optionPanel->ActiveRef());
 
-        ImGui::RadioButton(" ##LM", &m_imagePivot, (int)Pivot::MiddleLeft); ImGui::SameLine();
-        ImGui::RadioButton(" ##CM", &m_imagePivot, (int)Pivot::MiddleCenter); ImGui::SameLine();
-        ImGui::RadioButton(" ##RM", &m_imagePivot, (int)Pivot::MiddleRight);
+        Vector2 pos = m_optionPanel->Rect().GetAnchoredPosition();
+        if (ImGui::DragFloat2("Position", &pos.x, 1.f, -(float)m_ClientWidth, (float)m_ClientWidth, "%.0f"))
+            m_optionPanel->Rect().SetAnchoredPosition(pos.x, pos.y);
 
-        ImGui::RadioButton(" ##LB", &m_imagePivot, (int)Pivot::BottomLeft); ImGui::SameLine();
-        ImGui::RadioButton(" ##CB", &m_imagePivot, (int)Pivot::BottomCenter); ImGui::SameLine();
-        ImGui::RadioButton(" ##RB", &m_imagePivot, (int)Pivot::BottomRight);
-    }*/
+        Vector2 size = m_optionPanel->Rect().m_size;
+        if (ImGui::DragFloat2("Size", &size.x, 1.f, 0.f, 10000.f, "%.0f"))
+        {
+            m_optionPanel->Rect().SetSize(size.x, size.y);
+        }
+
+        if (ImGui::CollapsingHeader("Pivot"))
+        {
+            Vector2 pv = m_optionPanel->Rect().m_pivot;
+            if (ImGui::DragFloat2("Pivot##pivot", &pv.x, 0.1f, 0.0f, 1.0f, "%.1f"))
+                m_optionPanel->Rect().SetPivot(pv.x, pv.y);
+        }
+    }
     ImGui::PopID();
 
     //ImGui::SeparatorText("Text Setting");
@@ -1357,38 +1372,27 @@ void TutorialApp::CreateUISystem()
     // Canvas
     //m_canvas = new Canvas();
     m_canvas = new Canvas(m_ClientWidth, m_ClientHeight);
-    //m_canvas->SetBounds({ 0, 0, (int)m_ClientWidth, (int)m_ClientHeight });
+    
+    m_optionPanel = m_canvas->AddChild<UIPanel>();
+    m_optionPanel->SetRect(0, 0, 1920, 1080);
+    m_optionPanel->SetDrawBackground(true);
 
-
-    // 이렇게 쓰면 화면 중앙이 0,0이 됨.
-    //m_canvas->Rect().SetPivot(0.5f, 0.5f);
-    //m_canvas->Rect().SetAnchoredPosition(0,0);
-    //m_canvas->Rect().SetSize(m_ClientWidth, m_ClientHeight);
-
-    m_image = m_canvas->AddChild<UIImage>();
+    // 이미지는 Panel의 자식으로 만들기
+    m_image = m_optionPanel->AddChild<UIImage>();
     m_image->SetImage(L"../Resource/ApiMiku.png");
     m_image->SetSize(300, 300);
     m_image->SetPosition(0, 0);
     m_image->Rect().SetPivot(0.5f, 0.5f);
 
-    // UI - Panel
-    //m_option.handle = new UIPanel();
-    //m_option.panelBox = { 1920, 1080 };
-
-    //m_title.handle = m_option.handle->AddChild<UIText>();
-    //m_button.handle = m_option.handle->AddChild<UIButton>();
-    //m_image = m_option.handle->AddChild<UIImage>();
-
+    //m_image = m_canvas->AddChild<UIImage>();
     //m_image->SetImage(L"../Resource/ApiMiku.png");
-    //m_image->SetSize(100, 100);
-    //m_image->SetPosition(50, 50);
+    //m_image->SetSize(300, 300);
+    //m_image->SetPosition(0, 0);
+    //m_image->Rect().SetPivot(0.5f, 0.5f);
 
     //m_button.handle->SetImage(L"../Resource/UI/Button_Normal.png", UIBase::State::Normal);
     //m_button.handle->SetImage(L"../Resource/UI/Button_Hovered.png", UIBase::State::Hovered);
     //m_button.handle->SetImage(L"../Resource/UI/Button_Pressed.png", UIBase::State::Pressed);
-
-    //m_button
-
 
     //m_button.handle->SetState(UIBase::State::Normal);
 

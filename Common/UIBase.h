@@ -21,6 +21,7 @@ using Microsoft::WRL::ComPtr;
 using namespace DirectX;
 
 class UIBase;
+class Canvas;
 
 template <typename T>
 concept Bases = std::derived_from<T, UIBase>;
@@ -70,15 +71,12 @@ public:
     void SetPosition(const POINT& p);
     void SetSize(int w, int h);
     
-    Vector2& PositionRef() { return m_rect.m_position; }
+    Vector2& PositionRef() { return m_rect.m_anchoredPosition; }
 
     void SetBounds(const RECT& r);
 
-
-
-
-
-
+    // Find Canvas
+    Canvas* GetCanvas() const;
 
     State GetState() const { return m_state; }
     virtual void SetState(State s) { m_state = s; }

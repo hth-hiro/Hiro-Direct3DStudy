@@ -4,7 +4,7 @@
 
 void UIPanel::Render()
 {
-    if (!IsVisible())
+    if (!IsActive() || !IsVisible())
         return;
 
     if (m_drawBackground)
@@ -19,5 +19,12 @@ void UIPanel::Render()
 
 void UIPanel::SetRect(int x, int y, int width, int height)
 {
-    SetBounds({ x, y, width, height });
+    Rect().SetPivot(0.0f, 0.0f);
+
+    Rect().SetAnchoredPosition((float)x, (float)y);
+    Rect().SetSize((float)width, (float)height);
+
+    m_rect.m_dirty = true;
+
+    //SetBounds({ x, y, width, height });
 }
