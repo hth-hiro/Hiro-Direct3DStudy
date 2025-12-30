@@ -106,7 +106,7 @@
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="Canvas.h">
-      <Filter>헤더 파일</Filter>
+      <Filter>UI</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -165,7 +165,7 @@
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="Canvas.cpp">
-      <Filter>소스 파일</Filter>
+      <Filter>UI</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

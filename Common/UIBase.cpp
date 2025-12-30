@@ -1,8 +1,47 @@
 #include "pch.h"
 #include "UIBase.h"
 
+static UIRect ToUIRect(const RECT& r)
+{
+    return UIRect{
+        (float)r.left,
+        (float)r.top,
+        (float)(r.right - r.left),
+        (float)(r.bottom - r.top)
+    };
+}
+
+static RECT ToRect(const UIRect& r)
+{
+    RECT out;
+    out.left = (LONG)r.x;
+    out.top = (LONG)r.y;
+    out.right = (LONG)(r.x + r.w);
+    out.bottom = (LONG)(r.y + r.h);
+
+    return out;
+}
+
 void UIBase::Update(float dt)
 {
+    if (!m_active) return;
+
+    UIRect parentRect{};
+    if (m_parent)
+    {
+        parentRect = ToUIRect(m_parent->GetWorldBounds());
+    }
+    else
+    {
+        parentRect = ToUIRect(m_bounds);
+    }
+
+    if (m_rect.m_dirty)
+    {
+        m_rect.Recalculate(parentRect);
+        m_bounds = ToRect(m_rect.m_worldRect);
+    }
+
     for (auto& c : m_children)
     {
         if (c && c->IsActive())
@@ -30,18 +69,26 @@ bool UIBase::HitTest(const POINT& mousePos) const
 
 void UIBase::SetPosition(int x, int y)
 {
-    int w = m_bounds.right - m_bounds.left;
-    int h = m_bounds.bottom - m_bounds.top;
+    m_rect.SetAnchoredPosition((float)x, (float)y);
 
-    m_bounds.left = x;
-    m_bounds.right = x + w;
-    m_bounds.top = y;
-    m_bounds.bottom = y + h;
+    //int w = m_bounds.right - m_bounds.left;
+    //int h = m_bounds.bottom - m_bounds.top;
+
+    //m_bounds.left = x;
+    //m_bounds.right = x + w;
+    //m_bounds.top = y;
+    //m_bounds.bottom = y + h;
+}
+
+void UIBase::SetPosition(const POINT& p)
+{
+    m_rect.SetAnchoredPosition(p.x, p.y);
 }
 
 POINT UIBase::GetPosition() const
 {
-    return POINT{ m_bounds.left, m_bounds.top };
+    //return POINT{ m_bounds.left, m_bounds.top };
+    return POINT{ (LONG)m_rect.m_position.x, (LONG)m_rect.m_position.y };
 }
 
 void UIBase::SetSize(int w, int h)
@@ -49,31 +96,49 @@ void UIBase::SetSize(int w, int h)
     w = std::max(w, 0);
     h = std::max(h, 0);
 
-    m_bounds.right = m_bounds.left + w;
-    m_bounds.bottom = m_bounds.top + h;
+    m_rect.SetSize((float)w, (float)h);
+
+    //m_bounds.right = m_bounds.left + w;
+    //m_bounds.bottom = m_bounds.top + h;
+}
+
+void UIBase::SetBounds(const RECT& r)
+{
+    int x = r.left;
+    int y = r.right;
+
+    int w = r.right - r.left;
+    int h = r.bottom - r.top;
+
+    SetPosition(x, y);
+    SetSize(w, h);
 }
 
 SIZE UIBase::GetSize() const
 {
-    return SIZE{
-        m_bounds.right - m_bounds.left,
-        m_bounds.bottom - m_bounds.top
-    };
+    //return SIZE{
+    //    m_bounds.right - m_bounds.left,
+    //    m_bounds.bottom - m_bounds.top
+    //};
+
+    return SIZE{ (LONG)m_rect.m_size.x, (LONG)m_rect.m_size.y };
 }
 
 RECT UIBase::GetWorldBounds() const
 {
-    RECT wr = m_bounds;
-    const UIBase* p = m_parent;
-    while (p)
-    {
-        int px = p->m_bounds.left;
-        int py = p->m_bounds.top;
+    //RECT wr = m_bounds;
+    //const UIBase* p = m_parent;
+    //while (p)
+    //{
+    //    int px = p->m_bounds.left;
+    //    int py = p->m_bounds.top;
 
-        OffsetRect(&wr, px, py);
-        p = p->m_parent;
-    }
-    
-    // 최종 부모(월드)의 바운드
-    return wr;
+    //    OffsetRect(&wr, px, py);
+    //    p = p->m_parent;
+    //}
+    //
+    //// 최종 부모(월드)의 바운드
+    //return wr;
+
+    return m_bounds;
 }

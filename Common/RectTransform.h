@@ -5,6 +5,23 @@
 using namespace DirectX::SimpleMath;
 using namespace DirectX;
 
+template <typename T>
+T Max(const T& a, const T& b)
+{
+    return a > b ? a : b;
+}
+
+enum class Pivot
+{
+    TopLeft = 0, TopCenter, TopRight,
+    MiddleLeft, MiddleCenter, MiddleRight,
+    BottomLeft, BottomCenter, BottomRight,
+
+    TL = 0, TC = 1, TR = 2,
+    ML = 3, MC = 4, MR = 5,
+    BL = 6, BC = 7, BR = 8,
+};
+
 struct UIRect
 {
     float x = 0.0f;
@@ -20,8 +37,8 @@ class RectTransform
 {
 public:
     Vector2 m_position{0.0f, 0.0f};
-    //Vector2 m_anchorMin{ 0.5f, 0.5f };
-    //Vector2 m_anchorMax{ 0.5f, 0.5f };
+    Vector2 m_anchorMin{ 0.5f, 0.5f };
+    Vector2 m_anchorMax{ 0.5f, 0.5f };
     Vector2 m_pivot{ 0.5f, 0.5f };
 
     //Vector3 m_rotation{ 0, 0, 0 };
@@ -44,6 +61,8 @@ public:
     void SetPivot(float x, float y) { m_pivot = { x, y }; MarkDirty(); }
     void SetAnchoredPosition(float x, float y) { m_position = { x, y }; MarkDirty(); }
 
+    
+
     // 부모의 최종 rect 계산
     void Recalculate(const UIRect& parentRect)
     {
@@ -53,8 +72,8 @@ public:
 
         // 사이즈는 0이 되면 안됨.
         Vector2 size = m_size;
-        size.x = std::max(0.0f, size.x);
-        size.y = std::max(0.0f, size.y);
+        size.x = Max(0.0f, size.x);
+        size.y = Max(0.0f, size.y);
 
         const Vector2 parentTopLeft = parentRect.Pos();
         const Vector2 pivotPos = parentTopLeft + m_position;

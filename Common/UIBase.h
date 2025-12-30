@@ -15,6 +15,8 @@
 #include <filesystem>
 #include <concepts>
 
+#include "RectTransform.h"
+
 using Microsoft::WRL::ComPtr;
 using namespace DirectX;
 
@@ -41,42 +43,58 @@ public:
     virtual void Render() = 0;
     virtual void Shutdown();
 
-    virtual bool HitTest(const POINT& mousePos) const;
+    // Flags==================================
 
     // Active - UI Update 여부
     void SetActive(bool active) { m_active = active; }
     bool IsActive() const { return m_active; }
+    bool& ActiveRef() { return m_active; }
 
     // Visible - Render 대상 여부 (투명이지만 입력을 받는 경우, 미리 생성하고 나중에 보여질때)
     void SetVisible(bool visible) { m_visible = visible; }
     bool IsVisible() const { return m_visible; }
 
     // Enable - 조작 가능 여부 (Render/Update는 되지만 입력을 안 받는 UI)
-    void SetEnabled(bool enabled)
-    {
-        m_enabled = enabled;
-        m_state = m_enabled ? State::Normal : State::Disabled;
-    }
+    void SetEnabled(bool enabled){ m_enabled = enabled; m_state = m_enabled ? State::Normal : State::Disabled; }
     bool IsEnabled() const { return m_enabled; }
+
+    // RectTransform============================
+
+    RectTransform& Rect() { return m_rect; }
+    const RectTransform& Rect() const { return m_rect; }
+
+    const RECT& GetBounds() const { return m_bounds; }
+    RECT GetWorldBounds() const;
+
+    void SetPosition(int x, int y);
+    void SetPosition(const POINT& p);
+    void SetSize(int w, int h);
+    
+    Vector2& PositionRef() { return m_rect.m_position; }
+
+    void SetBounds(const RECT& r);
+
+
+
+
+
+
 
     State GetState() const { return m_state; }
     virtual void SetState(State s) { m_state = s; }
 
-    // 표시할 레이어를 구분합니다.
-    // 레이어 관련 내용은 enum class로 정리하면 좋을 것 같습니다.
+    // Input ===========================================================
+    virtual bool HitTest(const POINT& mousePos) const;
+    
+    // Layer ===========================================================
     int GetZOrder() const { return m_zOrder; }
     void SetZOrder(int z) { m_zOrder = z; }
 
-    void SetBounds(const RECT& r) { m_bounds = r; }
-    const RECT& GetBounds() const { return m_bounds; }
 
-    void SetPosition(int x, int y);
     POINT GetPosition() const;
 
-    void SetSize(int w, int h);
     SIZE GetSize() const;
 
-    RECT GetWorldBounds() const;
 
     // 템플릿으로 자식객체 추가
     template <typename T, typename...Args>
@@ -155,6 +173,8 @@ protected:
     bool m_enabled = true;
 
     State m_state = State::Normal;
+
+    RectTransform m_rect;
 };
 
 template<typename T, typename ...Args>
