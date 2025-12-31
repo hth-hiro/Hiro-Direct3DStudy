@@ -36,10 +36,9 @@ TutorialApp::TutorialApp(HINSTANCE hInstance) : GameApp(hInstance)
 
 TutorialApp::~TutorialApp()
 {
-    m_quit = true;
+    //m_quit = true;
 
-    m_uiSystem.Shutdown();
-    UIRenderer::Get().ShutDown();
+    ReleaseUISystem();
 
     UninitImGUI();
 
@@ -80,7 +79,7 @@ bool TutorialApp::Initialize(UINT Width, UINT Height)
 
 void TutorialApp::Update()
 {
-    if (m_quit) return;
+    //if (m_quit) return;
     __super::Update();
 
     //m_ImGuiManager.Update();
@@ -239,7 +238,7 @@ void TutorialApp::Update()
 
 void TutorialApp::Render()
 {
-    if (m_quit) return;
+    //if (m_quit) return;
     Vector3 ObjectPos = { object1.transform.GetPosition().x, object1.transform.GetPosition().y , object1.transform.GetPosition().z };
 
     // 1. Clear
@@ -743,8 +742,17 @@ void TutorialApp::Render()
     ImGui::Checkbox("Active Text", &m_optionText->ActiveRef());
     //ImGui::ColorEdit4("Color", &textColor.x);
     ImGui::DragFloat("FontSize", &m_masterFontSize, 0.1f, 1.0f, 500.0f, "%.1f");
-    //ImGui::DragFloat2("Position", &m_title.position.x, 1.f, 0.0f, m_ClientWidth, "%.0f");
-    //ImGui::DragFloat2("Textbox", &m_title.textBox.x, 1.0, 1.0f, 1000.0f); 
+    
+    Vector2 pos = m_optionText->Rect().GetAnchoredPosition();
+    if (ImGui::DragFloat2("Position", &pos.x, 1.f, -(float)m_ClientWidth, (float)m_ClientWidth, "%.0f"))
+        m_optionText->Rect().SetAnchoredPosition(pos.x, pos.y);
+
+    Vector2 size = m_optionText->Rect().m_size;
+    if (ImGui::DragFloat2("Size", &size.x, 1.f, 0.f, 10000.f, "%.0f"))
+    {
+        m_optionText->Rect().SetSize(size.x, size.y);
+    }
+    
     //static char buffer[256] = "";
     //if (ImGui::InputTextWithHint(
     //    "Input",
@@ -1413,14 +1421,14 @@ void TutorialApp::CreateUISystem()
 
 void TutorialApp::UpdateUISystem()
 {
-    if (m_quit) return;
+    //if (m_quit) return;
     float dt = m_TimeSystem.GetDeltaTime();
 
     m_uiSystem.Update(dt);
 
     m_image->Rect().SetPivot(m_image->Rect().m_pivot.x, m_image->Rect().m_pivot.y);
 
-    //m_optionText->SetFontSize(m_masterFontSize);
+    m_optionText->SetFontSize(m_masterFontSize);
     
     //m_canvas->SetActive(m_canvas->IsActive());
     //m_image->SetActive(m_image->IsActive());
@@ -1462,5 +1470,6 @@ void TutorialApp::UpdateUISystem()
 
 void TutorialApp::ReleaseUISystem()
 {
-
+     m_uiSystem.Shutdown();
+     UIRenderer::Get().ShutDown();
 }

@@ -336,18 +336,12 @@ public:
     float m_masterFontSize = 24.0f;
     
     Canvas*     m_canvas;
+
     UIImage*    m_image;
+
     UIPanel*    m_optionPanel;
+
     UIText*     m_optionText;
 
-
-    bool m_uiActive = true;
-
-    int m_imagePivot = 0;
-
-    //Text m_title;
-    //Panel m_option;
-    //Button m_button;
-
-    bool m_quit = false;
+    //bool m_uiActive = true;
 };
