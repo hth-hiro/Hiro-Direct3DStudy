@@ -1403,11 +1403,14 @@ void TutorialApp::CreateUISystem()
     m_optionText->SetPosition(500, 500);
     m_optionText->SetSize(100, 100);
 
-    //m_image = m_canvas->AddChild<UIImage>();
-    //m_image->SetImage(L"../Resource/ApiMiku.png");
-    //m_image->SetSize(300, 300);
-    //m_image->SetPosition(0, 0);
-    //m_image->Rect().SetPivot(0.5f, 0.5f);
+    // Canvas를 상속받는 이미지
+    m_canvasImage = m_canvas->AddChild<UIImage>();
+    m_canvasImage->SetImage(L"../Resource/ApiMiku.png");
+    m_canvasImage->SetSize(100, 100);
+    m_canvasImage->SetPosition(800, 400);
+    m_canvasImage->Rect().SetPivot(0.5f, 0.5f);
+
+
 
     //m_button.handle->SetImage(L"../Resource/UI/Button_Normal.png", UIBase::State::Normal);
     //m_button.handle->SetImage(L"../Resource/UI/Button_Hovered.png", UIBase::State::Hovered);

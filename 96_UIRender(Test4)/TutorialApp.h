@@ -23,10 +23,11 @@
 // UI
 #include "../Common/UISystem.h"
 #include "../Common/UIBase.h"
+#include "../Common/Canvas.h"
+
 #include "../Common/UIPanel.h"
 #include "../Common/UIText.h"
 #include "../Common/UIButton.h"
-#include "../Common/Canvas.h"
 
 using namespace DirectX::SimpleMath;
 using namespace DirectX;
@@ -335,13 +336,25 @@ public:
     UISystem m_uiSystem;
     float m_masterFontSize = 24.0f;
     
+    // Canvas
     Canvas*     m_canvas;
-
+    
+    // Image
     UIImage*    m_image;
+    UIImage*    m_canvasImage;
 
+    // Panel
     UIPanel*    m_optionPanel;
 
+    // Text
     UIText*     m_optionText;
+
+    // Button
+    UIButton*   m_startButton;
+    UIButton*   m_quitButton;
+    UIButton*   m_optionButton;
+
+    // etc...
 
     //bool m_uiActive = true;
 };
