@@ -4,11 +4,16 @@
 bool UIButton::Initialize()
 {
     m_background = AddChild<UIImage>();
-    m_background->SetZOrder(10);
+    m_background->Rect().SetPivot(0, 0);
+    m_background->Rect().SetAnchoredPosition(0, 0);
+    m_background->Rect().SetSize(100, 50);
     
-
     m_text = AddChild<UIText>();
-    m_text->SetZOrder(11);
+    m_text->SetText(L"Button");
+    m_text->Rect().SetPivot(0, 0);
+    m_text->Rect().SetAnchoredPosition(0, 0);
+    m_text->Rect().SetSize(Rect().m_size.x, Rect().m_size.y);
+
     return true;
 }
 
@@ -22,20 +27,21 @@ void UIButton::Render()
     if (!IsVisible() || !IsActive()) return;
 
     //UpdateVisual();
-    RECT r = GetWorldBounds();
-    if (r.left == r.right || r.top == r.bottom) return;
+    //RECT r = GetWorldBounds();
+    //if (r.left == r.right || r.top == r.bottom) return;
 
-    UIRenderer::Get().DrawImage(m_stateImages[m_state].Get(), r);
+    //UIRenderer::Get().DrawImage(m_stateImages[m_state].Get(), r);
 
     RenderChildren();
 }
 
 void UIButton::SetImage(const std::wstring& path, State state)
 {
-    auto bmp = UIRenderer::Get().LoadBitmapFromFile(path);
-    if (!bmp) return;
+    //auto bmp = UIRenderer::Get().LoadBitmapFromFile(path);
+    //if (!bmp) return;
 
-    m_stateImages[state] = bmp;
+    m_statePaths[state] = path;
+    if (m_state == state) UpdateVisual();
 
     //if (m_state == state && m_background)
     //    m_background->SetBitmap(bmp.Get());
@@ -55,7 +61,8 @@ void UIButton::OnMouseEnter()
 
 void UIButton::OnMouseLeave()
 {
-
+    if (!IsEnabled()) return;
+    SetState(State::Normal);
 }
 
 void UIButton::OnMouseMove(const POINT&)
@@ -85,10 +92,9 @@ void UIButton::OnClick()
 void UIButton::UpdateVisual()
 {
     if (!m_background) return;
-
-    //auto it = m_stateImages.find(m_state);
-    //if (it != m_stateImages.end())
-    //{
-    //    m_background->SetBitmap(it->second.Get());
-    //}
+    auto it = m_statePaths.find(m_state);
+    if (it != m_statePaths.end())
+    {
+        m_background->SetImage(it->second);
+    }
 }

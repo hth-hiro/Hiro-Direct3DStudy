@@ -48,10 +48,5 @@ private:
     UIImage* m_background;
     UIText* m_text;
 
-    std::unordered_map<State, ComPtr<ID2D1Bitmap>> m_stateImages;
-};
-
-struct Button
-{
-    UIButton* handle;
+    std::unordered_map<State, std::wstring> m_statePaths;
 };
