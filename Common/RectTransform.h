@@ -57,9 +57,9 @@ public:
 
     void MarkDirty() { m_dirty = true; }
 
-    void SetSize(float w, float h) { m_size = { w, h }; MarkDirty(); }
-    void SetPivot(float x, float y) { m_pivot = { x, y }; MarkDirty(); }
-    void SetAnchoredPosition(float x, float y) { m_anchoredPosition = { x, y }; MarkDirty(); }
+    void SetSize(float w, float h);
+    void SetPivot(float x, float y);
+    void SetAnchoredPosition(float x, float y);
 
     Vector2 GetAnchoredPosition() { return m_anchoredPosition; }  // 로컬
     Vector2 GetWorldTopLeft() const { return m_worldRect.Pos(); } // 월드
@@ -68,14 +68,7 @@ public:
     // 부모의 최종 rect 계산
     void Recalculate(const UIRect& parentRect)
     {
-        // pivot은 0 ~ 1 클램프
-        m_pivot.x = std::clamp(m_pivot.x, 0.0f, 1.0f);
-        m_pivot.y = std::clamp(m_pivot.y, 0.0f, 1.0f);
-
-        // 사이즈는 0이 되면 안됨.
         Vector2 size = m_size;
-        size.x = Max(0.0f, size.x);
-        size.y = Max(0.0f, size.y);
 
         const Vector2 parentTopLeft = parentRect.Pos();
         const Vector2 pivotPos = parentTopLeft + m_anchoredPosition;

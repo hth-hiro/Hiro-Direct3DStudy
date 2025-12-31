@@ -97,6 +97,10 @@ void UIText::SetFont(const std::wstring& fontFamilyName)
 void UIText::SetFontSize(float fontSize)
 {
     m_fontSize = max(fontSize, 1.0f);
+
+    if (fabsf(m_fontSize - fontSize) < 0.001f) return;
+
+    m_fontSize = fontSize;
 }
 
 void UIText::SetColor(D2D1::ColorF color)

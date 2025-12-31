@@ -737,10 +737,12 @@ void TutorialApp::Render()
     }
     ImGui::PopID();
 
-    //ImGui::SeparatorText("Text Setting");
-    //ImGui::Checkbox("Active Text", &m_title.active);
-    //ImGui::ColorEdit4("Color", &m_title.textColor.x);
-    //ImGui::DragFloat("FontSize", &m_masterFontSize, 0.1f, 1.0f, 500.0f, "%.1f");
+    ImGui::PushID("Text");
+    {
+    ImGui::SeparatorText("Text Setting");
+    ImGui::Checkbox("Active Text", &m_optionText->ActiveRef());
+    //ImGui::ColorEdit4("Color", &textColor.x);
+    ImGui::DragFloat("FontSize", &m_masterFontSize, 0.1f, 1.0f, 500.0f, "%.1f");
     //ImGui::DragFloat2("Position", &m_title.position.x, 1.f, 0.0f, m_ClientWidth, "%.0f");
     //ImGui::DragFloat2("Textbox", &m_title.textBox.x, 1.0, 1.0f, 1000.0f); 
     //static char buffer[256] = "";
@@ -754,6 +756,8 @@ void TutorialApp::Render()
     //    m_title.message = buffer; // 엔터 시에만 반영
     //}
     //if (ImGui::Button("reset")) { m_title.Reset(); }
+    }
+    ImGui::PopID();
     ImGui::End();
 
     ImGui::Begin("HDR");
@@ -1384,6 +1388,13 @@ void TutorialApp::CreateUISystem()
     m_image->SetPosition(0, 0);
     m_image->Rect().SetPivot(0.5f, 0.5f);
 
+    // 텍스트도 Panel의 자식으로 만들기
+    m_optionText = m_optionPanel->AddChild<UIText>();
+    m_optionText->SetText(L"옵션");
+    m_optionText->SetFontSize(m_masterFontSize);
+    m_optionText->SetPosition(500, 500);
+    m_optionText->SetSize(100, 100);
+
     //m_image = m_canvas->AddChild<UIImage>();
     //m_image->SetImage(L"../Resource/ApiMiku.png");
     //m_image->SetSize(300, 300);
@@ -1409,6 +1420,8 @@ void TutorialApp::UpdateUISystem()
 
     m_image->Rect().SetPivot(m_image->Rect().m_pivot.x, m_image->Rect().m_pivot.y);
 
+    //m_optionText->SetFontSize(m_masterFontSize);
+    
     //m_canvas->SetActive(m_canvas->IsActive());
     //m_image->SetActive(m_image->IsActive());
     //m_image->SetPosition(m_image->GetPosition());

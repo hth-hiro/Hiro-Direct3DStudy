@@ -335,9 +335,11 @@ public:
     UISystem m_uiSystem;
     float m_masterFontSize = 24.0f;
     
-    Canvas* m_canvas;
-    UIImage* m_image;
-    UIPanel* m_optionPanel;
+    Canvas*     m_canvas;
+    UIImage*    m_image;
+    UIPanel*    m_optionPanel;
+    UIText*     m_optionText;
+
 
     bool m_uiActive = true;
 
