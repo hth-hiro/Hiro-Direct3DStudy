@@ -37,16 +37,24 @@ void UIBase::Update(float dt)
         parentRect = ToUIRect(m_bounds);
     }
 
+    // 부모의 Rect변화 트리거
+    bool parentChanged = false;
+
     if (m_rect.m_dirty)
     {
         m_rect.Recalculate(parentRect);
         m_bounds = ToRect(m_rect.m_worldRect);
+        parentChanged = true;
     }
 
     for (auto& c : m_children)
     {
-        if (c && c->IsActive())
-            c->Update(dt);
+        if (!c || !c->IsActive()) continue;
+
+        if (parentChanged)
+            c->Rect().MarkDirty();
+
+        c->Update(dt);
     }
 }
 
