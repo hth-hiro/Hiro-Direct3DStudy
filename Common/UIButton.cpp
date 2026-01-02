@@ -11,8 +11,8 @@ bool UIButton::Initialize()
     
     m_text = AddChild<UIText>();
     m_text->SetText(L"Button");
-    m_text->Rect().SetPivot(0, 0);
-    m_text->Rect().SetAnchoredPosition(0,0);
+    m_text->Rect().SetPivot(0.5, 0.5);
+    m_text->Rect().SetAnchoredPosition(Rect().m_size.x * 0.5f, Rect().m_size.y * 0.5f);
     m_text->Rect().SetSize(Rect().m_size.x, Rect().m_size.y);
     m_text->SetEnabled(false);
 
@@ -46,6 +46,15 @@ void UIButton::SetSize(int w, int h)
 
     if (m_text)
         m_text->Rect().SetSize((float)w, (float)h);
+}
+
+void UIButton::SetText(const std::wstring& text)
+{
+    m_text->Rect().SetPivot(0.5, 0.5);
+    m_text->Rect().SetAnchoredPosition(Rect().m_size.x * 0.5f, Rect().m_size.y * 0.5f);
+    m_text->Rect().SetSize(Rect().m_size.x, Rect().m_size.y);
+
+    m_text->SetText(text);
 }
 
 void UIButton::SetImage(const std::wstring& path, State state)

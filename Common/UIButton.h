@@ -27,7 +27,7 @@ public:
     void SetSize(int w, int h);
     void SetState(State s = State::Normal) override;
 
-    void SetText(const std::wstring& text) { m_text->SetText(text); }
+    void SetText(const std::wstring& text);
     void SetImage(const std::wstring& path, State state);
 
 protected:

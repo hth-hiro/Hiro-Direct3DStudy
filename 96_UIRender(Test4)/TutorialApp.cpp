@@ -1416,6 +1416,10 @@ void TutorialApp::CreateUISystem()
     m_startButton->SetImage(L"../Resource/UI/Button_Normal.png", UIBase::State::Normal);
     m_startButton->SetImage(L"../Resource/UI/Button_Hovered.png", UIBase::State::Hovered);
     m_startButton->SetImage(L"../Resource/UI/Button_Pressed.png", UIBase::State::Pressed);
+    m_startButton->SetOnClick([]() {
+
+        OutputDebugStringW(L"시작 버튼 클릭됨\n");
+        });
 
     // Option
     m_optionButton = m_optionPanel->AddChild<UIButton>();
@@ -1425,16 +1429,23 @@ void TutorialApp::CreateUISystem()
     m_optionButton->SetImage(L"../Resource/UI/Button_Normal.png", UIBase::State::Normal);
     m_optionButton->SetImage(L"../Resource/UI/Button_Hovered.png", UIBase::State::Hovered);
     m_optionButton->SetImage(L"../Resource/UI/Button_Pressed.png", UIBase::State::Pressed);
+    m_optionButton->SetOnClick([]() {
+
+        OutputDebugStringW(L"옵션 버튼 클릭됨\n");
+        });
 
     // Quit
     m_quitButton = m_optionPanel->AddChild<UIButton>();
     m_quitButton->SetPosition(200, 900);
     m_quitButton->SetSize(100, 100);
     m_quitButton->SetText(L"버튼");
-
     m_quitButton->SetImage(L"../Resource/UI/Button_Normal.png", UIBase::State::Normal);
     m_quitButton->SetImage(L"../Resource/UI/Button_Hovered.png", UIBase::State::Hovered);
     m_quitButton->SetImage(L"../Resource/UI/Button_Pressed.png", UIBase::State::Pressed);
+    m_quitButton->SetOnClick([]() {
+
+        OutputDebugStringW(L"게임종료 버튼 클릭됨\n");
+        });
 
     m_ui.AddUI(m_canvas);
 }
@@ -1453,21 +1464,6 @@ void TutorialApp::UpdateUISystem()
 
     m_optionText->SetFontSize(m_masterFontSize);
     
-    m_startButton->SetOnClick([]() {
-        
-        OutputDebugStringW(L"시작 버튼 클릭됨\n");
-        });
-
-    m_optionButton->SetOnClick([]() {
-
-        OutputDebugStringW(L"옵션 버튼 클릭됨\n");
-        });
-
-    m_quitButton->SetOnClick([]() {
-
-        OutputDebugStringW(L"게임종료 버튼 클릭됨\n");
-        });
-
     //m_canvas->SetActive(m_canvas->IsActive());
     //m_image->SetActive(m_image->IsActive());
     //m_image->SetPosition(m_image->GetPosition());
