@@ -349,8 +349,8 @@ public:
 
     // Button
     UIButton*   m_startButton;
-    //UIButton*   m_quitButton;
-    //UIButton*   m_optionButton;
+    UIButton*   m_quitButton;
+    UIButton*   m_optionButton;
 
     // etc...
 

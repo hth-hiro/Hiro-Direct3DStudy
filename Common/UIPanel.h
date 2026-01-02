@@ -23,6 +23,8 @@ public:
         m_bgColor = color;
     }
 
+    D2D1_COLOR_F GetBackgroundColor() { return m_bgColor; }
+
     void Render() override;
 
     void SetRect(int x, int y, int width, int height);

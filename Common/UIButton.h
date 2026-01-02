@@ -24,14 +24,11 @@ public:
 
     void Render() override;
 
-    void SetText(const std::wstring& text = L"")
-    {
-        m_text->SetText(text);
-    }
+    void SetSize(int w, int h);
+    void SetState(State s = State::Normal) override;
 
-    
+    void SetText(const std::wstring& text) { m_text->SetText(text); }
     void SetImage(const std::wstring& path, State state);
-    void SetState(State s) override;
 
 protected:
     void OnMouseEnter() override;

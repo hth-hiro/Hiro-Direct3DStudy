@@ -566,6 +566,8 @@ void TutorialApp::Render()
     ID3D11ShaderResourceView* nullSrv[1] = { nullptr };
     m_pDeviceContext->PSSetShaderResources(13, 1, nullSrv);
 
+    m_ui.Render();
+
     // 4. GUI 렌더 ======================================================================================
     ImGui_ImplDX11_NewFrame();
     ImGui_ImplWin32_NewFrame();
@@ -714,6 +716,10 @@ void TutorialApp::Render()
         ImGui::SeparatorText("OptionPanel");
         ImGui::Checkbox("Active", &m_optionPanel->ActiveRef());
 
+        auto color = m_optionPanel->GetBackgroundColor();
+        if (ImGui::ColorEdit4("Color", &color.r))
+            m_optionPanel->SetBackgroundColor(color);
+
         Vector2 pos = m_optionPanel->Rect().GetAnchoredPosition();
         if (ImGui::DragFloat2("Position", &pos.x, 1.f, -(float)m_ClientWidth, (float)m_ClientWidth, "%.0f"))
             m_optionPanel->Rect().SetAnchoredPosition(pos.x, pos.y);
@@ -778,10 +784,6 @@ void TutorialApp::Render()
     //m_ImGuiManager.Render();
     ImGui::Render();
     ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
-
-
-
-    m_ui.Render();
 
     // 5. Present
     m_pSwapChain->Present(0, 0);
@@ -1406,15 +1408,33 @@ void TutorialApp::CreateUISystem()
     m_canvasImage->SetPosition(800, 400);
     m_canvasImage->Rect().SetPivot(0.5f, 0.5f);
 
+    // Start
     m_startButton = m_optionPanel->AddChild<UIButton>();
-    m_startButton->SetPosition(200, 700);
-    m_startButton->SetSize(50, 100);
-
-    // 버튼 이미지 등록
+    m_startButton->SetPosition(200, 500);
+    m_startButton->SetSize(100, 100);
+    m_startButton->SetText(L"버튼");
     m_startButton->SetImage(L"../Resource/UI/Button_Normal.png", UIBase::State::Normal);
     m_startButton->SetImage(L"../Resource/UI/Button_Hovered.png", UIBase::State::Hovered);
     m_startButton->SetImage(L"../Resource/UI/Button_Pressed.png", UIBase::State::Pressed);
-    m_startButton->SetState(UIBase::State::Normal);
+
+    // Option
+    m_optionButton = m_optionPanel->AddChild<UIButton>();
+    m_optionButton->SetPosition(200, 700);
+    m_optionButton->SetSize(100, 100);
+    m_optionButton->SetText(L"버튼");
+    m_optionButton->SetImage(L"../Resource/UI/Button_Normal.png", UIBase::State::Normal);
+    m_optionButton->SetImage(L"../Resource/UI/Button_Hovered.png", UIBase::State::Hovered);
+    m_optionButton->SetImage(L"../Resource/UI/Button_Pressed.png", UIBase::State::Pressed);
+
+    // Quit
+    m_quitButton = m_optionPanel->AddChild<UIButton>();
+    m_quitButton->SetPosition(200, 900);
+    m_quitButton->SetSize(100, 100);
+    m_quitButton->SetText(L"버튼");
+
+    m_quitButton->SetImage(L"../Resource/UI/Button_Normal.png", UIBase::State::Normal);
+    m_quitButton->SetImage(L"../Resource/UI/Button_Hovered.png", UIBase::State::Hovered);
+    m_quitButton->SetImage(L"../Resource/UI/Button_Pressed.png", UIBase::State::Pressed);
 
     m_ui.AddUI(m_canvas);
 }
@@ -1435,12 +1455,18 @@ void TutorialApp::UpdateUISystem()
     
     m_startButton->SetOnClick([]() {
         
-        OutputDebugStringW(L"버튼 클릭됨\n");
+        OutputDebugStringW(L"시작 버튼 클릭됨\n");
         });
 
+    m_optionButton->SetOnClick([]() {
 
+        OutputDebugStringW(L"옵션 버튼 클릭됨\n");
+        });
 
+    m_quitButton->SetOnClick([]() {
 
+        OutputDebugStringW(L"게임종료 버튼 클릭됨\n");
+        });
 
     //m_canvas->SetActive(m_canvas->IsActive());
     //m_image->SetActive(m_image->IsActive());
