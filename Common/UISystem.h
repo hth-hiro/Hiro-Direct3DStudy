@@ -80,6 +80,8 @@ public:
     void ProcessMouseUp(int x, int y);
     void ProcessMouseMove(int x, int y);
 
+    void Resize(int x, int y);
+
     void OnInputProcess(const Keyboard::State&, const Keyboard::KeyboardStateTracker&,
         const Mouse::State& mouse, const Mouse::ButtonStateTracker& mouseTracker) override;
 private:
@@ -94,6 +96,9 @@ private:
     UIBase* m_captured = nullptr;
 
     bool m_isShutdown = false;
+
+    int m_uiX{1};
+    int m_uiY{1};
 
     friend class Singleton<UISystem>;
 };
