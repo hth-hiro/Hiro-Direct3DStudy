@@ -79,7 +79,11 @@ void UISystem::ProcessMouseDown(int x, int y)
 
     if (hit)
     {
-        hit->SetState(UIBase::State::Pressed);
+        // Debug
+        //OutputDebugStringA(typeid(*hit).name());
+        //OutputDebugStringA("\n");
+
+        //hit->SetState(UIBase::State::Pressed);
         hit->OnMouseDown(pt);
     }
 }
@@ -124,8 +128,8 @@ void UISystem::ProcessMouseMove(int x, int y)
         {
             m_hovered->OnMouseLeave();
 
-            if (m_hovered->GetState() != UIBase::State::Disabled)
-                m_hovered->SetState(UIBase::State::Normal);
+            //if (m_hovered->GetState() != UIBase::State::Disabled)
+            //    m_hovered->SetState(UIBase::State::Normal);
         }
 
         m_hovered = hit;
@@ -133,8 +137,8 @@ void UISystem::ProcessMouseMove(int x, int y)
         if (m_hovered)
         {
             m_hovered->OnMouseEnter();
-            if (m_hovered->GetState() != UIBase::State::Disabled)
-                m_hovered->SetState(UIBase::State::Hovered);
+            //if (m_hovered->GetState() != UIBase::State::Disabled)
+            //    m_hovered->SetState(UIBase::State::Hovered);
         }
     }
 

@@ -12,8 +12,8 @@ class UIPanel : public UIBase
 public:
     UIPanel()
     {
-        // 패널은 입력을 받지 않음.
-        SetEnabled(true);
+        // 패널은 입력을 받지 않음. (받게 하기)
+        //SetEnabled(false);
     }
 
     void SetDrawBackground(bool draw) { m_drawBackground = draw; }
@@ -22,6 +22,8 @@ public:
         m_drawBackground = true;
         m_bgColor = color;
     }
+
+    D2D1_COLOR_F GetBackgroundColor() { return m_bgColor; }
 
     void Render() override;
 

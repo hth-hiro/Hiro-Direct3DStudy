@@ -11,7 +11,7 @@ T Max(const T& a, const T& b)
     return a > b ? a : b;
 }
 
-enum class Pivot
+enum class AnchorPreset
 {
     TopLeft = 0, TopCenter, TopRight,
     MiddleLeft, MiddleCenter, MiddleRight,

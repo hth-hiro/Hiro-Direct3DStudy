@@ -24,13 +24,11 @@ public:
 
     void Render() override;
 
-    void SetText(const std::wstring& text = L"")
-    {
-        m_text->SetText(text);
-    }
+    void SetSize(int w, int h);
+    void SetState(State s = State::Normal) override;
 
+    void SetText(const std::wstring& text) { m_text->SetText(text); }
     void SetImage(const std::wstring& path, State state);
-    void SetState(State s) override;
 
 protected:
     void OnMouseEnter() override;
@@ -48,10 +46,5 @@ private:
     UIImage* m_background;
     UIText* m_text;
 
-    std::unordered_map<State, ComPtr<ID2D1Bitmap>> m_stateImages;
-};
-
-struct Button
-{
-    UIButton* handle;
+    std::unordered_map<State, std::wstring> m_statePaths;
 };
