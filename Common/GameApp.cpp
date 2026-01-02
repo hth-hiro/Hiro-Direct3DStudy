@@ -135,22 +135,33 @@ void GameApp::Update()
 
 void GameApp::OnInputProcess(const Keyboard::State& KeyState, const Keyboard::KeyboardStateTracker& KeyTracker, const Mouse::State& MouseState, const Mouse::ButtonStateTracker& MouseTracker)
 {
+    float mx = MouseState.x;
+    float my = MouseState.y;
+
+    float sx = 1920.0f / m_ClientWidth;
+    float sy = 1080.0f / m_ClientHeight;
+
+    int uiX = (int)(mx * sx);
+    int uiY = (int)(my * sy);
+
+    m_ui.Resize(uiX, uiY);
+
 	m_Camera.OnInputProcess(KeyState, KeyTracker, MouseState, MouseTracker);
     
     m_ui.OnInputProcess(KeyState, KeyTracker, MouseState, MouseTracker);
 
-    if (KeyTracker.pressed.F6)
-    {
-        if (g_RunMode == RunMode::Running) g_RunMode = RunMode::Paused;
-        else if (g_RunMode == RunMode::Paused) g_RunMode = RunMode::Running;
-        else if (g_RunMode == RunMode::DebugUI) g_RunMode = RunMode::Running;
-    }
+    //if (KeyTracker.pressed.F6)
+    //{
+    //    if (g_RunMode == RunMode::Running) g_RunMode = RunMode::Paused;
+    //    else if (g_RunMode == RunMode::Paused) g_RunMode = RunMode::Running;
+    //    else if (g_RunMode == RunMode::DebugUI) g_RunMode = RunMode::Running;
+    //}
 
-    if (KeyTracker.pressed.F1)
-    {
-        if (g_RunMode == RunMode::DebugUI) g_RunMode = RunMode::Running;
-        else                               g_RunMode = RunMode::DebugUI;
-    }
+    //if (KeyTracker.pressed.F1)
+    //{
+    //    if (g_RunMode == RunMode::DebugUI) g_RunMode = RunMode::Running;
+    //    else                               g_RunMode = RunMode::DebugUI;
+    //}
 }
 
 LRESULT GameApp::WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)

@@ -80,7 +80,9 @@ void UISystem::ProcessMouseDown(int x, int y)
     if (hit)
     {
         // Debug
-        //OutputDebugStringA(typeid(*hit).name());
+        //char buf[256];
+        //sprintf_s(buf, "MouseDown at (%d, %d)\n", x, y);
+        //OutputDebugStringA(buf);
         //OutputDebugStringA("\n");
 
         //hit->SetState(UIBase::State::Pressed);
@@ -146,6 +148,12 @@ void UISystem::ProcessMouseMove(int x, int y)
         m_hovered->OnMouseMove(pt);
 }
 
+void UISystem::Resize(int x, int y)
+{
+    m_uiX = x;
+    m_uiY = y;
+}
+
 void UISystem::SortByZOrder()
 {
     std::stable_sort(m_roots.begin(), m_roots.end(),
@@ -207,16 +215,24 @@ UIBase* UISystem::FindTopHitRecursive(UIBase* node, const POINT& pt)
 
 void UISystem::OnInputProcess(const Keyboard::State&, const Keyboard::KeyboardStateTracker&, const Mouse::State& mouse, const Mouse::ButtonStateTracker& mouseTracker)
 {
-    POINT pt{
-        static_cast<int>(mouse.x),
-        static_cast<int>(mouse.y)
-    };
+    //POINT pt{
+    //    static_cast<int>(mouse.x),
+    //    static_cast<int>(mouse.y)
+    //};
 
-    ProcessMouseMove(pt.x, pt.y);
+    //ProcessMouseMove(pt.x, pt.y);
+
+    //if (mouseTracker.leftButton == Mouse::ButtonStateTracker::PRESSED)
+    //    ProcessMouseDown(pt.x, pt.y);
+
+    //if (mouseTracker.leftButton == Mouse::ButtonStateTracker::RELEASED)
+    //    ProcessMouseUp(pt.x, pt.y);
+
+    ProcessMouseMove(m_uiX, m_uiY);
 
     if (mouseTracker.leftButton == Mouse::ButtonStateTracker::PRESSED)
-        ProcessMouseDown(pt.x, pt.y);
+        ProcessMouseDown(m_uiX, m_uiY);
 
     if (mouseTracker.leftButton == Mouse::ButtonStateTracker::RELEASED)
-        ProcessMouseUp(pt.x, pt.y);
+        ProcessMouseUp(m_uiX, m_uiY);
 }

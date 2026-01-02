@@ -10,6 +10,5 @@ public:
     Canvas(float w, float h);
 
     void Render() override;
-
 };
 
