@@ -19,9 +19,9 @@ LRESULT CALLBACK DefaultWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM l
 }
 
 GameApp::GameApp(HINSTANCE hInstance)
-	:m_hInstance(hInstance), m_szWindowClass(L"DefaultWindowClass"), m_szTitle(L"HiroEngine"), m_ClientWidth(1024), m_ClientHeight(768)
+	:m_hInstance(hInstance), m_szWindowClass(L"DefaultWindowClass"), m_szTitle(L"HiroEngine"), m_ClientWidth(1920), m_ClientHeight(1080)
 {
-    CoInitializeEx(nullptr, COINIT_APARTMENTTHREADED);
+    HR_T(CoInitializeEx(nullptr, COINIT_APARTMENTTHREADED));
 
 	GameApp::m_pInstance = this;
 	m_wcex.hInstance = hInstance;
@@ -136,6 +136,8 @@ void GameApp::Update()
 void GameApp::OnInputProcess(const Keyboard::State& KeyState, const Keyboard::KeyboardStateTracker& KeyTracker, const Mouse::State& MouseState, const Mouse::ButtonStateTracker& MouseTracker)
 {
 	m_Camera.OnInputProcess(KeyState, KeyTracker, MouseState, MouseTracker);
+    
+    m_ui.OnInputProcess(KeyState, KeyTracker, MouseState, MouseTracker);
 
     if (KeyTracker.pressed.F6)
     {
@@ -158,6 +160,10 @@ LRESULT GameApp::WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 	case WM_DESTROY:
 		PostQuitMessage(0);
 		break;
+    case WM_SIZE:
+        m_ClientWidth = LOWORD(lParam);
+        m_ClientHeight = HIWORD(lParam);
+        break;
 	case WM_ACTIVATEAPP:
 		Keyboard::ProcessMessage(message, wParam, lParam);
 		Mouse::ProcessMessage(message, wParam, lParam);

@@ -6,13 +6,15 @@ bool UIButton::Initialize()
     m_background = AddChild<UIImage>();
     m_background->Rect().SetPivot(0, 0);
     m_background->Rect().SetAnchoredPosition(0, 0);
-    m_background->Rect().SetSize(100, 50);
+    m_background->Rect().SetSize(Rect().m_size.x, Rect().m_size.y);
+    m_background->SetEnabled(false);
     
     m_text = AddChild<UIText>();
     m_text->SetText(L"Button");
     m_text->Rect().SetPivot(0, 0);
     m_text->Rect().SetAnchoredPosition(0, 0);
     m_text->Rect().SetSize(Rect().m_size.x, Rect().m_size.y);
+    m_text->SetEnabled(false);
 
     return true;
 }

@@ -65,7 +65,7 @@ bool TutorialApp::Initialize(UINT Width, UINT Height)
     if (!InitD3D())
         return false;
 
-    if (!m_uiSystem.Initialize(m_hWnd, m_pDevice, m_pDeviceContext, m_pSwapChain))
+    if (!m_ui.Initialize(m_hWnd, m_pDevice, m_pDeviceContext, m_pSwapChain))
         return false;
 
     if (!InitImGUI())
@@ -691,11 +691,11 @@ void TutorialApp::Render()
     ImGui::SetNextWindowPos(ImVec2(1500, 30), ImGuiCond_FirstUseEver);
     ImGui::SetNextWindowSize(ImVec2(410, 218), ImGuiCond_FirstUseEver);
     ImGui::Begin("UI Setting");
-    ImGui::SeparatorText("Canvas Setting");
-    ImGui::Checkbox("Active Canvas", &m_canvas->ActiveRef());
-
-    ImGui::PushID("Image");
-    {
+    ImGui::PushID("Canvas"); {
+        ImGui::SeparatorText("Canvas Setting");
+        ImGui::Checkbox("Active Canvas", &m_canvas->ActiveRef());
+    }ImGui::PopID();
+    ImGui::PushID("Image");{
         ImGui::SeparatorText("Image");
         ImGui::Checkbox("Active", &m_image->ActiveRef());
 
@@ -709,11 +709,8 @@ void TutorialApp::Render()
             if (ImGui::DragFloat2("Pivot##pivot", &pv.x, 0.1f, 0.0f, 1.0f, "%.1f"))
                 m_image->Rect().SetPivot(pv.x, pv.y);
         }
-    }
-    ImGui::PopID();
-
-    ImGui::PushID("OptionPanel");
-    {
+    }ImGui::PopID();
+    ImGui::PushID("OptionPanel");{
         ImGui::SeparatorText("OptionPanel");
         ImGui::Checkbox("Active", &m_optionPanel->ActiveRef());
 
@@ -733,39 +730,38 @@ void TutorialApp::Render()
             if (ImGui::DragFloat2("Pivot##pivot", &pv.x, 0.1f, 0.0f, 1.0f, "%.1f"))
                 m_optionPanel->Rect().SetPivot(pv.x, pv.y);
         }
-    }
-    ImGui::PopID();
+    }ImGui::PopID();
+    ImGui::PushID("Text"); {
+        ImGui::SeparatorText("Text Setting");
+        ImGui::Checkbox("Active Text", &m_optionText->ActiveRef());
+        //ImGui::ColorEdit4("Color", &textColor.x);
+        ImGui::DragFloat("FontSize", &m_masterFontSize, 0.1f, 1.0f, 500.0f, "%.1f");
+        
+        Vector2 pos = m_optionText->Rect().GetAnchoredPosition();
+        if (ImGui::DragFloat2("Position", &pos.x, 1.f, -(float)m_ClientWidth, (float)m_ClientWidth, "%.0f"))
+            m_optionText->Rect().SetAnchoredPosition(pos.x, pos.y);
 
-    ImGui::PushID("Text");
-    {
-    ImGui::SeparatorText("Text Setting");
-    ImGui::Checkbox("Active Text", &m_optionText->ActiveRef());
-    //ImGui::ColorEdit4("Color", &textColor.x);
-    ImGui::DragFloat("FontSize", &m_masterFontSize, 0.1f, 1.0f, 500.0f, "%.1f");
-    
-    Vector2 pos = m_optionText->Rect().GetAnchoredPosition();
-    if (ImGui::DragFloat2("Position", &pos.x, 1.f, -(float)m_ClientWidth, (float)m_ClientWidth, "%.0f"))
-        m_optionText->Rect().SetAnchoredPosition(pos.x, pos.y);
-
-    Vector2 size = m_optionText->Rect().m_size;
-    if (ImGui::DragFloat2("Size", &size.x, 1.f, 0.f, 10000.f, "%.0f"))
-    {
-        m_optionText->Rect().SetSize(size.x, size.y);
-    }
-    
-    //static char buffer[256] = "";
-    //if (ImGui::InputTextWithHint(
-    //    "Input",
-    //    "Input the text ...",
-    //    buffer,
-    //    sizeof(buffer),
-    //    ImGuiInputTextFlags_EnterReturnsTrue))
-    //{
-    //    m_title.message = buffer; // 엔터 시에만 반영
-    //}
-    //if (ImGui::Button("reset")) { m_title.Reset(); }
-    }
-    ImGui::PopID();
+        Vector2 size = m_optionText->Rect().m_size;
+        if (ImGui::DragFloat2("Size", &size.x, 1.f, 0.f, 10000.f, "%.0f"))
+        {
+            m_optionText->Rect().SetSize(size.x, size.y);
+        }
+        
+        //static char buffer[256] = "";
+        //if (ImGui::InputTextWithHint(
+        //    "Input",
+        //    "Input the text ...",
+        //    buffer,
+        //    sizeof(buffer),
+        //    ImGuiInputTextFlags_EnterReturnsTrue))
+        //{
+        //    m_title.message = buffer; // 엔터 시에만 반영
+        //}
+        //if (ImGui::Button("reset")) { m_title.Reset(); }
+        }ImGui::PopID();
+    ImGui::PushID("Aspect Ratio"); {
+        
+    } ImGui::PopID();
     ImGui::End();
 
     ImGui::Begin("HDR");
@@ -785,7 +781,7 @@ void TutorialApp::Render()
 
 
 
-    m_uiSystem.Render();
+    m_ui.Render();
 
     // 5. Present
     m_pSwapChain->Present(0, 0);
@@ -1410,16 +1406,17 @@ void TutorialApp::CreateUISystem()
     m_canvasImage->SetPosition(800, 400);
     m_canvasImage->Rect().SetPivot(0.5f, 0.5f);
 
+    m_startButton = m_optionPanel->AddChild<UIButton>();
+    m_startButton->SetPosition(200, 700);
+    m_startButton->SetSize(50, 100);
 
+    // 버튼 이미지 등록
+    m_startButton->SetImage(L"../Resource/UI/Button_Normal.png", UIBase::State::Normal);
+    m_startButton->SetImage(L"../Resource/UI/Button_Hovered.png", UIBase::State::Hovered);
+    m_startButton->SetImage(L"../Resource/UI/Button_Pressed.png", UIBase::State::Pressed);
+    m_startButton->SetState(UIBase::State::Normal);
 
-    //m_button.handle->SetImage(L"../Resource/UI/Button_Normal.png", UIBase::State::Normal);
-    //m_button.handle->SetImage(L"../Resource/UI/Button_Hovered.png", UIBase::State::Hovered);
-    //m_button.handle->SetImage(L"../Resource/UI/Button_Pressed.png", UIBase::State::Pressed);
-
-    //m_button.handle->SetState(UIBase::State::Normal);
-
-    //m_uiSystem.AddUI(m_option.handle);
-    m_uiSystem.AddUI(m_canvas);
+    m_ui.AddUI(m_canvas);
 }
 
 void TutorialApp::UpdateUISystem()
@@ -1427,12 +1424,24 @@ void TutorialApp::UpdateUISystem()
     //if (m_quit) return;
     float dt = m_TimeSystem.GetDeltaTime();
 
-    m_uiSystem.Update(dt);
+    m_ui.Update(dt);
+
+    m_canvas->SetSize(m_ClientWidth, m_ClientHeight);
+    //m_canvas->SetSize(1024, 768);
 
     m_image->Rect().SetPivot(m_image->Rect().m_pivot.x, m_image->Rect().m_pivot.y);
 
     m_optionText->SetFontSize(m_masterFontSize);
     
+    m_startButton->SetOnClick([]() {
+        
+        OutputDebugStringW(L"버튼 클릭됨\n");
+        });
+
+
+
+
+
     //m_canvas->SetActive(m_canvas->IsActive());
     //m_image->SetActive(m_image->IsActive());
     //m_image->SetPosition(m_image->GetPosition());
@@ -1473,6 +1482,6 @@ void TutorialApp::UpdateUISystem()
 
 void TutorialApp::ReleaseUISystem()
 {
-     m_uiSystem.Shutdown();
+     m_ui.Shutdown();
      UIRenderer::Get().ShutDown();
 }

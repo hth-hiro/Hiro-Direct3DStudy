@@ -21,7 +21,6 @@
 #include <Psapi.h>
 
 // UI
-#include "../Common/UISystem.h"
 #include "../Common/UIBase.h"
 #include "../Common/Canvas.h"
 
@@ -333,7 +332,6 @@ public:
     void UpdateUISystem();
     void ReleaseUISystem();
 
-    UISystem m_uiSystem;
     float m_masterFontSize = 24.0f;
     
     // Canvas
@@ -351,8 +349,8 @@ public:
 
     // Button
     UIButton*   m_startButton;
-    UIButton*   m_quitButton;
-    UIButton*   m_optionButton;
+    //UIButton*   m_quitButton;
+    //UIButton*   m_optionButton;
 
     // etc...
 

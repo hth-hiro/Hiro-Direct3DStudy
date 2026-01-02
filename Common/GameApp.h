@@ -4,6 +4,7 @@
 
 #include "TimeSystem.h"
 #include "InputSystem.h"
+#include "UISystem.h"
 #include "Camera.h"
 
 #include "Define.h"
@@ -41,6 +42,7 @@ public:
 
 	TimeSystem	m_Time;
 	InputSystem	m_Input;
+    UISystem    m_ui;
 	Camera		m_Camera;
 
 public:

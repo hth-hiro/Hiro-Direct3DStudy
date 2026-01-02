@@ -29,6 +29,7 @@ public:
         m_text->SetText(text);
     }
 
+    
     void SetImage(const std::wstring& path, State state);
     void SetState(State s) override;
 
