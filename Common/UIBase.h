@@ -41,7 +41,7 @@ public:
 
     virtual bool Initialize() { return true; }
     virtual void Update(float dt);
-    virtual void Render() = 0;
+    virtual void Render();
     virtual void Shutdown();
 
     // Flags==================================

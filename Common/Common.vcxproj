@@ -163,6 +163,7 @@
     <ClInclude Include="UIButton.h" />
     <ClInclude Include="UICommon.h" />
     <ClInclude Include="UIImage.h" />
+    <ClInclude Include="UISlider.h" />
     <ClInclude Include="UISystem.h" />
     <ClInclude Include="UIPanel.h" />
     <ClInclude Include="UIRenderer.h" />
@@ -189,6 +190,7 @@
     <ClCompile Include="UIBase.cpp" />
     <ClCompile Include="UIButton.cpp" />
     <ClCompile Include="UIImage.cpp" />
+    <ClCompile Include="UISlider.cpp" />
     <ClCompile Include="UISystem.cpp" />
     <ClCompile Include="UIPanel.cpp" />
     <ClCompile Include="UIRenderer.cpp" />

@@ -27,6 +27,7 @@
 #include "../Common/UIPanel.h"
 #include "../Common/UIText.h"
 #include "../Common/UIButton.h"
+#include "../Common/UISlider.h"
 
 using namespace DirectX::SimpleMath;
 using namespace DirectX;
@@ -351,6 +352,9 @@ public:
     UIButton*   m_startButton;
     UIButton*   m_quitButton;
     UIButton*   m_optionButton;
+
+    // Slider
+    UISlider*   m_volume;
 
     // etc...
 
