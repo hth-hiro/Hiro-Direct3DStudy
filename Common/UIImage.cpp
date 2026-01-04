@@ -29,9 +29,12 @@ void UIImage::Render()
     if (r.left == r.right || r.top == r.bottom) return;
 
     auto bmp = UIRenderer::Get().GetBitmap(m_path);
-    if (!bmp) return;
 
-    UIRenderer::Get().DrawImage(bmp.Get(), r);
+    if (!bmp) UIRenderer::Get().FillRect(r, D2D1::ColorF(D2D1::ColorF::White));
+    else UIRenderer::Get().DrawImage(bmp.Get(), r);
+
+    if(!m_children.empty())
+        RenderChildren();
 }
 
 void UIImage::OnMouseDown(const POINT& p)
@@ -58,6 +61,8 @@ void UIImage::OnMouseUp(const POINT& p)
 
 bool UIImage::SetImage(const std::wstring& path)
 {
+    if (m_path == path) return false;
+
     m_path = path;
 
     //auto bmp = UIRenderer::Get().LoadBitmapFromFile(path);

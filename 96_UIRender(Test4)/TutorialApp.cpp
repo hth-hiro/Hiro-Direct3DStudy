@@ -1447,6 +1447,16 @@ void TutorialApp::CreateUISystem()
         OutputDebugStringW(L"°ÔÀÓÁ¾·á ¹öÆ° Å¬¸¯µÊ\n");
         });
 
+    m_volume = m_optionPanel->AddChild<UISlider>();
+    m_volume->SetPosition(500, 500);
+    m_volume->SetSize(200, 40);
+    m_volume->SetRange(0.0f, 1.0f);
+    m_volume->SetValue(0.5f);
+
+    m_volume->SetOnValueChanged([](float v) {
+        OutputDebugStringW(L"º¼·ý º¯°æµÊ\n");
+        });
+
     m_ui.AddUI(m_canvas);
 }
 

@@ -58,6 +58,12 @@ void UIBase::Update(float dt)
     }
 }
 
+void UIBase::Render()
+{
+    if (!IsVisible() || !IsActive()) return;
+    RenderChildren();
+}
+
 void UIBase::Shutdown()
 {
     for (auto& c : m_children)
