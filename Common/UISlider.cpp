@@ -6,16 +6,22 @@ bool UISlider::Initialize()
     m_track = AddChild<UIImage>();
     m_track->SetImage(m_trackPath);
     m_track->SetTintColor({ 52, 135, 255, 255 });
-    m_track->Rect().SetPivot(0.0, 0.5);
-    m_track->Rect().SetAnchoredPosition(0, 0);
-    m_track->Rect().SetSize(Rect().m_size.x, 10);
+
+    m_track->Rect().SetPivot(0.5, 0.5);
+    m_track->Rect().SetAnchoredPosition(Rect().m_size.x * 0.5f, Rect().m_size.y * 0.5f);
+
+    // 방향에 따른 사이즈 설정
+    if (m_orientation == SliderOrientation::Horizontal)
+        m_track->Rect().SetSize(Rect().m_size.x, 10);
+    else
+        m_track->Rect().SetSize(10, Rect().m_size.y);
     m_track->SetEnabled(false);
 
     m_handle = AddChild<UIImage>();
     m_handle->SetImage(m_handlePath);
     m_handle->Rect().SetPivot(0.5f, 0.5f);
     m_handle->Rect().SetSize(20, 20);
-    m_handle->Rect().SetAnchoredPosition(0, Rect().m_size.y * 0.5f);
+    m_handle->Rect().SetAnchoredPosition(Rect().m_size.x * 0.5f, Rect().m_size.y * 0.5f);
     m_handle->SetEnabled(false);
 
     UpdateThumbByValue();
@@ -35,15 +41,21 @@ void UISlider::Update(float dt)
 
     if (m_track && m_handle)
     {
-        float currentHeight = Rect().m_size.y;
-        float currentWidth = Rect().m_size.x;
+        float w = Rect().m_size.x;
+        float h = Rect().m_size.y;
 
-        // 트랙의 높이를 슬라이더의 중앙으로 (Pivot 0.5 기준)
-        m_track->Rect().SetAnchoredPosition(0, currentHeight * 0.5f);
-        m_track->Rect().SetSize(currentWidth, 10);
+        //m_track->Rect().SetAnchoredPosition(0, h * 0.5f);
+        //m_track->Rect().SetSize(w, 10);
+
+        m_track->Rect().SetAnchoredPosition(w * 0.5f, h * 0.5f);
+
+        if (m_orientation == SliderOrientation::Horizontal)
+            m_track->Rect().SetSize(w, 10);
+        else
+            m_track->Rect().SetSize(10, h);
 
         // 핸들의 Y축 위치도 중앙으로
-        float thumbY = currentHeight * 0.5f;
+        float thumbY = h * 0.5f;
 
         // 현재 value에 따른 X 위치 재계산
         UpdateThumbByValue();
@@ -110,61 +122,77 @@ void UISlider::UpdateThumbByValue()
     if (!m_track || !m_handle) return;
 
     // 0.0 ~ 1.0 사이의 비율 계산
-    float denom = (m_max - m_min);
-    float t = (denom != 0.0f) ? (m_value - m_min) / denom : 0.0f;
+    float t = (m_max != m_min) ? (m_value - m_min) / (m_max != m_min) : 0.0f;
     t = std::clamp(t, 0.0f, 1.0f);
 
     // 트랙의 크기를 기준으로 로컬 좌표 계산
     float trackW = m_track->Rect().m_size.x;
+
+    float w = Rect().m_size.x;
+    float h = Rect().m_size.y;
+
     float thumbW = m_handle->Rect().m_size.x;
+    float thumbH = m_handle->Rect().m_size.y;
 
-    // 핸들이 트랙 밖으로 나가지 않게 하려면 여백을 고려합니다.
-    // minX: 트랙 시작점 + 핸들 절반, maxX: 트랙 끝점 - 핸들 절반
-    float minX = thumbW * 0.5f;
-    float maxX = trackW - thumbW * 0.5f;
-
-    // 트랙이 매우 짧을 경우를 대비
-    if (maxX < minX) maxX = minX;
-
-    float x_local = minX + (maxX - minX) * t;
-
-    // 트랙의 로컬 위치를 기준으로 핸들 위치 설정
-    // m_track의 pivot이 (0, 0.5)이므로 track의 anchoredPosition.x가 곧 시작점입니다.
-    x_local += m_track->Rect().m_anchoredPosition.x;
-    float y_local = m_track->Rect().m_anchoredPosition.y;
-
-    m_handle->Rect().SetAnchoredPosition(x_local, y_local);
+    if (m_orientation == SliderOrientation::Horizontal)
+    {
+        float x_pos = (thumbW * 0.5f) + (w - thumbW) * t;
+        m_handle->Rect().SetAnchoredPosition(x_pos, h * 0.5f);
+    }
+    else
+    {
+        float y_pos = (h - thumbH * 0.5f) - (h - thumbH) * t;
+        m_handle->Rect().SetAnchoredPosition(w * 0.5f, y_pos);
+    }
 }
 
 void UISlider::UpdateValueByMouse(const POINT& pt)
 {
     if (!m_track || !m_handle) return;
 
-    // 1. 트랙의 월드 바운드를 가져옵니다. (가장 정확한 기준)
     RECT trackRect = m_track->GetWorldBounds();
-    float trackWorldX = (float)trackRect.left;
-    float trackWorldW = (float)(trackRect.right - trackRect.left);
-
-    // 2. 핸들의 폭을 고려한 유효 가동 범위를 계산합니다.
-    float thumbW = m_handle->Rect().m_size.x;
-    float minWorldX = trackWorldX + (thumbW * 0.5f);
-    float maxWorldX = trackWorldX + trackWorldW - (thumbW * 0.5f);
-
-    // 3. 마우스 좌표(pt.x)를 이 범위 내에서 0.0 ~ 1.0으로 정규화합니다.
     float t = 0.0f;
-    if (maxWorldX > minWorldX)
+
+    if (m_orientation == SliderOrientation::Horizontal)
     {
-        t = ((float)pt.x - minWorldX) / (maxWorldX - minWorldX);
+        float trackWorldX = (float)trackRect.left;
+        float trackWorldW = (float)(trackRect.right - trackRect.left);
+
+        // 유효 가동 범위 계산
+        float thumbW = m_handle->Rect().m_size.x;
+        float minWorldX = trackWorldX + (thumbW * 0.5f);
+        float maxWorldX = trackWorldX + trackWorldW - (thumbW * 0.5f);
+
+        // 마우스 좌표 정규화
+        if (maxWorldX > minWorldX)
+        {
+            t = ((float)pt.x - minWorldX) / (maxWorldX - minWorldX);
+        }
+        else
+        {
+            t = 0.5f;
+        }
     }
     else
     {
-        // 트랙이 핸들보다 작을 경우 중앙값 처리
-        t = 0.5f;
+        float trackWorldY = (float)trackRect.top;
+        float trackWorldH = (float)(trackRect.bottom - trackRect.top);
+
+        float thumbH = m_handle->Rect().m_size.y;
+        float minWorldY = trackWorldY + trackWorldH - (thumbH * 0.5f);
+        float maxWorldY = trackWorldY + (thumbH * 0.5f);
+
+        if (minWorldY != maxWorldY)
+        {
+            t = ((float)pt.y - minWorldY) / (maxWorldY - minWorldY);
+        }
+        else
+        {
+            t = 0.5f;
+        }
     }
 
     t = std::clamp(t, 0.0f, 1.0f);
-
-    // 4. 값을 갱신합니다.
     float newValue = m_min + (m_max - m_min) * t;
     SetValue(newValue);
 }

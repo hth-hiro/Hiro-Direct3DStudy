@@ -1457,6 +1457,17 @@ void TutorialApp::CreateUISystem()
         OutputDebugStringW(msg.c_str());
         });
 
+    m_zoom = m_optionPanel->AddChild<UISlider>();
+    m_zoom->SetPosition(1000, 500);
+    m_zoom->SetSize(40, 200);
+    m_zoom->SetOrientation(SliderOrientation::Vertical);
+    m_zoom->SetRange(0.0f, 1.0f);
+    m_zoom->SetValue(0.5f, true);
+    m_zoom->SetOnValueChanged([](float v) {
+        std::wstring msg = L"ÁÜ »óÅÂ : " + std::to_wstring(v * 100.0f) + L" % \n";
+        OutputDebugStringW(msg.c_str());
+        });
+
     m_autoSaveToggle = m_optionPanel->AddChild<UIToggle>();
     m_autoSaveToggle->SetPosition(600, 300);
     m_autoSaveToggle->SetSize(40, 40);

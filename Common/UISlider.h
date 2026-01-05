@@ -2,13 +2,12 @@
 #include "UIBase.h"
 #include "UIImage.h"
 
+enum class SliderOrientation { Horizontal, Vertical };
+
 class UISlider : public UIBase
 {
 public:
-    enum class ImageType
-    {
-        Track, Handle
-    };
+    enum class ImageType { Track, Handle };
 
     using ValueChangedCallback = std::function<void(float)>;
 
@@ -23,6 +22,9 @@ public:
     float GetValue() const { return m_value; }
 
     void SetOnValueChanged(ValueChangedCallback cb);
+
+    // 방향 설정 함수
+    void SetOrientation(SliderOrientation orientation) { m_orientation = orientation; }
 
 protected:
     void OnMouseDown(const POINT& pt) override;
@@ -41,6 +43,8 @@ private:
     float m_max = 1.0f;
     float m_value = 0.0f;
     bool m_dragging = false;
+
+    SliderOrientation m_orientation = SliderOrientation::Horizontal;
 
     std::wstring    m_trackPath = L"../Resource/UI/Slider/Track.png";
     std::wstring    m_handlePath = L"../Resource/UI/Slider/Handle.png";
