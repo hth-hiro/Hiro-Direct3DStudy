@@ -1451,11 +1451,27 @@ void TutorialApp::CreateUISystem()
     m_volume->SetPosition(500, 500);
     m_volume->SetSize(200, 40);
     m_volume->SetRange(0.0f, 1.0f);
-    m_volume->SetValue(0.5f);
+    m_volume->SetValue(0.5f, true);
     m_volume->SetOnValueChanged([](float v) {
         std::wstring msg = L"볼륨 변경됨, 현재 볼륨 : " + std::to_wstring(v * 100.0f) + L"\n";
         OutputDebugStringW(msg.c_str());
         });
+
+    m_autoSaveToggle = m_optionPanel->AddChild<UIToggle>();
+    m_autoSaveToggle->SetPosition(600, 300);
+    m_autoSaveToggle->SetSize(40, 40);
+    //m_autoSaveToggle->SetImage(L"../Resource/UI/Toggle/Background.png", UIToggle::ImageType::Frame);
+    //m_autoSaveToggle->SetImage(L"../Resource/UI/Toggle/Checkmark.png", UIToggle::ImageType::Mark);
+    m_autoSaveToggle->SetIsOn(true, false);
+    m_autoSaveToggle->SetOnCheckedChanged([](bool isOn) {
+        if (isOn) {
+            OutputDebugStringW(L"자동 저장 활성화\n");
+        }
+        else {
+            OutputDebugStringW(L"자동 저장 비활성화\n");
+        }
+
+     });
 
     m_ui.AddUI(m_canvas);
 }

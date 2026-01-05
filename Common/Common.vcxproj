@@ -161,6 +161,7 @@
     <ClInclude Include="Transform.h" />
     <ClInclude Include="UIBase.h" />
     <ClInclude Include="UIButton.h" />
+    <ClInclude Include="UIToggle.h" />
     <ClInclude Include="UICommon.h" />
     <ClInclude Include="UIImage.h" />
     <ClInclude Include="UISlider.h" />
@@ -189,6 +190,7 @@
     <ClCompile Include="Transform.cpp" />
     <ClCompile Include="UIBase.cpp" />
     <ClCompile Include="UIButton.cpp" />
+    <ClCompile Include="UIToggle.cpp" />
     <ClCompile Include="UIImage.cpp" />
     <ClCompile Include="UISlider.cpp" />
     <ClCompile Include="UISystem.cpp" />
