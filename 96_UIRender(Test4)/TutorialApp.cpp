@@ -1487,11 +1487,11 @@ void TutorialApp::CreateUISystem()
     m_autoSaveToggle->SetIsOn(true, false);
     m_autoSaveToggle->SetOnCheckedChanged([this](bool isOn) {
         if (isOn) {
-            OutputDebugStringW(L"자동 저장 활성화\n");
+            OutputDebugStringW(L"패널 활성화\n");
             m_optionPanel->SetActive(isOn);
         }
         else {
-            OutputDebugStringW(L"자동 저장 비활성화\n");
+            OutputDebugStringW(L"패널 비활성화\n");
             m_optionPanel->SetActive(isOn);
         }
 

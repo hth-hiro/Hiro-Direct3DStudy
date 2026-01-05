@@ -52,7 +52,7 @@ void UIText::Shutdown()
 
 void UIText::Render()
 {
-    auto* rt = UIRenderer::Get().GetRenderTarget();
+    /*auto* rt = UIRenderer::Get().GetRenderTarget();
 
     m_textBrush->SetColor(m_color);
 
@@ -67,17 +67,30 @@ void UIText::Render()
         format,
         r,
         m_textBrush.Get()
-    );
+    );*/
+
+    UpdateLayout();
+    if (m_textLayout)
+    {
+        auto worldPos = GetWorldBounds();
+
+        m_textBrush->SetColor(m_color);
+        auto* rt = UIRenderer::Get().GetRenderTarget();
+
+        rt->DrawTextLayout(
+            D2D1::Point2F((float)worldPos.left, (float)worldPos.top),
+            m_textLayout.Get(),
+            m_textBrush.Get()
+        );
+    }
 }
 
 void UIText::SetText(const std::wstring& text)
 {
+    if (m_text == text) return;
     m_text = text;
-}
 
-void UIText::SetText(const std::string& text)
-{
-    m_text = Utf8ToWString(text);
+    m_isLayoutDirty = true;
 }
 
 void UIText::SetRect(int x, int y, int width, int height)
@@ -91,20 +104,26 @@ void UIText::SetRect(int x, int y, int width, int height)
 
 void UIText::SetFont(const std::wstring& fontFamilyName)
 {
+    if (m_fontFamily == fontFamilyName);
     m_fontFamily = fontFamilyName;
+    m_isLayoutDirty = true;
 }
 
 void UIText::SetFontSize(float fontSize)
 {
-    m_fontSize = max(fontSize, 1.0f);
-
     if (fabsf(m_fontSize - fontSize) < 0.001f) return;
-
     m_fontSize = fontSize;
+    m_isLayoutDirty = true;
 }
 
 void UIText::SetColor(D2D1::ColorF color)
 {
+    if (m_color.r == color.r &&
+        m_color.g == color.g &&
+        m_color.b == color.b &&
+        m_color.a == color.a)
+        return;
+
     m_color = color;
 }
 
@@ -169,4 +188,30 @@ bool UIText::LoadFontsFromDirectory(const std::wstring& directory)
     HRESULT hr = dw->GetSystemFontCollection(&collection, TRUE);
 
     return SUCCEEDED(hr);
+}
+
+void UIText::UpdateLayout()
+{
+    if (!m_isLayoutDirty) return;
+
+    auto* dw = UIRenderer::Get().GetDWriteFactory();
+    auto* format = GetTextFormat(m_fontSize, m_fontFamily.c_str());
+
+    m_textLayout.Reset();
+
+    if (m_text.empty())
+    {
+        m_isLayoutDirty = false;
+        return;
+    }
+
+    float layoutW = max(Rect().m_size.x, 1.0f);
+    float layoutH = max(Rect().m_size.y, 1.0f);
+
+    HR_T(dw->CreateTextLayout(m_text.c_str(), (UINT32)m_text.length(),
+        format,
+        layoutW, layoutH,
+        m_textLayout.GetAddressOf()));
+
+    m_isLayoutDirty = false;
 }
