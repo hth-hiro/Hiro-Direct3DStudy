@@ -9,11 +9,11 @@ bool UISlider::Initialize()
     m_track->Rect().SetSize(Rect().m_size.x, 10);
     m_track->SetEnabled(false);
 
-    m_thumb = AddChild<UIImage>();
-    m_thumb->Rect().SetPivot(0.5f, 0.5f);
-    m_thumb->Rect().SetSize(20, 20);
-    m_thumb->Rect().SetAnchoredPosition(0, Rect().m_size.y * 0.5f);
-    m_thumb->SetEnabled(false);
+    m_handle = AddChild<UIImage>();
+    m_handle->Rect().SetPivot(0.5f, 0.5f);
+    m_handle->Rect().SetSize(20, 20);
+    m_handle->Rect().SetAnchoredPosition(0, Rect().m_size.y * 0.5f);
+    m_handle->SetEnabled(false);
 
     UpdateThumbByValue();
     return true;
@@ -30,7 +30,7 @@ void UISlider::Update(float dt)
 {
     UIBase::Update(dt);
 
-    if (m_track && m_thumb)
+    if (m_track && m_handle)
     {
         float currentHeight = Rect().m_size.y;
         float currentWidth = Rect().m_size.x;
@@ -46,13 +46,13 @@ void UISlider::Update(float dt)
         UpdateThumbByValue();
     }
 
-    m_thumb->SetImage(m_thumbPath);
+    m_handle->SetImage(m_thumbPath);
     m_track->SetImage(m_trackPath);
 }
 
-void UISlider::SetImage(const std::wstring& path, SliderType type)
+void UISlider::SetImage(const std::wstring& path, ImageType type)
 {
-    if (type == SliderType::Track)
+    if (type == ImageType::Track)
     {
         m_trackPath = path;
     }
@@ -104,7 +104,7 @@ void UISlider::OnMouseUp(const POINT& pt)
 
 void UISlider::UpdateThumbByValue()
 {
-    if (!m_track || !m_thumb) return;
+    if (!m_track || !m_handle) return;
 
     // 0.0 ~ 1.0 사이의 비율 계산
     float denom = (m_max - m_min);
@@ -113,7 +113,7 @@ void UISlider::UpdateThumbByValue()
 
     // 트랙의 크기를 기준으로 로컬 좌표 계산
     float trackW = m_track->Rect().m_size.x;
-    float thumbW = m_thumb->Rect().m_size.x;
+    float thumbW = m_handle->Rect().m_size.x;
 
     // 핸들이 트랙 밖으로 나가지 않게 하려면 여백을 고려합니다.
     // minX: 트랙 시작점 + 핸들 절반, maxX: 트랙 끝점 - 핸들 절반
@@ -130,12 +130,12 @@ void UISlider::UpdateThumbByValue()
     x_local += m_track->Rect().m_anchoredPosition.x;
     float y_local = m_track->Rect().m_anchoredPosition.y;
 
-    m_thumb->Rect().SetAnchoredPosition(x_local, y_local);
+    m_handle->Rect().SetAnchoredPosition(x_local, y_local);
 }
 
 void UISlider::UpdateValueByMouse(const POINT& pt)
 {
-    if (!m_track || !m_thumb) return;
+    if (!m_track || !m_handle) return;
 
     // 1. 트랙의 월드 바운드를 가져옵니다. (가장 정확한 기준)
     RECT trackRect = m_track->GetWorldBounds();
@@ -143,7 +143,7 @@ void UISlider::UpdateValueByMouse(const POINT& pt)
     float trackWorldW = (float)(trackRect.right - trackRect.left);
 
     // 2. 핸들의 폭을 고려한 유효 가동 범위를 계산합니다.
-    float thumbW = m_thumb->Rect().m_size.x;
+    float thumbW = m_handle->Rect().m_size.x;
     float minWorldX = trackWorldX + (thumbW * 0.5f);
     float maxWorldX = trackWorldX + trackWorldW - (thumbW * 0.5f);
 

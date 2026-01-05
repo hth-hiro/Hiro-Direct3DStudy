@@ -34,6 +34,9 @@
     <Filter Include="UI\UISlider">
       <UniqueIdentifier>{f88cd09a-b560-481c-91df-a5d14fcf11b1}</UniqueIdentifier>
     </Filter>
+    <Filter Include="UI\UIToggle">
+      <UniqueIdentifier>{46df8263-16cf-4ceb-b1d3-b561abecee06}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="framework.h">
@@ -102,17 +105,20 @@
     <ClInclude Include="Define.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="RectTransform.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="UICommon.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
     <ClInclude Include="Canvas.h">
       <Filter>UI</Filter>
     </ClInclude>
     <ClInclude Include="UISlider.h">
-      <Filter>헤더 파일</Filter>
+      <Filter>UI\UISlider</Filter>
+    </ClInclude>
+    <ClInclude Include="UIToggle.h">
+      <Filter>UI\UIToggle</Filter>
+    </ClInclude>
+    <ClInclude Include="UICommon.h">
+      <Filter>UI</Filter>
+    </ClInclude>
+    <ClInclude Include="RectTransform.h">
+      <Filter>UI</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -167,14 +173,17 @@
     <ClCompile Include="UIPanel.cpp">
       <Filter>UI\UIPanel</Filter>
     </ClCompile>
-    <ClCompile Include="RectTransform.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
     <ClCompile Include="Canvas.cpp">
       <Filter>UI</Filter>
     </ClCompile>
+    <ClCompile Include="UIToggle.cpp">
+      <Filter>UI\UIToggle</Filter>
+    </ClCompile>
     <ClCompile Include="UISlider.cpp">
-      <Filter>소스 파일</Filter>
+      <Filter>UI\UISlider</Filter>
+    </ClCompile>
+    <ClCompile Include="RectTransform.cpp">
+      <Filter>UI</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

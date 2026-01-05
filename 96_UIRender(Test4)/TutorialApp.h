@@ -28,6 +28,8 @@
 #include "../Common/UIText.h"
 #include "../Common/UIButton.h"
 #include "../Common/UISlider.h"
+#include "../Common/UIImage.h"
+#include "../Common/UIToggle.h"
 
 using namespace DirectX::SimpleMath;
 using namespace DirectX;
@@ -355,6 +357,9 @@ public:
 
     // Slider
     UISlider*   m_volume;
+
+    // Toggle
+    UIToggle* m_autoSaveToggle;
 
     // etc...
 

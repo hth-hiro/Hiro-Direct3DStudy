@@ -2,7 +2,7 @@
 #include "UIBase.h"
 #include "UIImage.h"
 
-enum class SliderType
+enum class ImageType
 {
     Track, Handle
 };
@@ -16,7 +16,7 @@ public:
     void Render() override;
     void Update(float dt) override;
 
-    void SetImage(const std::wstring& path, SliderType type);
+    void SetImage(const std::wstring& path, ImageType type);
 
     void SetRange(float min, float max);
     void SetValue(float v, bool notify = true);
@@ -35,7 +35,7 @@ private:
 
     // 슬라이더 바 / 손잡이
     UIImage* m_track = nullptr;
-    UIImage* m_thumb = nullptr;
+    UIImage* m_handle = nullptr;
 
     float m_min = 0.0f;
     float m_max = 1.0f;
@@ -45,6 +45,6 @@ private:
     std::wstring    m_trackPath = L"";
     std::wstring    m_thumbPath = L"";
 
-    ValueChangedCallback m_onValueChanged;
+    ValueChangedCallback m_onValueChanged = nullptr;
 };
 
