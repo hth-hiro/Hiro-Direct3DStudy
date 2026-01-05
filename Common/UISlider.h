@@ -42,8 +42,8 @@ private:
     float m_value = 0.0f;
     bool m_dragging = false;
 
-    std::wstring    m_trackPath = L"";
-    std::wstring    m_thumbPath = L"";
+    std::wstring    m_trackPath = L"../Resource/UI/Slider/Track.png";
+    std::wstring    m_handlePath = L"../Resource/UI/Slider/Handle.png";
 
     ValueChangedCallback m_onValueChanged = nullptr;
 };
