@@ -1460,8 +1460,11 @@ void TutorialApp::CreateUISystem()
     m_autoSaveToggle = m_optionPanel->AddChild<UIToggle>();
     m_autoSaveToggle->SetPosition(600, 300);
     m_autoSaveToggle->SetSize(40, 40);
+
+    // Guide
     //m_autoSaveToggle->SetImage(L"../Resource/UI/Toggle/Background.png", UIToggle::ImageType::Frame);
     //m_autoSaveToggle->SetImage(L"../Resource/UI/Toggle/Checkmark.png", UIToggle::ImageType::Mark);
+
     m_autoSaveToggle->SetIsOn(true, false);
     m_autoSaveToggle->SetOnCheckedChanged([](bool isOn) {
         if (isOn) {

@@ -2,14 +2,14 @@
 #include "UIBase.h"
 #include "UIImage.h"
 
-enum class ImageType
-{
-    Track, Handle
-};
-
 class UISlider : public UIBase
 {
 public:
+    enum class ImageType
+    {
+        Track, Handle
+    };
+
     using ValueChangedCallback = std::function<void(float)>;
 
     bool Initialize() override;
