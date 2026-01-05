@@ -30,6 +30,7 @@
 #include "../Common/UISlider.h"
 #include "../Common/UIImage.h"
 #include "../Common/UIToggle.h"
+#include "../Common/UIProgressBar.h"
 
 using namespace DirectX::SimpleMath;
 using namespace DirectX;
@@ -338,29 +339,35 @@ public:
     float m_masterFontSize = 24.0f;
     
     // Canvas
-    Canvas*     m_canvas;
+    Canvas*             m_canvas;
     
     // Image
-    UIImage*    m_image;
-    UIImage*    m_canvasImage;
+    UIImage*            m_image;
+    UIImage*            m_canvasImage;
 
     // Panel
-    UIPanel*    m_optionPanel;
+    UIPanel*            m_optionPanel;
 
     // Text
-    UIText*     m_optionText;
+    UIText*             m_optionText;
 
     // Button
-    UIButton*   m_startButton;
-    UIButton*   m_quitButton;
-    UIButton*   m_optionButton;
+    UIButton*           m_startButton;
+    UIButton*           m_quitButton;
+    UIButton*           m_optionButton;
 
     // Slider
-    UISlider*   m_volume;
-    UISlider*   m_zoom;
+    UISlider*           m_volume;
+    UISlider*           m_zoom;
+    UISlider*           m_progress;
 
     // Toggle
-    UIToggle* m_autoSaveToggle;
+    UIToggle*           m_autoSaveToggle;
+
+    // ProgressBar
+    UIProgressBar*      m_loading;
+
+    float m_progressValue = 0.0f;
 
     // etc...
 

@@ -1468,6 +1468,14 @@ void TutorialApp::CreateUISystem()
         OutputDebugStringW(msg.c_str());
         });
 
+    m_progress = m_optionPanel->AddChild<UISlider>();
+    m_progress->SetPosition(500, 700);
+    m_progress->SetSize(200, 40);
+    m_progress->SetValue(m_progressValue);
+    m_progress->SetOnValueChanged([this](float v) {
+        m_progressValue = v;
+        });
+
     m_autoSaveToggle = m_optionPanel->AddChild<UIToggle>();
     m_autoSaveToggle->SetPosition(600, 300);
     m_autoSaveToggle->SetSize(40, 40);
@@ -1476,7 +1484,6 @@ void TutorialApp::CreateUISystem()
     // 따로 입력하지 않아도 기본 이미지가 등록된다.
     //m_autoSaveToggle->SetImage(L"../Resource/UI/Toggle/Background.png", UIToggle::ImageType::Frame);
     //m_autoSaveToggle->SetImage(L"../Resource/UI/Toggle/Checkmark.png", UIToggle::ImageType::Mark);
-
     m_autoSaveToggle->SetIsOn(true, false);
     m_autoSaveToggle->SetOnCheckedChanged([](bool isOn) {
         if (isOn) {
@@ -1487,6 +1494,11 @@ void TutorialApp::CreateUISystem()
         }
 
      });
+
+    m_loading = m_optionPanel->AddChild<UIProgressBar>();
+    m_loading->SetPosition(300, 1000);
+    m_loading->SetSize(300, 30);
+    m_loading->SetProgress(m_progressValue);
 
     m_ui.AddUI(m_canvas);
 }
@@ -1504,7 +1516,8 @@ void TutorialApp::UpdateUISystem()
     m_image->Rect().SetPivot(m_image->Rect().m_pivot.x, m_image->Rect().m_pivot.y);
 
     m_optionText->SetFontSize(m_masterFontSize);
-    
+    m_loading->SetProgress(m_progressValue);
+
     //m_canvas->SetActive(m_canvas->IsActive());
     //m_image->SetActive(m_image->IsActive());
     //m_image->SetPosition(m_image->GetPosition());
