@@ -31,25 +31,28 @@ concept Bases = std::derived_from<T, UIBase>;
 class UIBase
 {
 public:
-    enum class State
-    {
-        Normal, Hovered, Pressed, Disabled
-    };
+    enum class State { Normal, Hovered, Pressed, Disabled };
 
-public:
     virtual ~UIBase() = default;
 
+    // 생명 주기 함수
     virtual bool Initialize() { return true; }
     virtual void Update(float dt);
     virtual void Render();
     virtual void Shutdown();
 
-    // Flags==================================
+    // 이벤트 함수
+    virtual void OnMouseEnter() {}
+    virtual void OnMouseLeave() {}
+    virtual void OnMouseMove(const POINT& p) {}
+    virtual void OnMouseDown(const POINT& p) {}
+    virtual void OnMouseUp(const POINT& p) {}
+    virtual void OnClick() {}
 
+    // 상태 제어
     // Active - UI Update 여부
     void SetActive(bool active) { m_active = active; }
     bool IsActive() const { return m_active; }
-    bool& ActiveRef() { return m_active; }
 
     // Visible - Render 대상 여부 (투명이지만 입력을 받는 경우, 미리 생성하고 나중에 보여질때)
     void SetVisible(bool visible) { m_visible = visible; }
@@ -59,13 +62,18 @@ public:
     void SetEnabled(bool enabled){ m_enabled = enabled; m_state = m_enabled ? State::Normal : State::Disabled; }
     bool IsEnabled() const { return m_enabled; }
 
-    // RectTransform============================
 
+    virtual bool HitTest(const POINT& mousePos) const;
+
+
+
+
+
+
+
+    // 공통 기능
     RectTransform& Rect() { return m_rect; }
-    const RectTransform& Rect() const { return m_rect; }
-
-    const RECT& GetBounds() const { return m_bounds; }
-    RECT GetWorldBounds() const;
+    const RECT& GetWorldBounds() const { return m_bounds; }
 
     void SetPosition(int x, int y);
     void SetPosition(const POINT& p);
@@ -82,7 +90,7 @@ public:
     virtual void SetState(State s) { m_state = s; }
 
     // Input ===========================================================
-    virtual bool HitTest(const POINT& mousePos) const;
+
     
     // Layer ===========================================================
     int GetZOrder() const { return m_zOrder; }
@@ -133,13 +141,7 @@ public:
         return nullptr;
     }
 
-    // UIButton과 상호작용하는 함수, UISystem이 호출
-    virtual void OnMouseEnter() {}
-    virtual void OnMouseLeave() {}
-    virtual void OnMouseMove(const POINT& p) {}
-    virtual void OnMouseDown(const POINT& p) {}
-    virtual void OnMouseUp(const POINT& p) {}
-    virtual void OnClick() {}
+
 
     virtual bool BlocksInput() const { return false; }
 

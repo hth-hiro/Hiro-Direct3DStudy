@@ -12,14 +12,34 @@
 using namespace DirectX::SimpleMath;
 using namespace DirectX;
 
+template <typename T>
+T Max(const T& a, const T& b)
+{
+    return a > b ? a : b;
+}
+
+enum class AnchorPreset
+{
+    TopLeft = 0, TopCenter, TopRight,
+    MiddleLeft, MiddleCenter, MiddleRight,
+    BottomLeft, BottomCenter, BottomRight,
+
+    TL = 0, TC = 1, TR = 2,
+    ML = 3, MC = 4, MR = 5,
+    BL = 6, BC = 7, BR = 8,
+};
+
 struct UIColor { uint8_t r = 255, g = 255, b = 255, a = 255; };
 
 struct UIRect
 {
-    float x = 0;
-    float y = 0;
-    float w = 0;
-    float h = 0;
+    float x = 0.0f;
+    float y = 0.0f;
+    float w = 0.0f;
+    float h = 0.0f;
+
+    Vector2 Pos() const { return { x, y }; }
+    Vector2 Size() const { return { w, h }; }
 
     // 점이 UIRect에 들어와 있는지 검사
     bool Contains(const Vector2& p)const

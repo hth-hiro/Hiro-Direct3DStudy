@@ -1,56 +1,24 @@
 #pragma once
-#include <algorithm>
-#include <directxtk/SimpleMath.h>
+#include "UICommon.h"
 
-using namespace DirectX::SimpleMath;
-using namespace DirectX;
-
-template <typename T>
-T Max(const T& a, const T& b)
-{
-    return a > b ? a : b;
-}
-
-enum class AnchorPreset
-{
-    TopLeft = 0, TopCenter, TopRight,
-    MiddleLeft, MiddleCenter, MiddleRight,
-    BottomLeft, BottomCenter, BottomRight,
-
-    TL = 0, TC = 1, TR = 2,
-    ML = 3, MC = 4, MR = 5,
-    BL = 6, BC = 7, BR = 8,
-};
-
-struct UIRect
-{
-    float x = 0.0f;
-    float y = 0.0f;
-    float w = 0.0f;
-    float h = 0.0f;
-
-    Vector2 Pos() const { return { x, y }; }
-    Vector2 Size() const { return { w, h }; }
-};
+// RectTransform은 계산만 담당합니다.
 
 class RectTransform
 {
 public:
     Vector2 m_anchoredPosition{0.0f, 0.0f};
+    Vector2 m_size{ 100.0f, 100.0f };
+    Vector2 m_pivot{ 0.5f, 0.5f };
+
     Vector2 m_anchorMin{ 0.5f, 0.5f };
     Vector2 m_anchorMax{ 0.5f, 0.5f };
-    Vector2 m_pivot{ 0.5f, 0.5f };
-    Vector2 m_size{ 100.0f, 100.0f };
 
-    // 계산 결과를 저장할 구조체
     UIRect m_worldRect{};
     bool m_dirty = true;
 
 public:
-    RectTransform() = default;
-    ~RectTransform() = default;
-
-    void MarkDirty() { m_dirty = true; }
+    void MarkDirty(bool v = true) { m_dirty = v; }
+    bool IsDirty() const { return m_dirty; }
 
     void SetSize(float w, float h);
     void SetPivot(float x, float y);

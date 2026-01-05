@@ -4,7 +4,7 @@
 
 UIText::UIText()
 {
-    Initialize();
+    //Initialize();
 }
 
 bool UIText::Initialize()

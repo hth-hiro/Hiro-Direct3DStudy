@@ -61,6 +61,7 @@ void UIBase::Update(float dt)
 void UIBase::Render()
 {
     if (!IsVisible() || !IsActive()) return;
+
     RenderChildren();
 }
 
@@ -94,7 +95,6 @@ void UIBase::SetPosition(const POINT& p)
 
 POINT UIBase::GetPosition() const
 {
-    //return POINT{ m_bounds.left, m_bounds.top };
     return POINT{ (LONG)m_rect.m_anchoredPosition.x, (LONG)m_rect.m_anchoredPosition.y };
 }
 
@@ -137,9 +137,4 @@ Canvas* UIBase::GetCanvas() const
 SIZE UIBase::GetSize() const
 {
     return SIZE{ (LONG)m_rect.m_size.x, (LONG)m_rect.m_size.y };
-}
-
-RECT UIBase::GetWorldBounds() const
-{
-    return m_bounds;
 }

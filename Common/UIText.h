@@ -5,42 +5,6 @@
 #include <string>
 using namespace DirectX;
 
-//inline std::string WStringToUtf8(const std::wstring& w)
-//{
-//    if (w.empty()) return {};
-//
-//    int size = WideCharToMultiByte(
-//        CP_UTF8, 0,
-//        w.data(), (int)w.size(),
-//        nullptr, 0, nullptr, nullptr);
-//
-//    std::string result(size, 0);
-//    WideCharToMultiByte(
-//        CP_UTF8, 0,
-//        w.data(), (int)w.size(),
-//        result.data(), size, nullptr, nullptr);
-//
-//    return result;
-//}
-//
-//inline std::wstring Utf8ToWString(const std::string& s)
-//{
-//    if (s.empty()) return {};
-//
-//    int size = MultiByteToWideChar(
-//        CP_UTF8, 0,
-//        s.data(), (int)s.size(),
-//        nullptr, 0);
-//
-//    std::wstring result(size, 0);
-//    MultiByteToWideChar(
-//        CP_UTF8, 0,
-//        s.data(), (int)s.size(),
-//        result.data(), size);
-//
-//    return result;
-//}
-
 struct TextFormatKey
 {
     std::wstring family;
@@ -71,8 +35,11 @@ public:
     //void SetText(const std::string& text);
     void SetFont(const std::wstring& fontFamilyName = L"Malgun Gothic");
     void SetFontSize(float fontSize);
+
     void SetColor(D2D1::ColorF color);
     void SetColor(Vector4 color);
+    Vector4 GetColor() { return Vector4{m_color.r, m_color.g, m_color.b, m_color.a}; }
+
     void SetRect(int x, int y, int width, int height);
 
     IDWriteTextLayout* GetLayout() { return m_textLayout.Get(); }

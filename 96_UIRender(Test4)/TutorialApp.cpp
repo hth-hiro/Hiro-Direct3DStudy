@@ -695,26 +695,17 @@ void TutorialApp::Render()
     ImGui::Begin("UI Setting");
     ImGui::PushID("Canvas"); {
         ImGui::SeparatorText("Canvas Setting");
-        ImGui::Checkbox("Active Canvas", &m_canvas->ActiveRef());
+        bool show = m_canvas->IsActive();
+        if (ImGui::Checkbox("Active", &show))
+            m_canvas->SetActive(show);
+        
     }ImGui::PopID();
-    ImGui::PushID("Image");{
-        ImGui::SeparatorText("Image");
-        ImGui::Checkbox("Active", &m_image->ActiveRef());
 
-        Vector2 pos = m_image->Rect().GetAnchoredPosition();
-        if (ImGui::DragFloat2("Position", &pos.x, 1.f, -(float)m_ClientWidth, (float)m_ClientWidth, "%.0f"))
-            m_image->Rect().SetAnchoredPosition(pos.x, pos.y);
-
-        if (ImGui::CollapsingHeader("Pivot"))
-        {
-            Vector2 pv = m_image->Rect().m_pivot;
-            if (ImGui::DragFloat2("Pivot##pivot", &pv.x, 0.1f, 0.0f, 1.0f, "%.1f"))
-                m_image->Rect().SetPivot(pv.x, pv.y);
-        }
-    }ImGui::PopID();
-    ImGui::PushID("OptionPanel");{
+    ImGui::PushID("OptionPanel"); {
         ImGui::SeparatorText("OptionPanel");
-        ImGui::Checkbox("Active", &m_optionPanel->ActiveRef());
+        bool show = m_optionPanel->IsActive();
+        if (ImGui::Checkbox("Active", &show))
+            m_optionPanel->SetActive(show);
 
         auto color = m_optionPanel->GetBackgroundColor();
         if (ImGui::ColorEdit4("Color", &color.r))
@@ -737,10 +728,37 @@ void TutorialApp::Render()
                 m_optionPanel->Rect().SetPivot(pv.x, pv.y);
         }
     }ImGui::PopID();
+
+    ImGui::PushID("Image");{
+        ImGui::SeparatorText("Image");
+        bool show = m_image->IsActive();
+        if (ImGui::Checkbox("Active", &show))
+            m_image->SetActive(show);
+     
+        Vector2 pos = m_image->Rect().GetAnchoredPosition();
+        if (ImGui::DragFloat2("Position", &pos.x, 1.f, -(float)m_ClientWidth, (float)m_ClientWidth, "%.0f"))
+            m_image->Rect().SetAnchoredPosition(pos.x, pos.y);
+
+        if (ImGui::CollapsingHeader("Pivot"))
+        {
+            Vector2 pv = m_image->Rect().m_pivot;
+            if (ImGui::DragFloat2("Pivot##pivot", &pv.x, 0.1f, 0.0f, 1.0f, "%.1f"))
+                m_image->Rect().SetPivot(pv.x, pv.y);
+        }
+    }ImGui::PopID();
+    
     ImGui::PushID("Text"); {
         ImGui::SeparatorText("Text Setting");
-        ImGui::Checkbox("Active Text", &m_optionText->ActiveRef());
-        //ImGui::ColorEdit4("Color", &textColor.x);
+        bool show = m_optionText->IsActive();
+        if (ImGui::Checkbox("Active Text", &show))
+            m_optionText->SetActive(show);
+
+        Vector4 color = m_optionText->GetColor();
+        if (ImGui::ColorEdit4("Color", &color.x))
+        {
+            m_optionText->SetColor(color);
+        }
+
         ImGui::DragFloat("FontSize", &m_masterFontSize, 0.1f, 1.0f, 500.0f, "%.1f");
         
         Vector2 pos = m_optionText->Rect().GetAnchoredPosition();
