@@ -54,8 +54,12 @@ public:
     void DrawImage(ID2D1Bitmap* bmp, const RECT& dst);
     ComPtr<ID2D1Bitmap> LoadBitmapFromFile(const std::wstring& path);
 
-    // UIPanel이 호출
+    // 사각형을 그린다.
     void FillRect(const RECT& rc, const D2D1_COLOR_F& color);
+
+    // ProgressBar 등에서
+    void PushClip(const RECT& rc);
+    void PopClip();
 
 private:
     ComPtr<ID2D1RenderTarget>  m_d2dRenderTarget;

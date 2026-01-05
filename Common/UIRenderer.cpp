@@ -185,7 +185,7 @@ void UIRenderer::FillRect(const RECT& rc, const D2D1_COLOR_F& color)
         rt->CreateSolidColorBrush(D2D1::ColorF(1, 1, 1, 1), m_solidBrush.GetAddressOf());
     }
 
-    m_solidBrush->SetColor(color);
+    m_solidBrush->SetColor(color);      // solidBrush는 0 ~ 1 값이 들어간다.
 
     D2D1_RECT_F r = D2D1::RectF(
         (float)rc.left, (float)rc.top,
@@ -193,4 +193,22 @@ void UIRenderer::FillRect(const RECT& rc, const D2D1_COLOR_F& color)
     );
 
     rt->FillRectangle(r, m_solidBrush.Get());
+}
+
+void UIRenderer::PushClip(const RECT& rc)
+{
+    if (!m_d2dRenderTarget) return;
+    D2D1_RECT_F clipRect = D2D1::RectF(
+        (float)rc.left, (float)rc.top,
+        (float)rc.right, (float)rc.bottom
+    );
+
+    m_d2dRenderTarget->PushAxisAlignedClip(clipRect, D2D1_ANTIALIAS_MODE_PER_PRIMITIVE);
+}
+
+void UIRenderer::PopClip()
+{
+    if (!m_d2dRenderTarget) return;
+
+    m_d2dRenderTarget->PopAxisAlignedClip();
 }

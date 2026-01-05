@@ -37,6 +37,9 @@
     <Filter Include="UI\UIToggle">
       <UniqueIdentifier>{46df8263-16cf-4ceb-b1d3-b561abecee06}</UniqueIdentifier>
     </Filter>
+    <Filter Include="UI\UIProgressBar">
+      <UniqueIdentifier>{20daddd8-152c-4c0f-9010-c545901adbd0}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="framework.h">
@@ -120,6 +123,9 @@
     <ClInclude Include="RectTransform.h">
       <Filter>UI</Filter>
     </ClInclude>
+    <ClInclude Include="UIProgressBar.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Common.cpp">
@@ -184,6 +190,9 @@
     </ClCompile>
     <ClCompile Include="RectTransform.cpp">
       <Filter>UI</Filter>
+    </ClCompile>
+    <ClCompile Include="UIProgressBar.cpp">
+      <Filter>소스 파일</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
