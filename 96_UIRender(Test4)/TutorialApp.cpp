@@ -1413,9 +1413,9 @@ void TutorialApp::CreateUISystem()
     m_startButton->SetPosition(200, 500);
     m_startButton->SetSize(100, 100);
     m_startButton->SetText(L"버튼");
-    m_startButton->SetImage(L"../Resource/UI/Button_Normal.png", UIBase::State::Normal);
-    m_startButton->SetImage(L"../Resource/UI/Button_Hovered.png", UIBase::State::Hovered);
-    m_startButton->SetImage(L"../Resource/UI/Button_Pressed.png", UIBase::State::Pressed);
+    m_startButton->SetImage(L"../Resource/UI/Button/Button_Normal.png", UIBase::State::Normal);
+    m_startButton->SetImage(L"../Resource/UI/Button/Button_Hovered.png", UIBase::State::Hovered);
+    m_startButton->SetImage(L"../Resource/UI/Button/Button_Pressed.png", UIBase::State::Pressed);
     m_startButton->SetOnClick([]() {
 
         OutputDebugStringW(L"시작 버튼 클릭됨\n");
@@ -1426,9 +1426,9 @@ void TutorialApp::CreateUISystem()
     m_optionButton->SetPosition(200, 700);
     m_optionButton->SetSize(100, 100);
     m_optionButton->SetText(L"버튼");
-    m_optionButton->SetImage(L"../Resource/UI/Button_Normal.png", UIBase::State::Normal);
-    m_optionButton->SetImage(L"../Resource/UI/Button_Hovered.png", UIBase::State::Hovered);
-    m_optionButton->SetImage(L"../Resource/UI/Button_Pressed.png", UIBase::State::Pressed);
+    m_optionButton->SetImage(L"../Resource/UI/Button/Button_Normal.png", UIBase::State::Normal);
+    m_optionButton->SetImage(L"../Resource/UI/Button/Button_Hovered.png", UIBase::State::Hovered);
+    m_optionButton->SetImage(L"../Resource/UI/Button/Button_Pressed.png", UIBase::State::Pressed);
     m_optionButton->SetOnClick([]() {
 
         OutputDebugStringW(L"옵션 버튼 클릭됨\n");
@@ -1439,9 +1439,9 @@ void TutorialApp::CreateUISystem()
     m_quitButton->SetPosition(200, 900);
     m_quitButton->SetSize(100, 100);
     m_quitButton->SetText(L"버튼");
-    m_quitButton->SetImage(L"../Resource/UI/Button_Normal.png", UIBase::State::Normal);
-    m_quitButton->SetImage(L"../Resource/UI/Button_Hovered.png", UIBase::State::Hovered);
-    m_quitButton->SetImage(L"../Resource/UI/Button_Pressed.png", UIBase::State::Pressed);
+    m_quitButton->SetImage(L"../Resource/UI/Button/Button_Normal.png", UIBase::State::Normal);
+    m_quitButton->SetImage(L"../Resource/UI/Button/Button_Hovered.png", UIBase::State::Hovered);
+    m_quitButton->SetImage(L"../Resource/UI/Button/Button_Pressed.png", UIBase::State::Pressed);
     m_quitButton->SetOnClick([]() {
 
         OutputDebugStringW(L"게임종료 버튼 클릭됨\n");
