@@ -1461,7 +1461,8 @@ void TutorialApp::CreateUISystem()
     m_autoSaveToggle->SetPosition(600, 300);
     m_autoSaveToggle->SetSize(40, 40);
 
-    // Guide
+    // Guide - SetImage
+    // 따로 입력하지 않아도 기본 이미지가 등록된다.
     //m_autoSaveToggle->SetImage(L"../Resource/UI/Toggle/Background.png", UIToggle::ImageType::Frame);
     //m_autoSaveToggle->SetImage(L"../Resource/UI/Toggle/Checkmark.png", UIToggle::ImageType::Mark);
 
