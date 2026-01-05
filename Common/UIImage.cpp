@@ -30,7 +30,7 @@ void UIImage::Render()
 
     auto bmp = UIRenderer::Get().GetBitmap(m_path);
 
-    if (!bmp) UIRenderer::Get().FillRect(r, D2D1::ColorF(D2D1::ColorF::White));
+    if (!bmp) UIRenderer::Get().FillRect(r, D2D1::ColorF(m_tintColor.x, m_tintColor.y, m_tintColor.z));
     else UIRenderer::Get().DrawImage(bmp.Get(), r);
 
     if(!m_children.empty())
@@ -71,4 +71,9 @@ bool UIImage::SetImage(const std::wstring& path)
 
     //m_bitmap = bmp;
     return true;
+}
+
+void UIImage::SetTintColor(const Vector4& color)
+{
+    m_tintColor = color / 255.0f;;
 }

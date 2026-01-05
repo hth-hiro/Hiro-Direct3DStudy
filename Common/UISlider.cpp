@@ -4,12 +4,15 @@
 bool UISlider::Initialize()
 {
     m_track = AddChild<UIImage>();
+    m_track->SetImage(m_trackPath);
+    m_track->SetTintColor({ 52, 135, 255, 255 });
     m_track->Rect().SetPivot(0.0, 0.5);
     m_track->Rect().SetAnchoredPosition(0, 0);
     m_track->Rect().SetSize(Rect().m_size.x, 10);
     m_track->SetEnabled(false);
 
     m_handle = AddChild<UIImage>();
+    m_handle->SetImage(m_handlePath);
     m_handle->Rect().SetPivot(0.5f, 0.5f);
     m_handle->Rect().SetSize(20, 20);
     m_handle->Rect().SetAnchoredPosition(0, Rect().m_size.y * 0.5f);
@@ -46,7 +49,7 @@ void UISlider::Update(float dt)
         UpdateThumbByValue();
     }
 
-    m_handle->SetImage(m_thumbPath);
+    m_handle->SetImage(m_handlePath);
     m_track->SetImage(m_trackPath);
 }
 
@@ -58,7 +61,7 @@ void UISlider::SetImage(const std::wstring& path, ImageType type)
     }
     else
     {
-        m_thumbPath = path;
+        m_handlePath = path;
     }
 }
 

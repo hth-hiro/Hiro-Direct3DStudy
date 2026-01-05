@@ -23,7 +23,7 @@ public:
     bool SetImage(const std::wstring& path);
     //void SetBitmap(ID2D1Bitmap* bmp) { }
 
-    //void SetTintColor(const Vector4& color);
+    void SetTintColor(const Vector4& color);
 
     bool m_dragging = false;
     POINT m_dragOffset{ 0,0 };
@@ -34,5 +34,7 @@ private:
     //ComPtr<ID2D1Bitmap> m_bitmap;
     bool m_isShutdown = false;
     std::wstring m_path;
+
+    Vector4 m_tintColor = {1, 1, 1, 1};
 };
 
