@@ -37,7 +37,7 @@
     <Filter Include="UI\UIToggle">
       <UniqueIdentifier>{46df8263-16cf-4ceb-b1d3-b561abecee06}</UniqueIdentifier>
     </Filter>
-    <Filter Include="UI\UIProgressBar">
+    <Filter Include="UI\UISlider\UIProgressBar">
       <UniqueIdentifier>{20daddd8-152c-4c0f-9010-c545901adbd0}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
@@ -124,7 +124,7 @@
       <Filter>UI</Filter>
     </ClInclude>
     <ClInclude Include="UIProgressBar.h">
-      <Filter>헤더 파일</Filter>
+      <Filter>UI\UISlider\UIProgressBar</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -192,7 +192,7 @@
       <Filter>UI</Filter>
     </ClCompile>
     <ClCompile Include="UIProgressBar.cpp">
-      <Filter>소스 파일</Filter>
+      <Filter>UI\UISlider\UIProgressBar</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
