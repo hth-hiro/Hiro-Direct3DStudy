@@ -22,7 +22,11 @@ void UISystem::Shutdown()
     m_captured = nullptr;
 
     for (auto* ui : m_roots)
+    {
+        ui->Shutdown();
         delete ui;
+    }
+
     m_roots.clear();
 
     UIRenderer::Get().ShutDown();
