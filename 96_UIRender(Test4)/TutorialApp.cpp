@@ -1476,7 +1476,7 @@ void TutorialApp::CreateUISystem()
         m_progressValue = v;
         });
 
-    m_autoSaveToggle = m_optionPanel->AddChild<UIToggle>();
+    m_autoSaveToggle = m_canvas->AddChild<UIToggle>();
     m_autoSaveToggle->SetPosition(600, 300);
     m_autoSaveToggle->SetSize(40, 40);
 
@@ -1485,12 +1485,14 @@ void TutorialApp::CreateUISystem()
     //m_autoSaveToggle->SetImage(L"../Resource/UI/Toggle/Background.png", UIToggle::ImageType::Frame);
     //m_autoSaveToggle->SetImage(L"../Resource/UI/Toggle/Checkmark.png", UIToggle::ImageType::Mark);
     m_autoSaveToggle->SetIsOn(true, false);
-    m_autoSaveToggle->SetOnCheckedChanged([](bool isOn) {
+    m_autoSaveToggle->SetOnCheckedChanged([this](bool isOn) {
         if (isOn) {
             OutputDebugStringW(L"자동 저장 활성화\n");
+            m_optionPanel->SetActive(isOn);
         }
         else {
             OutputDebugStringW(L"자동 저장 비활성화\n");
+            m_optionPanel->SetActive(isOn);
         }
 
      });
