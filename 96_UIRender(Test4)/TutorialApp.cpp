@@ -1396,7 +1396,7 @@ void TutorialApp::CreateUISystem()
 
     // ÅØ½ºÆ®µµ PanelÀÇ ÀÚ½ÄÀ¸·Î ¸¸µé±â
     m_optionText = m_optionPanel->AddChild<UIText>();
-    m_optionText->SetText(L"¿É¼Ç");
+    m_optionText->SetText(L"º¼·ý");
     m_optionText->SetFontSize(m_masterFontSize);
     m_optionText->SetPosition(500, 500);
     m_optionText->SetSize(100, 100);
@@ -1452,9 +1452,9 @@ void TutorialApp::CreateUISystem()
     m_volume->SetSize(200, 40);
     m_volume->SetRange(0.0f, 1.0f);
     m_volume->SetValue(0.5f);
-
     m_volume->SetOnValueChanged([](float v) {
-        OutputDebugStringW(L"º¼·ý º¯°æµÊ\n");
+        std::wstring msg = L"º¼·ý º¯°æµÊ, ÇöÀç º¼·ý : " + std::to_wstring(v * 100.0f) + L"\n";
+        OutputDebugStringW(msg.c_str());
         });
 
     m_ui.AddUI(m_canvas);
