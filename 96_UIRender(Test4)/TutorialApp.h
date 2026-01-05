@@ -357,6 +357,7 @@ public:
 
     // Slider
     UISlider*   m_volume;
+    UISlider*   m_zoom;
 
     // Toggle
     UIToggle* m_autoSaveToggle;
