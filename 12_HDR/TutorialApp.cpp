@@ -229,12 +229,12 @@ void TutorialApp::Update()
     m_pDeviceContext->RSSetViewports(1, &m_ShadowViewport);
 
     // UI update
-    m_title.handle->SetActive(m_title.active);
-    m_title.handle->SetText(L"Text");
-    m_title.handle->SetFont(L"Gulim");
-    m_title.handle->SetFontSize(m_title.fontSize);
-    m_title.handle->SetColor(m_title.textColor);
-    m_title.handle->SetRect(m_title.position.x, m_title.position.y, m_title.textBox.x, m_title.textBox.y);
+    //m_title->SetActive(m_title.active);
+    //m_title->SetText(L"Text");
+    //m_title->SetFont(L"Gulim");
+    //m_title->SetFontSize(m_title.fontSize);
+    //m_title->SetColor(m_title.textColor);
+    //m_title->SetRect(m_title.position.x, m_title.position.y, m_title.textBox.x, m_title.textBox.y);
 }
 
 void TutorialApp::Render()
@@ -580,18 +580,19 @@ void TutorialApp::Render()
 
     ImGui::SetNextWindowPos(ImVec2(30, 30), ImGuiCond_FirstUseEver);
     ImGui::SetNextWindowSize(ImVec2(400, 883), ImGuiCond_FirstUseEver);
-    ImGui::Begin(u8"컨트롤러");
-    ImGui::SeparatorText(u8"오브젝트 조절");
-    ImGui::DragFloat3(u8" 오브젝트 크기", &object1.transform.scale.x, 1.0f, 100.0f);
-    ImGui::SliderFloat3(u8" 오브젝트 위치", &object1.transform.position.x, -100.0f, 100.0f, "%.1f");
-    ImGui::DragFloat3(u8" 오브젝트 회전", &object1.transform.rotation.x, 0.1f);
-    if (ImGui::Button(u8" 오브젝트 초기화")) object1.PosReset();
 
-    ImGui::SeparatorText(u8"빛 조절");
+    ImGui::Begin("Controller");
+    ImGui::SeparatorText("Object Setting");
+    ImGui::DragFloat3("Object Scale", &object1.transform.scale.x, 1.0f, 100.0f);
+    ImGui::SliderFloat3("Object Position", &object1.transform.position.x, -100.0f, 100.0f, "%.1f");
+    ImGui::DragFloat3("Object Rotation", &object1.transform.rotation.x, 0.1f);
+    if (ImGui::Button("Object Reset")) object1.PosReset();
+
+    ImGui::SeparatorText("Light Setting");
     //ImGui::ColorEdit4(u8" Ambient 색상", &ambientLight.x);
     //ImGui::ColorEdit4(u8" Diffuse 색상", &diffuseLight.x);
     //ImGui::ColorEdit4(u8" Specular 색상", &specularLight.x);
-    ImGui::DragFloat3(u8" 방향", &lightDir.x, 0.1, -1.0f, 1.0f, "%.1f");
+    ImGui::DragFloat3("Direction", &lightDir.x, 0.1, -1.0f, 1.0f, "%.1f");
 
     // 안전하게 x나 z가 0이 되어도 그림자 생성
     if (fabs(lightDir.x) < 0.1f && fabs(lightDir.z) < 0.1f)
@@ -602,15 +603,15 @@ void TutorialApp::Render()
 
     ImGui::Checkbox("Use Lighting", &useLighting);
 
-    if (ImGui::Button(u8" 빛 초기화"))LightReset();
+    if (ImGui::Button("Light Reset"))LightReset();
 
     ImGui::Text("");
-    ImGui::SeparatorText(u8" 카메라 조절");
-    ImGui::SliderFloat(u8" 시야범위", &FOV, 0.6f, 100.0f);
-    ImGui::DragFloat2(u8" 렌더 최소/최대 거리", &depth.x, 0.1f, 1.0f, 10000.0f, "%.1f");
+    ImGui::SeparatorText("Camera Setting");
+    ImGui::SliderFloat("FOV", &FOV, 0.6f, 100.0f);
+    ImGui::DragFloat2("Render Min / Max", &depth.x, 0.1f, 1.0f, 10000.0f, "%.1f");
     if (depth.x > depth.y) depth.y = depth.x;
 
-    if (ImGui::Button(u8"카메라 초기화"))
+    if (ImGui::Button("Reset"))
     {
         FOV = 1.0f;
 
@@ -620,13 +621,13 @@ void TutorialApp::Render()
 
     ImGui::Text("");
 
-    ImGui::Checkbox(u8"IBL 사용", &useIBL);
+    ImGui::Checkbox("Use IBL", &useIBL);
 
-    ImGui::SeparatorText(u8" 배경 선택");
+    ImGui::SeparatorText("Select View");
     static int currentBackground = 0;
-    const char* viewChanger[] = { u8"샘플", u8"하늘", u8"하나코", u8"실내", u8"밤", u8"거리" };
+    const char* viewChanger[] = { "Sample", "Sky", "Hanako", "Inside", "Night", "Street" };
 
-    if (ImGui::Combo(u8"배경", &currentBackground, viewChanger, IM_ARRAYSIZE(viewChanger)))
+    if (ImGui::Combo("View", &currentBackground, viewChanger, IM_ARRAYSIZE(viewChanger)))
     {
         switch (currentBackground)
         {
@@ -652,7 +653,7 @@ void TutorialApp::Render()
     }
 
     ImGui::Text("");
-    ImGui::SeparatorText(u8" 그림자 맵");
+    ImGui::SeparatorText("ShadowMap");
     ImGui::Image((ImTextureID)m_pShadowMapSRV.Get(), ImVec2(256, 256));
     ImGui::Text("");
     ImGui::Separator();
@@ -672,44 +673,23 @@ void TutorialApp::Render()
 
     ImGui::SetNextWindowPos(ImVec2(440, 30), ImGuiCond_FirstUseEver);
     ImGui::SetNextWindowSize(ImVec2(410, 283), ImGuiCond_FirstUseEver);
-    ImGui::Begin(u8"PBR");
+    ImGui::Begin("PBR");
     // BaseColor
     //ImGui::ColorEdit4(u8" 오브젝트 Material Ambient", &object1.ambient.x);
     //ImGui::ColorEdit4(u8" 오브젝트 Material Diffuse", &object1.diffuse.x);
     //ImGui::ColorEdit4(u8" 오브젝트 Material Specular", &object1.specular.x);
     //ImGui::SliderFloat(u8" 오브젝트 광택지수", &object1.shininess, 200.0f, 20000.0f);
 
-    ImGui::ColorEdit4(u8"알베도", &object1.albedo.x);
-    ImGui::DragFloat(u8"Metallic", &object1.metallic, 0.001f, 0.0f, 1.0f);
-    ImGui::DragFloat(u8"Roughness", &object1.roughness, 0.001f, 0.0f, 1.0f);
+    ImGui::ColorEdit4("Albedo", &object1.albedo.x);
+    ImGui::DragFloat("Metallic", &object1.metallic, 0.001f, 0.0f, 1.0f);
+    ImGui::DragFloat("Roughness", &object1.roughness, 0.001f, 0.0f, 1.0f);
     //ImGui::SliderFloat(u8"Gamma", &object1.gamma, 1.f, 3.0f);
 
-    ImGui::Checkbox(u8"텍스처 적용", &useTexture);
-    ImGui::Checkbox(u8"PBR 수동 조작", &useCustomAlbedo);
-    ImGui::DragFloat(u8"앰비언트 오클루전", &ambientOcclusion, 0.01f, 0.0f, 1.0f);
-    if (ImGui::Button(u8" 초기화")) { object1.Reset(); ambientOcclusion = 1.0f; }
+    ImGui::Checkbox("Use Texture", &useTexture);
+    ImGui::Checkbox("Use PBR", &useCustomAlbedo);
+    ImGui::DragFloat("Ambient Occlusion", &ambientOcclusion, 0.01f, 0.0f, 1.0f);
+    if (ImGui::Button("Reset")) { object1.Reset(); ambientOcclusion = 1.0f; }
     ImGui::Text("");
-    ImGui::End();
-
-    ImGui::SetNextWindowPos(ImVec2(1500, 30), ImGuiCond_FirstUseEver);
-    ImGui::SetNextWindowSize(ImVec2(410, 218), ImGuiCond_FirstUseEver);
-    ImGui::Begin(u8"텍스트 관련 설정");
-    ImGui::Checkbox(u8"텍스트 활성화", &m_title.active);
-    ImGui::ColorEdit4(u8"텍스트 색", &m_title.textColor.x);
-    ImGui::DragFloat(u8"텍스트 크기", &m_title.fontSize, 0.1f, 1.0f, 500.0f, "%.1f");
-    ImGui::DragFloat2(u8"텍스트 위치", &m_title.position.x, 1.f, 0.0f, m_ClientWidth, "%.0f");
-    ImGui::DragFloat2(u8"텍스트박스 크기", &m_title.textBox.x, 1.0, 1.0f, 1000.0f);
-    
-    if (ImGui::Button(u8" 초기화")) { m_title.Reset(); }
-    ImGui::End();
-
-    ImGui::SetNextWindowPos(ImVec2(440, 330), ImGuiCond_FirstUseEver);
-    ImGui::SetNextWindowSize(ImVec2(410, 128), ImGuiCond_FirstUseEver);
-    ImGui::Begin("HDR");
-    //ImGui::Image((ImTextureID)m_sceneHDRSRV.Get(), ImVec2(256, 256));
-    ImGui::DragFloat(u8"카메라 노출", &m_exposure, 0.001f);
-    //ImGui::DragFloat(u8"카메라 감마", &m_gamma, 0.001f, 0.0f, 10.0f);
-    if (ImGui::Button(u8"초기화")) { m_exposure = 0.0f; }
     ImGui::End();
 
     // etc... ImGui...
@@ -899,10 +879,6 @@ void TutorialApp::UninitImGUI()
 
 bool TutorialApp::InitScene()
 {
-    // UI - Text
-    m_title.handle = new UIText();
-    m_uiSystem.AddUI(m_title.handle);
-
     HRESULT hr = 0;
     ID3D10Blob* errorMessage = nullptr;
 

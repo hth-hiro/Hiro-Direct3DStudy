@@ -39,6 +39,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "12_HDR", "12_HDR\12_HDR.vcx
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "96_UIRender(Test4)", "96_UIRender(Test4)\96_UIRender(Test4).vcxproj", "{B831D1F4-E127-4380-8B9D-32642AF118DB}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "13_DeferredShading", "13_DeferredShading\13_DeferredShading.vcxproj", "{B1FB23F1-7EF3-4946-BBCA-8EF821745911}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -191,6 +193,14 @@ Global
 		{B831D1F4-E127-4380-8B9D-32642AF118DB}.Release|x64.Build.0 = Release|x64
 		{B831D1F4-E127-4380-8B9D-32642AF118DB}.Release|x86.ActiveCfg = Release|Win32
 		{B831D1F4-E127-4380-8B9D-32642AF118DB}.Release|x86.Build.0 = Release|Win32
+		{B1FB23F1-7EF3-4946-BBCA-8EF821745911}.Debug|x64.ActiveCfg = Debug|x64
+		{B1FB23F1-7EF3-4946-BBCA-8EF821745911}.Debug|x64.Build.0 = Debug|x64
+		{B1FB23F1-7EF3-4946-BBCA-8EF821745911}.Debug|x86.ActiveCfg = Debug|Win32
+		{B1FB23F1-7EF3-4946-BBCA-8EF821745911}.Debug|x86.Build.0 = Debug|Win32
+		{B1FB23F1-7EF3-4946-BBCA-8EF821745911}.Release|x64.ActiveCfg = Release|x64
+		{B1FB23F1-7EF3-4946-BBCA-8EF821745911}.Release|x64.Build.0 = Release|x64
+		{B1FB23F1-7EF3-4946-BBCA-8EF821745911}.Release|x86.ActiveCfg = Release|Win32
+		{B1FB23F1-7EF3-4946-BBCA-8EF821745911}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
