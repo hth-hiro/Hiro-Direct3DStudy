@@ -29,9 +29,27 @@ struct SkyBoxCB
     Matrix mProjection;
 };
 
+// G-Buffer
+struct CBGeometry
+{
+    Matrix World;
+    Vector4 BaseColor;
+};
+
+struct CBPointLight
+{
+    Vector4 LightPosWs_Radius;
+    Vector4 LightColor;
+};
+
+struct CBDirectionalLight
+{
+    Vector4 DirectionWs;
+    Vector4 Color_Intensity;
+};
+
 TutorialApp::TutorialApp(HINSTANCE hInstance) : GameApp(hInstance)
 {
-
 }
 
 TutorialApp::~TutorialApp()
@@ -334,6 +352,9 @@ void TutorialApp::Render()
     m_pDeviceContext->OMSetDepthStencilState(nullptr, 0);
 
     // 3. ÀÏ¹Ý ¿ÀºêÁ§Æ® ·»´õ ===========================================================================================
+    
+    // Forward ¹æ½Ä
+
     m_pDeviceContext->IASetInputLayout(m_pInputLayout.Get());
     m_pDeviceContext->VSSetShader(m_pVertexShader.Get(), nullptr, 0);
     m_pDeviceContext->PSSetShader(m_pPixelShader.Get(), nullptr, 0);
@@ -837,6 +858,8 @@ bool TutorialApp::InitD3D()
     m_pRasterStateFrontCull = nullptr;
     m_pDevice->CreateRasterizerState(&rasterDesc, &m_pRasterStateFrontCull);
 
+    if (!CreateGBuffer()) return false;
+
     return true;
 }
 
@@ -983,6 +1006,31 @@ bool TutorialApp::InitScene()
     sampDesc.MaxLOD = D3D11_FLOAT32_MAX;                    // ¹Ó¸Ê ÃÖ´ë°ª
     HR_T(m_pDevice->CreateSamplerState(&sampDesc, &m_pSamplerLinear));
 
+
+    // Depth Test On, Write On
+    D3D11_DEPTH_STENCIL_DESC dsDesc = {};
+    dsDesc = {};
+    dsDesc.DepthEnable = true;
+    dsDesc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ALL;
+    dsDesc.DepthFunc = D3D11_COMPARISON_LESS;
+    dsDesc.StencilEnable = false;
+    HR_T(m_pDevice->CreateDepthStencilState(&dsDesc, m_depthTestOnWriteOn.GetAddressOf()));
+
+    // Depth Test Off, Write Off
+    dsDesc = {};
+    dsDesc.DepthEnable = false;
+    dsDesc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ZERO;
+    dsDesc.DepthFunc = D3D11_COMPARISON_LESS;
+    dsDesc.StencilEnable = false;
+    HR_T(m_pDevice->CreateDepthStencilState(&dsDesc, m_depthStateLightVolume.GetAddressOf()));
+
+    // Depth Test Off, Write Off
+    dsDesc = {};
+    dsDesc.DepthEnable = false;
+    dsDesc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ZERO;
+    dsDesc.StencilEnable = false;
+    HR_T(m_pDevice->CreateDepthStencilState(&dsDesc, m_depthTestOffWriteOff.GetAddressOf()));
+    
 
 
     //m_StaticMesh.ReadFile(m_pDevice, "../Resource/Appearance Miku/Appearance Miku.fbx");
@@ -1288,4 +1336,125 @@ void TutorialApp::UninitScene()
 
     SAFE_RELEASE(m_pShadowConstantBuffer);
     SAFE_RELEASE(m_pStaticMeshConstantBuffer);
+}
+
+bool TutorialApp::CreateGBuffer()
+{
+    ReleaseGBuffer();
+
+    struct RTDesc
+    {
+        DXGI_FORMAT format;
+    };
+
+    RTDesc formats[GBufferCount] = {
+        { DXGI_FORMAT_R8G8B8A8_UNORM_SRGB },
+        { DXGI_FORMAT_R8G8B8A8_UNORM },
+        { DXGI_FORMAT_R16G16B16A16_FLOAT },
+    };
+
+    for (int i = 0; i < GBufferCount; ++i)
+    {
+        D3D11_TEXTURE2D_DESC td = {};
+        td.Width = m_ClientWidth;
+        td.Height = m_ClientHeight;
+        td.MipLevels = 1;
+        td.ArraySize = 1;
+        td.Format = formats[i].format;
+        td.SampleDesc.Count = 1;
+        td.Usage = D3D11_USAGE_DEFAULT;
+        td.BindFlags = D3D11_BIND_RENDER_TARGET | D3D11_BIND_SHADER_RESOURCE;
+
+        HR_T(m_pDevice->CreateTexture2D(&td, nullptr, m_geometryTextures[i].GetAddressOf()));
+        HR_T(m_pDevice->CreateRenderTargetView(m_geometryTextures[i].Get(), nullptr, m_geometryRTVs[i].GetAddressOf()));
+        HR_T(m_pDevice->CreateShaderResourceView(m_geometryTextures[i].Get(), nullptr, m_geometrySRVs[i].GetAddressOf()));
+    }
+
+    return true;
+}
+
+void TutorialApp::RenderPassGBuffer()
+{
+    float clearAlbedo[4] = { 0.0f, 0.0f, 0.0f, 1.0f };
+    float clearNormal[4] = { 0.0f, 0.0f, 0.0f, 0.0f };
+    float clearPos[4] = { 0,0,0,1 };
+
+    m_pDeviceContext->ClearRenderTargetView(m_geometryRTVs[0].Get(), clearAlbedo);
+    m_pDeviceContext->ClearRenderTargetView(m_geometryRTVs[1].Get(), clearNormal);
+    m_pDeviceContext->ClearRenderTargetView(m_geometryRTVs[2].Get(), clearPos);
+    m_pDeviceContext->ClearDepthStencilView(m_pDepthStencilView.Get(), D3D11_CLEAR_DEPTH, 1.0f, 0);
+
+    ID3D11RenderTargetView* rtvs[3] = {m_geometryRTVs[0].Get(), m_geometryRTVs[1].Get(), m_geometryRTVs[2].Get()};
+    m_pDeviceContext->OMSetRenderTargets(3, rtvs, m_pDepthStencilView.Get());
+    m_pDeviceContext->OMSetDepthStencilState(m_depthTestOnWriteOn.Get(), 0);
+
+    m_pDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+    m_pDeviceContext->IASetVertexBuffers(0, 1, m_geometryVB.GetAddressOf(), &m_geometryVBStride, &m_geometryVBOffset);
+    m_pDeviceContext->IASetIndexBuffer(m_geometryIB.Get(), DXGI_FORMAT_R16_UINT, 0);
+    m_pDeviceContext->IASetInputLayout(m_gBufferInputLayout.Get());
+    m_pDeviceContext->VSSetShader(m_gBufferVS.Get(), nullptr, 0);
+    m_pDeviceContext->VSSetConstantBuffers(6, 1, m_cbGeometry.GetAddressOf());
+    m_pDeviceContext->PSSetShader(m_gBufferPS.Get(), nullptr, 0);
+    m_pDeviceContext->PSSetConstantBuffers(6, 1, m_cbGeometry.GetAddressOf());
+}
+
+void TutorialApp::RenderPassDirectionalLight()
+{
+    float blendFactor[4] = { 1.0f, 1.0f, 1.0f, 1.0f };
+    m_pDeviceContext->OMSetBlendState(m_pBlendState.Get(), blendFactor, 0xffffffff);
+    m_pDeviceContext->OMSetRenderTargets(1, m_pRenderTargetView.GetAddressOf(), m_pDepthStencilView.Get());
+    m_pDeviceContext->OMSetDepthStencilState(m_depthTestOffWriteOff.Get(), 0);
+
+    ID3D11ShaderResourceView* srvs[4] = {
+        m_geometrySRVs[0].Get(), m_geometrySRVs[1].Get(), m_geometrySRVs[2].Get()};
+    m_pDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+    m_pDeviceContext->IASetVertexBuffers(0, 1, m_quadVB.GetAddressOf(), &m_quadVBStride, &m_quadVBOffset);
+    m_pDeviceContext->IASetInputLayout(m_quadInputLayout.Get());
+
+    m_pDeviceContext->VSSetShader(m_directionalLightVS.Get(), nullptr, 0);
+    m_pDeviceContext->PSSetShaderResources(0, GBufferCount, srvs);
+    m_pDeviceContext->PSSetSamplers(0, 1, m_pSamplerLinear.GetAddressOf());
+    m_pDeviceContext->PSSetSamplers(3, 1, m_pSamplerPoint.GetAddressOf());
+
+    Vector3 dirLightDirWS = m_directionalLightDir;
+    dirLightDirWS.Normalize();
+
+    CBDirectionalLight cbDirLight;
+    cbDirLight.DirectionWs = Vector4(dirLightDirWS.x, dirLightDirWS.y, dirLightDirWS.z, m_directionalLightIntensity);
+    cbDirLight.Color_Intensity = Vector4(m_directionalLightColor.x, m_directionalLightColor.y, m_directionalLightColor.z, 1.0f);
+    m_pDeviceContext->UpdateSubresource(m_cbDirectionalLight.Get(), 0, nullptr, &cbDirLight, 0, 0);
+
+    m_pDeviceContext->PSSetShader(m_directionalLightPS.Get(), nullptr, 0);
+    m_pDeviceContext->PSSetConstantBuffers(2, 1, m_cbDirectionalLight.GetAddressOf());
+    m_pDeviceContext->DrawIndexed(m_quadIndexCount, 0, 0);
+
+    m_pDeviceContext->OMSetBlendState(nullptr, blendFactor, 0xffffffff);
+
+    ID3D11ShaderResourceView* nullSRVs[4] = { nullptr, nullptr, nullptr, nullptr };
+    m_pDeviceContext->PSSetShaderResources(0, 4, nullSRVs);
+}
+
+void TutorialApp::RenderPassPointLight()
+{
+    m_pDeviceContext->OMSetRenderTargets(1, m_pRenderTargetView.GetAddressOf(), m_pDepthStencilView.Get());
+    float blenderFactor[4] = { 1.0f, 1.0f, 1.0f, 1.0f };
+    m_pDeviceContext->OMSetBlendState(m_pBlendState.Get(), blenderFactor, 0xffffffff);
+    m_pDeviceContext->OMSetDepthStencilState(m_depthStateLightVolume.Get(), 0);
+    m_pDeviceContext->RSSetState(nullptr);
+
+    Vector4 screenSize((float)m_ClientWidth, (float)m_ClientHeight, 0.0f, 0.0f);
+    m_pDeviceContext->UpdateSubresource(m_cbScreenSize.Get(), 0, nullptr, &screenSize, 0, 0);
+
+    //m_pDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+    //m_pDeviceContext->IASetVertexBuffers(0, 1, m_)
+}
+
+void TutorialApp::ReleaseGBuffer()
+{
+    for (int i = 0; i < GBufferCount; ++i)
+    {
+        m_geometrySRVs[i].Reset();
+        m_geometryRTVs[i].Reset();
+        m_geometryTextures[i].Reset();
+    }
 }

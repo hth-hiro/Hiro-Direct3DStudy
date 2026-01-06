@@ -9,6 +9,7 @@
 SamplerState samLinear : register(s0);
 SamplerState ShadowSampler : register(s1);
 SamplerState LinearSamp : register(s2);
+SamplerState samplerPoint : register(s3);
 
 cbuffer ConstantBuffer : register(b0)
 {
@@ -85,6 +86,12 @@ cbuffer ToneMapCB : register(b5)
     float Exposure;
     float Gamma;
     float2 pad;
+}
+
+cbuffer CBGeometry : register(b6)
+{
+    matrix GeometryWorld;
+    float4 GeometryColor;
 }
 
 // SkyBox

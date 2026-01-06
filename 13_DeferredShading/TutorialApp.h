@@ -113,6 +113,7 @@ public:
 	ComPtr<ID3D11PixelShader> m_pPixelShader;						// 픽셀 셰이더.	
 	ComPtr<ID3D11InputLayout> m_pInputLayout;						// 입력 레이아웃.
 	ComPtr<ID3D11SamplerState> m_pSamplerLinear;					// 샘플러 스테이트
+    ComPtr<ID3D11SamplerState> m_pSamplerPoint;					// 샘플러 스테이트
 	ComPtr<ID3D11BlendState> m_pBlendState;							// 블렌더 스테이트
 
 	ComPtr<ID3D11RasterizerState> m_pRasterStateNoCull;				// 컬링 여부(컬링 안함)
@@ -133,12 +134,48 @@ public:
 	int m_nSkyboxIndices = 0;										// 인덱스 개수
 	ID3D11Buffer* m_pSkyboxConstantBuffer = nullptr;				// 상수 버퍼
 	ID3D11DepthStencilState* m_pSkyboxDepthStencilState = nullptr;	// 뎊스 스텐실 스테이트
-    
-	//ID3D11ShaderResourceView* m_pCubeTextureRV = nullptr;			// 텍스처 파일(큐브맵, 현재 큐브맵)
 
-	//ID3D11ShaderResourceView* m_pCubeMuseumTextureRV = nullptr;		// 텍스처 파일1(큐브맵, 실내)
-	//ID3D11ShaderResourceView* m_pCubeDaylightTextureRV = nullptr;	// 텍스처 파일2(큐브맵, 실외)
-	//ID3D11ShaderResourceView* m_pCubeHanakoTextureRV = nullptr;		// 텍스처 파일3(큐브맵, 디버그)
+    /*-------지오메트리 버퍼---------*/
+    ComPtr<ID3D11Buffer>  m_cbGeometry;
+    ComPtr<ID3D11Buffer>  m_cbPointLight;
+    ComPtr<ID3D11Buffer>  m_cbDirectionalLight;
+    ComPtr<ID3D11Buffer>  m_cbScreenSize;
+
+    static const int GBufferCount = 3;
+    ComPtr<ID3D11Texture2D> m_geometryTextures[GBufferCount] = {};
+    ComPtr<ID3D11RenderTargetView> m_geometryRTVs[GBufferCount] = {};
+    ComPtr<ID3D11ShaderResourceView> m_geometrySRVs[GBufferCount] = {};
+
+    /*-------지오메트리 패스---------*/
+    ComPtr<ID3D11VertexShader> m_gBufferVS;
+    ComPtr<ID3D11PixelShader> m_gBufferPS;
+    ComPtr<ID3D11InputLayout> m_gBufferInputLayout;
+    ComPtr<ID3D11Buffer> m_geometryVB;
+    ComPtr<ID3D11Buffer> m_geometryIB;
+    UINT m_geometryVBStride = 0;
+    UINT m_geometryVBOffset = 0;
+    int m_geometryIndexCount = 0;
+
+    /*-------라이트 패스---------*/
+    ComPtr<ID3D11VertexShader> m_directionalLightVS;
+    ComPtr<ID3D11PixelShader> m_directionalLightPS;
+    ComPtr<ID3D11InputLayout> m_lightPassInputLayout;
+    
+    ComPtr<ID3D11VertexShader> m_pointVS;
+    ComPtr<ID3D11PixelShader> m_pointPS;
+    ComPtr<ID3D11InputLayout> m_quadInputLayout;
+    ComPtr<ID3D11Buffer>    m_quadVB;
+    ComPtr<ID3D11Buffer>    m_quadIB;
+    UINT m_quadVBStride = 0;
+    UINT m_quadVBOffset = 0;
+    int m_quadIndexCount = 0;
+
+    /*-------뎁스 테스트 스테이트---------*/
+    ComPtr<ID3D11DepthStencilState> m_depthTestOnWriteOn;
+    ComPtr<ID3D11DepthStencilState> m_depthStateLightVolume;    // Depth off, Write off
+    ComPtr<ID3D11DepthStencilState> m_depthTestOffWriteOff;     
+
+
 
 	Matrix m_World;
 	Matrix m_View;
@@ -211,52 +248,12 @@ public:
 
 	ComPtr<ID3D11VertexShader> m_pShadowVS;				// 정점 셰이더
 
-
-    // Imgui에 전달할 함수들
-    //ID3D11ShaderResourceView* GetShadowSRV() const { return m_pShadowMapSRV.Get(); }
-    //UINT GetShadowMapWidth() const { return SHADOW_WIDTH; }
-    //UINT GetShadowMapHeight() const { return SHADOW_HEIGHT; }
-
-    // Manager
-	//ImGuiManager m_ImGuiManager;
-	//ModelLoader m_ModelLoader;
-	//SkeletalMesh m_SkeletalModelLoader;
-
 	TimeSystem m_TimeSystem;
 
 
     ID3D11Buffer* m_pStaticMeshConstantBuffer;						// 상수 버퍼.
     StaticMesh m_StaticMesh;
     StaticMesh ground;
-
-
-	// ModelLoad
-	//Model* GetModelByName(const std::string& name)
-	//{
-	//	for (auto& model : m_ModelLoader.models_)
-	//	{
-	//		if (model.name == name) return &model;
-	//	}
-
-	//	for (auto& model : m_SkeletalModelLoader.models_)
-	//	{
-	//		if (model.name == name) return &model;
-	//	}
-
-	//	return nullptr;
-	//}
-
- //   SkeletalModel* GetSkeletalModelByName(const std::string& name)
- //   {
- //       for (auto& model : m_SkeletalModelLoader.models_)
- //       {
- //           if (model.name == name) return &model;
- //       }
-
- //       return nullptr;
- //   }
-
-	//float m_Angle = 0.0f;
 
 	// 라이트 관련
 	// 씬 안에서 라이트는 여러개 존재할 수 있으며, 이를 묶어서 처리할 수도 있음
@@ -283,14 +280,7 @@ public:
     Vector4 specularLight = {  };
     Vector3 lightDir = {  };
 
-    //bool viewChanger = false;
-
     Vector2 depth = { 1.0f, 10000.0f };
-
-    // PBR
-    //Vector4 m_Albedo = { 1.f, 1.f, 1.f, 1.0f };
-    //float m_Roughness = 0.5f;
-    //float m_Metalness = 0.0f;
 
     bool useTexture = true;
     bool useCustomAlbedo = false;
@@ -305,19 +295,6 @@ public:
         lightDir = { 0.0f, -1.0f, 1.0f };
     }
 
-    //void RenderObjectUI(const char* label, Object& obj)
-    //{
-    //    ImGui::SliderFloat3((std::string(label) + u8" 크기").c_str(), &obj.transform.scale.x, 1.0f, 100.0f);
-    //    ImGui::SliderFloat3((std::string(label) + u8" 위치").c_str(), &obj.transform.position.x, -100.0f, 100.0f, "%.1f");
-    //    ImGui::DragFloat3((std::string(label) + u8" 회전").c_str(), &obj.transform.rotation.x, 0.1f);
-    //    ImGui::ColorEdit4((std::string(label) + u8" Material Ambient").c_str(), &obj.ambient.x);
-    //    ImGui::ColorEdit4((std::string(label) + u8" Material Diffuse").c_str(), &obj.diffuse.x);
-    //    ImGui::ColorEdit4((std::string(label) + u8" Material Specular").c_str(), &obj.specular.x);
-    //    ImGui::SliderFloat((std::string(label) + u8" 광택지수").c_str(), &obj.shininess, 200.0f, 20000.0f);
-    //    if (ImGui::Button((std::string(label) + u8" 초기화").c_str())) obj.Reset();
-    //    ImGui::Text("");
-    //}
-
 	bool Initialize(UINT Width, UINT Height) override;
 	void Update() override;
 	void Render() override;
@@ -330,4 +307,27 @@ public:
 
 	bool InitScene();
 	void UninitScene();
+
+    ////////////////////////////////////////////////////////
+    // DeferrdShading
+
+
+
+
+    
+    // Directional Light
+    Vector3 m_directionalLightDir = Vector3(1.0, -1.0f, 0.5f);
+    Vector3 m_directionalLightColor = Vector3(0.1, 0.1, 0.1f);
+    float m_directionalLightIntensity = 1.0f;
+
+    bool m_UseDeferredRendering = true;
+    bool m_EnableDirectionLightPass = true;
+    bool m_EnablePointLightPass = true;
+    bool m_ShowPointLightDebugVolume = false;
+
+    bool CreateGBuffer();
+    void RenderPassGBuffer();
+    void RenderPassDirectionalLight();
+    void RenderPassPointLight();
+    void ReleaseGBuffer();
 };
