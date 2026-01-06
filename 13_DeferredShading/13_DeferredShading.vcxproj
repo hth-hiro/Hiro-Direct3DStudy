@@ -104,6 +104,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
+      <LanguageStandard>stdcpp20</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -128,19 +129,29 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="13_DeferredShading.h" />
+    <ClInclude Include="Animation.h" />
+    <ClInclude Include="Bone.h" />
     <ClInclude Include="framework.h" />
+    <ClInclude Include="Material.h" />
+    <ClInclude Include="Mesh.h" />
     <ClInclude Include="Resource.h" />
+    <ClInclude Include="StaticMesh.h" />
+    <ClInclude Include="StaticMeshSection.h" />
     <ClInclude Include="targetver.h" />
+    <ClInclude Include="TutorialApp.h" />
+    <ClInclude Include="VertexTypes.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="13_DeferredShading.cpp" />
+    <ClCompile Include="Animation.cpp" />
+    <ClCompile Include="StaticMesh.cpp" />
+    <ClCompile Include="StaticMeshSection.cpp" />
+    <ClCompile Include="TutorialApp.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ResourceCompile Include="13_DeferredShading.rc" />
-  </ItemGroup>
-  <ItemGroup>
-    <Image Include="13_DeferredShading.ico" />
-    <Image Include="small.ico" />
+    <ProjectReference Include="..\Common\Common.vcxproj">
+      <Project>{3b5488ed-92b8-4f2d-9edd-3954cbc7dea8}</Project>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
