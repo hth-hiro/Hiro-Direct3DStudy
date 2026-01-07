@@ -94,6 +94,12 @@ cbuffer CBGeometry : register(b6)
     float4 GeometryColor;
 }
 
+cbuffer CBDirectionalLight : register(b7)
+{
+    float4 gDirLightDirectionWS;    // w = intensity
+    float4 gDirLightColor;
+}
+
 // SkyBox
 TextureCube txCube : register(t0);
 
@@ -115,6 +121,12 @@ Texture2D txIBL_Specular_LUT : register(t12);
 
 // ToneMapping
 Texture2D SceneHDR : register(t13);
+
+// Deferred Shading
+Texture2D gGBufferBaseColor : register(t20);
+Texture2D gGBufferNormal : register(t21);
+Texture2D gGBufferPosition : register(t22);
+Texture2D gDepthBuffer : register(t23);
 
 //--------------------------------------------------------------------------------------
 
@@ -172,6 +184,32 @@ struct PS_INPUT_TONEMAP
 {
     float4 Pos : SV_Position;
     float2 Tex : TEXCOORD0;
+};
+
+// Deferred Shading
+struct VS_INPUT_DEFERRED
+{
+    float3 position : POSITION;
+    float3 normal : TEXCOORD0;
+};
+
+struct PS_INPUT_DEFERRED
+{
+    float4 positionCS : SV_Position;
+    float3 normalWS : TEXCOORD0;
+    float3 positionWS : TEXCOORD1;
+};
+
+struct PS_INPUT_QUAD
+{
+    float4 position : SV_Position;
+    float2 uv : TEXCOORD0;
+};
+
+struct VS_INPUT_QUAD
+{
+    float4 position : POSITION;
+    float2 uv : TEXCOORD0;
 };
 
 float3 EncodeNormal(float3 N)
