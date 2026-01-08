@@ -23,8 +23,8 @@ using namespace DirectX;
 class UIBase;
 class Canvas;
 
-template <typename T>
-concept Bases = std::derived_from<T, UIBase>;
+//template <typename T>
+//concept Bases = std::derived_from<T, UIBase>;
 
 // UIBase는 UI의 부모입니다.
 // 모든 UI들을 UIBase가 보관하고, UISystem이 UIBase를 관리합니다.
@@ -88,23 +88,33 @@ public:
 
     State GetState() const { return m_state; }
     virtual void SetState(State s) { m_state = s; }
-
-    // Input ===========================================================
-
     
     // Layer ===========================================================
     int GetZOrder() const { return m_zOrder; }
     void SetZOrder(int z) { m_zOrder = z; }
 
-
     POINT GetPosition() const;
 
     SIZE GetSize() const;
 
-
     // 템플릿으로 자식객체 추가
-    template <typename T, typename...Args>
-    T* AddChild(Args&&... args);
+    template<typename T, typename ...Args>
+    requires std::derived_from<T, UIBase>
+    T* AddChild(Args && ...args)
+    {
+        //static_assert(std::is_base_of_v<UIBase, T>, "T must derive from, UIBase");
+
+        auto child = std::make_unique<T>(std::forward<Args>(args)...);
+        child->m_parent = this;
+
+        child->Initialize();
+
+        T* raw = child.get();
+        m_children.emplace_back(std::move(child));
+
+        return raw;
+    }
+
     UIBase* GetParent() const { return m_parent; }
 
     template <class T>
@@ -133,15 +143,13 @@ public:
         return nullptr;
     }
 
-    template<Bases T>
-    T* PickAs(const POINT& p)
-    {
-        if (UIBase* hit = Pick(p))
-            return dynamic_cast<T*>(hit);
-        return nullptr;
-    }
-
-
+    //template<Bases T>
+    //T* PickAs(const POINT& p)
+    //{
+    //    if (UIBase* hit = Pick(p))
+    //        return dynamic_cast<T*>(hit);
+    //    return nullptr;
+    //}
 
     virtual bool BlocksInput() const { return false; }
 
@@ -176,19 +184,3 @@ protected:
 
     RectTransform m_rect;
 };
-
-template<typename T, typename ...Args>
-inline T* UIBase::AddChild(Args && ...args)
-{
-    static_assert(std::is_base_of_v<UIBase, T>, "T must derive from, UIBase");
-
-    auto child = std::make_unique<T>(std::forward<Args>(args)...);
-    child->m_parent = this;
-
-    child->Initialize();
-
-    T* raw = child.get();
-    m_children.emplace_back(std::move(child));
-
-    return raw;
-}
