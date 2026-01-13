@@ -196,7 +196,10 @@ struct PS_INPUT_TONEMAP
 struct VS_INPUT_DEFERRED
 {
     float3 position : POSITION;
-    float3 normal : TEXCOORD0;
+    float3 normal : NORMAL;
+    float2 uv : TEXCOORD0;
+    float3 tangent : TANGENT;
+    float3 bitangent : BITANGENT;
 };
 
 struct PS_INPUT_DEFERRED

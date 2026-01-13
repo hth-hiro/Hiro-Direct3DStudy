@@ -742,9 +742,38 @@ void TutorialApp::Render()
     ImGui::Checkbox("Use Deferred Shading", &m_UseDeferredRendering);
     ImGui::End();
 
+    // ImGui Window - G-Buffer Debug View
+    ImGui::Begin("G-Buffer Debug View");
+
+    ImGui::BeginGroup();
+    ImGui::Text("Color (Albedo)");
+    ImGui::Image((ImTextureID)m_geometrySRVs[0].Get(), ImVec2(128, 128));
+    ImGui::EndGroup();
+
+    ImGui::SameLine();
+
+    ImGui::BeginGroup();
+    ImGui::Text("Normal");
+    ImGui::Image((ImTextureID)m_geometrySRVs[1].Get(), ImVec2(128, 128));
+    ImGui::EndGroup();
+
+    ImGui::BeginGroup();
+    ImGui::Text("Position");
+    ImGui::Image((ImTextureID)m_geometrySRVs[2].Get(), ImVec2(128, 128));
+    ImGui::EndGroup();
+
+    ImGui::SameLine();
+
+    ImGui::BeginGroup();
+    ImGui::Text("Depth Buffer");
+    ImGui::Image((ImTextureID)m_depthSRV.Get(), ImVec2(128, 128));
+    ImGui::EndGroup();
+
+    ImGui::End();
+
+
     // etc... ImGui...
 
-    //m_ImGuiManager.Render();
     ImGui::Render();
     ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
 
@@ -897,6 +926,7 @@ bool TutorialApp::InitD3D()
     m_pRasterStateFrontCull = nullptr;
     m_pDevice->CreateRasterizerState(&rasterDesc, &m_pRasterStateFrontCull);
 
+    if (!CreateDepthBuffer()) return false;
     if (!CreateGBuffer()) return false;
 
     return true;
@@ -1419,8 +1449,11 @@ bool TutorialApp::CreateShaders()
 
         D3D11_INPUT_ELEMENT_DESC layout[] =
         {
-            { "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0,0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-            { "TEXCOORD", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 12, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+            {"POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0,  D3D11_INPUT_PER_VERTEX_DATA, 0},
+            {"NORMAL",   0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 12, D3D11_INPUT_PER_VERTEX_DATA, 0},
+            {"TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT,    0, 24, D3D11_INPUT_PER_VERTEX_DATA, 0},
+            {"TANGENT",  0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 32, D3D11_INPUT_PER_VERTEX_DATA, 0},
+            {"BITANGENT",0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 44, D3D11_INPUT_PER_VERTEX_DATA, 0},
         };
 
         HR_T(m_pDevice->CreateInputLayout(layout, ARRAYSIZE(layout), vsBlob->GetBufferPointer(), vsBlob->GetBufferSize(), m_gBufferInputLayout.GetAddressOf()));
@@ -1451,6 +1484,36 @@ bool TutorialApp::CreateShaders()
         HR_T(CompileShaderFromFile(L"../Shader/DirectionLight_PS.hlsl", "main", "ps_5_0", psDirBlob.GetAddressOf()));
         HR_T(m_pDevice->CreatePixelShader(psDirBlob->GetBufferPointer(), psDirBlob->GetBufferSize(), nullptr, m_directionalLightPS.GetAddressOf()));
     }
+
+    return true;
+}
+
+bool TutorialApp::CreateDepthBuffer()
+{
+    D3D11_TEXTURE2D_DESC descDepth = {};
+    descDepth.Width = m_ClientWidth;
+    descDepth.Height = m_ClientHeight;
+    descDepth.MipLevels = 1;
+    descDepth.ArraySize = 1;
+    descDepth.Format = DXGI_FORMAT_R24G8_TYPELESS;
+    descDepth.SampleDesc.Count = 1;
+    descDepth.SampleDesc.Quality = 0;
+    descDepth.Usage = D3D11_USAGE_DEFAULT;
+    descDepth.BindFlags = D3D11_BIND_DEPTH_STENCIL | D3D11_BIND_SHADER_RESOURCE;
+    HR_T(m_pDevice->CreateTexture2D(&descDepth, nullptr, m_depthTexture.GetAddressOf()));
+
+    D3D11_DEPTH_STENCIL_VIEW_DESC dsvDesc = {};
+    dsvDesc.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
+    dsvDesc.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
+    dsvDesc.Texture2D.MipSlice = 0;
+    HR_T(m_pDevice->CreateDepthStencilView(m_depthTexture.Get(), &dsvDesc, m_depthDSV.GetAddressOf()));
+
+    D3D11_SHADER_RESOURCE_VIEW_DESC srvDesc = {};
+    srvDesc.Format = DXGI_FORMAT_R24_UNORM_X8_TYPELESS;
+    srvDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
+    srvDesc.Texture2D.MipLevels = 1;
+    srvDesc.Texture2D.MostDetailedMip = 0;
+    HR_T(m_pDevice->CreateShaderResourceView(m_depthTexture.Get(), &srvDesc, m_depthSRV.GetAddressOf()));
 
     return true;
 }
@@ -1499,10 +1562,10 @@ void TutorialApp::RenderPassGBuffer()
     m_pDeviceContext->ClearRenderTargetView(m_geometryRTVs[0].Get(), clearAlbedo);
     m_pDeviceContext->ClearRenderTargetView(m_geometryRTVs[1].Get(), clearNormal);
     m_pDeviceContext->ClearRenderTargetView(m_geometryRTVs[2].Get(), clearPos);
-    m_pDeviceContext->ClearDepthStencilView(m_pDepthStencilView.Get(), D3D11_CLEAR_DEPTH, 1.0f, 0);
+    m_pDeviceContext->ClearDepthStencilView(m_depthDSV.Get(), D3D11_CLEAR_DEPTH, 1.0f, 0);
 
     ID3D11RenderTargetView* rtvs[3] = {m_geometryRTVs[0].Get(), m_geometryRTVs[1].Get(), m_geometryRTVs[2].Get()};
-    m_pDeviceContext->OMSetRenderTargets(3, rtvs, m_pDepthStencilView.Get());
+    m_pDeviceContext->OMSetRenderTargets(3, rtvs, m_depthDSV.Get());
     m_pDeviceContext->OMSetDepthStencilState(m_depthTestOnWriteOn.Get(), 0);
 
     m_pDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
@@ -1615,7 +1678,7 @@ void TutorialApp::RenderPassGBuffer()
         m_pDeviceContext->UpdateSubresource(m_pStaticMeshConstantBuffer, 0, nullptr, &cb, 0, 0);
 
         m_pDeviceContext->VSSetConstantBuffers(8, 1, m_cbFrame.GetAddressOf());
-        m_pDeviceContext->UpdateSubresource(m_cbFrame.Get(), 8, nullptr, &cbFrame, 0, 0);
+        m_pDeviceContext->UpdateSubresource(m_cbFrame.Get(), 0, nullptr, &cbFrame, 0, 0);
 
         // Vertex/Index Buffer
         UINT stride = sizeof(Vertex);
@@ -1640,6 +1703,23 @@ void TutorialApp::RenderPassGBuffer()
             m_pDeviceContext->PSSetShaderResources(5, 1, &mat.metallicSRV);
         if (mat.hasRoughnessMap && mat.roughnessSRV)
             m_pDeviceContext->PSSetShaderResources(6, 1, &mat.roughnessSRV);
+
+
+        CBGeometry geo = {};
+        geo.World =
+            XMMatrixTranspose(
+                XMMatrixScaling(object1.transform.GetScale().x,
+                    object1.transform.GetScale().y,
+                    object1.transform.GetScale().z) *
+                XMMatrixRotationRollPitchYaw(object1.transform.GetRotation().x,
+                    object1.transform.GetRotation().y,
+                    object1.transform.GetRotation().z) *
+                XMMatrixTranslation(ObjectPos.x, ObjectPos.y, ObjectPos.z)
+            );
+        geo.BaseColor = Vector4(1, 1, 1, 1);
+
+        m_pDeviceContext->UpdateSubresource(m_cbGeometry.Get(), 0, nullptr, &geo, 0, 0);
+
 
         // Draw È£Ãâ
         m_pDeviceContext->DrawIndexed(static_cast<UINT>(section.Indices.size()), 0, 0);

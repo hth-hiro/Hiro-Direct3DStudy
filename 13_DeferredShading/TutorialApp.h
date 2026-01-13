@@ -147,6 +147,8 @@ public:
     ComPtr<ID3D11RenderTargetView> m_geometryRTVs[GBufferCount] = {};
     ComPtr<ID3D11ShaderResourceView> m_geometrySRVs[GBufferCount] = {};
 
+    ComPtr<ID3D11Texture2D> m_depthTexture = nullptr;
+    ComPtr<ID3D11DepthStencilView> m_depthDSV = nullptr;
     ComPtr<ID3D11ShaderResourceView> m_depthSRV = nullptr;
 
     /*-------지오메트리 패스---------*/
@@ -324,6 +326,7 @@ public:
     //bool m_EnableDirectionLightPass = true;
 
     bool CreateShaders();
+    bool CreateDepthBuffer();
     bool CreateGBuffer();
     void RenderPassGBuffer();
     void RenderPassDirectionalLight();
