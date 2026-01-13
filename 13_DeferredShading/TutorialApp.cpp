@@ -42,12 +42,6 @@ struct CBGeometry
     Vector4 BaseColor;
 };
 
-struct CBPointLight
-{
-    Vector4 LightPosWs_Radius;
-    Vector4 LightColor;
-};
-
 struct CBDirectionalLight
 {
     Vector4 DirectionWs;
@@ -332,45 +326,48 @@ void TutorialApp::Render()
     m_pDeviceContext->RSSetViewports(1, &m_MainViewport);
     m_pDeviceContext->OMSetDepthStencilState(nullptr, 0);
 
-    float hdrClear[4] = { 4.0f, 0.0f, 4.0f, 1.0f };
+    float hdrClear[4] = { 0.0f, 0.0f, 0.0f, 1.0f };
     m_pDeviceContext->ClearRenderTargetView(m_sceneHDRRTV.Get(), hdrClear);
     m_pDeviceContext->ClearDepthStencilView(m_pDepthStencilView.Get(), D3D11_CLEAR_DEPTH, 1.0f, 0);
 
-    m_pDeviceContext->RSSetState(m_pRasterStateNoCull.Get());
-    m_pDeviceContext->OMSetBlendState(nullptr, nullptr, 0xffffffff); // 블렌딩 OFF
-
-    // 2. 스카이박스 렌더 =================================================================================================================
-    m_pDeviceContext->OMSetDepthStencilState(m_pSkyboxDepthStencilState, 0);
-    m_pDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-    m_pDeviceContext->IASetVertexBuffers(0, 1, &m_pSkyboxVertexBuffer, &m_SkyboxVertexBufferStride, &m_SkyboxVertexBufferOffset);
-    m_pDeviceContext->IASetIndexBuffer(m_pSkyboxIndexBuffer, DXGI_FORMAT_R16_UINT, 0);
-    m_pDeviceContext->IASetInputLayout(m_pSkyboxInputLayout.Get());
-    m_pDeviceContext->VSSetShader(m_pSkyboxVertexShader.Get(), nullptr, 0);
-    m_pDeviceContext->PSSetShader(m_pSkyboxPixelShader.Get(), nullptr, 0);
-
-    // 상수 버퍼 업데이트
-    SkyBoxCB cbSky;
-    cbSky.mView = XMMatrixTranspose(XMMatrixScaling(10, 10, 10) * m_Camera.GetViewMatrixNoTranslation(m_View));
-    cbSky.mProjection = XMMatrixTranspose(m_Projection);
-    m_pDeviceContext->VSSetConstantBuffers(1, 1, &m_pSkyboxConstantBuffer);
-    m_pDeviceContext->UpdateSubresource(m_pSkyboxConstantBuffer, 0, nullptr, &cbSky, 0, 0);
-
-    m_pDeviceContext->PSSetShaderResources(0, 1, currentEnv->SkyBox.GetAddressOf());
-    m_pDeviceContext->PSSetSamplers(2, 1, m_pSamplerLinear.GetAddressOf());
-    m_pDeviceContext->DrawIndexed(m_nSkyboxIndices, 0, 0);
-    // 원래 상태 복원
-    m_pDeviceContext->OMSetDepthStencilState(nullptr, 0);
-
-    // 3. 일반 오브젝트 렌더 ===========================================================================================
-    
     if (m_UseDeferredRendering)
     {
         RenderPassGBuffer();
+
+        m_pDeviceContext->OMSetRenderTargets(1, m_sceneHDRRTV.GetAddressOf(), m_pDepthStencilView.Get());
+        m_pDeviceContext->RSSetViewports(1, &m_MainViewport);
+        RenderSkybox();
         RenderPassDirectionalLight();
     }
     else
     {
+        RenderSkybox();
+        //m_pDeviceContext->PSSetShaderResources(23, 1, nullSRV);
+
         // Forward 방식
+
+        // 1. 렌더 타겟 재설정 (확실히 하기 위해)
+        m_pDeviceContext->OMSetRenderTargets(1, m_sceneHDRRTV.GetAddressOf(), m_pDepthStencilView.Get());
+
+        // 2. 뷰포트 재설정
+        m_pDeviceContext->RSSetViewports(1, &m_MainViewport);
+
+        // 3. 상태 초기화 (핵심!)
+        m_pDeviceContext->OMSetDepthStencilState(nullptr, 0); // 기본 상태
+        m_pDeviceContext->RSSetState(nullptr);              // 기본 상태
+
+        float blendFactor[4] = { 0.f, 0.f, 0.f, 0.f };
+        m_pDeviceContext->OMSetBlendState(nullptr, blendFactor, 0xffffffff); // 블렌딩 끄기
+
+        // 4. 셰이더 바인딩
+        m_pDeviceContext->IASetInputLayout(m_pInputLayout.Get());
+        m_pDeviceContext->VSSetShader(m_pVertexShader.Get(), nullptr, 0);
+        m_pDeviceContext->PSSetShader(m_pPixelShader.Get(), nullptr, 0);
+
+
+
+
+
         m_pDeviceContext->IASetInputLayout(m_pInputLayout.Get());
         m_pDeviceContext->VSSetShader(m_pVertexShader.Get(), nullptr, 0);
         m_pDeviceContext->PSSetShader(m_pPixelShader.Get(), nullptr, 0);
@@ -492,86 +489,11 @@ void TutorialApp::Render()
             m_pDeviceContext->DrawIndexed(static_cast<UINT>(section.Indices.size()), 0, 0);
         }
 
-        //for (auto& section : ground.m_StaticMeshSection)
-        //{
-        //    int matIdx = section.materialIndex;
-        //    if (matIdx < 0 || matIdx >= ground.m_Materials.size())
-        //        continue;
-
-        //    Material& mat = ground.m_Materials[matIdx];
-
-        //    cb.mWorld = XMMatrixTranspose(XMMatrixScaling(0.01, 0.01, 0.01)) * XMMatrixTranspose(XMMatrixTranslation(0, -100, 0)) * XMMatrixTranspose(ground.m_World);
-        //    cb.mView = XMMatrixTranspose(m_View);
-        //    cb.mProjection = XMMatrixTranspose(m_Projection);
-        //    cb.vLightDir = m_LightDirsEvaluated;
-
-        //    // 머티리얼 정보
-        //    cb.vMaterialAmbient = mat.ambient;
-        //    cb.vMaterialDiffuse = mat.diffuse;
-        //    cb.vMaterialSpecular = mat.specular;
-        //    cb.vShininess = mat.shininess;
-
-        //    cb.vAmbientColor = m_AmbientColor;
-        //    cb.vDiffuseColor = m_DiffuseColor;
-        //    cb.vSpecularColor = m_SpecularColor;
-        //    cb.cameraPos = m_cameraPos;
-        //    cb.UseLighting = useLighting;
-
-        //    // PBR
-        //    //cb.metalness = m_Metalness;
-        //    //cb.roughness = m_Roughness;
-        //    //cb.albedo = m_Albedo;
-
-        //    // 땅은 그냥 고정값으로 들어가게 설정
-        //    cb.metallic = 0.f;
-        //    cb.roughness = 0.5f;
-        //    cb.albedo = Vector4(0, 0, 0, 1);
-
-        //    // 텍스처 관련
-        //    cb.hasTexture = mat.hasTexture ? 1 : 0;
-        //    cb.solidColor = mat.hasTexture ? XMFLOAT4(1, 1, 1, 1) : mat.solidColor;
-        //    cb.hasNormalMap = mat.hasNormalMap ? 1 : 0;
-        //    cb.hasSpecularMap = mat.hasSpecularMap ? 1 : 0;
-        //    cb.hasEmissiveMap = mat.hasEmissiveMap ? 1 : 0;
-
-        //    cb.hasMetallicMap = mat.hasMetallicMap ? 1 : 0;
-        //    cb.hasRoughnessMap = mat.hasRoughnessMap ? 1 : 0;
-
-        //    cb.ShadowView = XMMatrixTranspose(m_ShadowView);
-        //    cb.ShadowProjection = XMMatrixTranspose(m_ShadowProjection);
-
-        //    // 상수버퍼 업데이트
-        //    m_pDeviceContext->VSSetConstantBuffers(0, 1, &m_pStaticMeshConstantBuffer);
-        //    m_pDeviceContext->PSSetConstantBuffers(0, 1, &m_pStaticMeshConstantBuffer);
-        //    m_pDeviceContext->UpdateSubresource(m_pStaticMeshConstantBuffer, 0, nullptr, &cb, 0, 0);
-
-        //    // Vertex/Index Buffer
-        //    UINT stride = sizeof(Vertex);
-        //    UINT offset = 0;
-        //    m_pDeviceContext->IASetVertexBuffers(0, 1, &section.VertexBuffer, &stride, &offset);
-        //    m_pDeviceContext->IASetIndexBuffer(section.IndexBuffer, DXGI_FORMAT_R16_UINT, 0);
-        //    m_pDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-
-        //    // PS 텍스처 바인딩
-        //    ID3D11ShaderResourceView* nullSRV[1] = { nullptr };
-        //    for (int i = 0; i <= 4; i++)
-        //        m_pDeviceContext->PSSetShaderResources(i, 1, nullSRV);
-
-        //    if (mat.hasTexture && mat.diffuseSRV)
-        //        m_pDeviceContext->PSSetShaderResources(0, 1, &mat.diffuseSRV);
-        //    if (mat.hasNormalMap && mat.normalSRV)
-        //        m_pDeviceContext->PSSetShaderResources(2, 1, &mat.normalSRV);
-        //    if (mat.hasSpecularMap && mat.specularSRV)
-        //        m_pDeviceContext->PSSetShaderResources(3, 1, &mat.specularSRV);
-        //    if (mat.hasEmissiveMap && mat.emissiveSRV)
-        //        m_pDeviceContext->PSSetShaderResources(4, 1, &mat.emissiveSRV);
-
-        //    // Draw 호출
-        //    m_pDeviceContext->DrawIndexed(static_cast<UINT>(section.Indices.size()), 0, 0);
-        //}
-
         m_pDeviceContext->PSSetShaderResources(7, 1, nullSRV);
     }
+
+    m_pDeviceContext->RSSetState(m_pRasterStateNoCull.Get());
+    m_pDeviceContext->OMSetBlendState(nullptr, nullptr, 0xffffffff); // 블렌딩 OFF
 
     // Tone Mapping
     m_pDeviceContext->OMSetDepthStencilState(nullptr, 0);
@@ -608,13 +530,7 @@ void TutorialApp::Render()
     ID3D11ShaderResourceView* nullSrv[1] = { nullptr };
     m_pDeviceContext->PSSetShaderResources(13, 1, nullSrv);
 
-
-
-
-
-
-
-
+    
 
 
 
@@ -1403,6 +1319,9 @@ bool TutorialApp::InitScene()
     m_LightDirsEvaluated = m_InitialLightDirs;
 
     // Deferred Shading
+    if (!CreateQuad())
+        return false;
+
     if (!CreateShaders())
         return false;
 
@@ -1439,6 +1358,46 @@ void TutorialApp::UninitScene()
 
     SAFE_RELEASE(m_pShadowConstantBuffer);
     SAFE_RELEASE(m_pStaticMeshConstantBuffer);
+}
+
+bool TutorialApp::CreateQuad()
+{
+    struct QuadVertex
+    {
+        Vector3 position;
+        Vector2 uv;
+    };
+
+    QuadVertex vertices[] =
+    {
+        { Vector3(-1.0f,  1.0f, 0.0f), Vector2(0.0f, 0.0f) },
+        { Vector3(1.0f,   1.0f, 0.0f), Vector2(1.0f, 0.0f) },
+        { Vector3(-1.0f, -1.0f, 0.0f), Vector2(0.0f, 1.0f) },
+        { Vector3(1.0f,  -1.0f, 0.0f), Vector2(1.0f, 1.0f) },
+    };
+
+    D3D11_BUFFER_DESC vbDesc = {};
+    vbDesc.ByteWidth = sizeof(vertices);
+    vbDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
+    vbDesc.Usage = D3D11_USAGE_DEFAULT;
+    D3D11_SUBRESOURCE_DATA vbData = {};
+    vbData.pSysMem = vertices;
+    HR_T(m_pDevice->CreateBuffer(&vbDesc, &vbData, m_quadVB.GetAddressOf()));
+    m_quadVBStride = sizeof(QuadVertex);
+    m_quadVBOffset = 0;
+
+    WORD indices[] = { 0, 1, 2, 2, 1, 3 };
+    m_quadIndexCount = ARRAYSIZE(indices);
+
+    D3D11_BUFFER_DESC ibDesc = {};
+    ibDesc.ByteWidth = sizeof(indices);
+    ibDesc.BindFlags = D3D11_BIND_INDEX_BUFFER;
+    ibDesc.Usage = D3D11_USAGE_DEFAULT;
+    D3D11_SUBRESOURCE_DATA ibData = {};
+    ibData.pSysMem = indices;
+    HR_T(m_pDevice->CreateBuffer(&ibDesc, &ibData, m_quadIB.GetAddressOf()));
+
+    return true;
 }
 
 bool TutorialApp::CreateShaders()
@@ -1555,6 +1514,9 @@ bool TutorialApp::CreateGBuffer()
 
 void TutorialApp::RenderPassGBuffer()
 {
+    ID3D11ShaderResourceView* nullSRVs[16] = {};
+    m_pDeviceContext->PSSetShaderResources(0, 16, nullSRVs);
+
     float clearAlbedo[4] = { 0.0f, 0.0f, 0.0f, 1.0f };
     float clearNormal[4] = { 0.0f, 0.0f, 0.0f, 0.0f };
     float clearPos[4] = { 0,0,0,1 };
@@ -1584,7 +1546,7 @@ void TutorialApp::RenderPassGBuffer()
     ID3D11ShaderResourceView* nullSRV[1] = { nullptr };
     Vector3 ObjectPos = { object1.transform.GetPosition().x, object1.transform.GetPosition().y , object1.transform.GetPosition().z };
     ConstantBuffer cb;
-    CBFrame cbFrame;
+    
     m_pDeviceContext->IASetInputLayout(m_gBufferInputLayout.Get());
     m_pDeviceContext->VSSetShader(m_gBufferVS.Get(), nullptr, 0);
     m_pDeviceContext->PSSetShader(m_gBufferPS.Get(), nullptr, 0);
@@ -1618,6 +1580,27 @@ void TutorialApp::RenderPassGBuffer()
 
         Material& mat = m_StaticMesh.m_Materials[matIdx];
 
+        CBGeometry geo = {};
+        geo.World =
+            XMMatrixTranspose(
+                XMMatrixScaling(object1.transform.GetScale().x,
+                    object1.transform.GetScale().y,
+                    object1.transform.GetScale().z) *
+                XMMatrixRotationRollPitchYaw(object1.transform.GetRotation().x,
+                    object1.transform.GetRotation().y,
+                    object1.transform.GetRotation().z) *
+                XMMatrixTranslation(ObjectPos.x, ObjectPos.y, ObjectPos.z)
+            );
+        geo.BaseColor = object1.albedo;
+        m_pDeviceContext->UpdateSubresource(m_cbGeometry.Get(), 0, nullptr, &geo, 0, 0);
+        m_pDeviceContext->VSSetConstantBuffers(6, 1, m_cbGeometry.GetAddressOf());
+
+        CBFrame cbFrame;
+        cbFrame.View = m_View.Transpose();
+        cbFrame.Projection = m_Projection.Transpose();
+        m_pDeviceContext->UpdateSubresource(m_cbFrame.Get(), 0, nullptr, &cbFrame, 0, 0);
+        m_pDeviceContext->VSSetConstantBuffers(8, 1, m_cbFrame.GetAddressOf());
+
         cb.mWorld = XMMatrixTranspose(
             XMMatrixScaling(object1.transform.GetScale().x,
                 object1.transform.GetScale().y,
@@ -1628,8 +1611,6 @@ void TutorialApp::RenderPassGBuffer()
             XMMatrixTranslation(ObjectPos.x, ObjectPos.y, ObjectPos.z)
         );
 
-        cbFrame.View = m_View.Transpose();
-        cbFrame.Projection = m_Projection.Transpose();
 
         cb.mView = XMMatrixTranspose(m_View);
         cb.mProjection = XMMatrixTranspose(m_Projection);
@@ -1677,8 +1658,7 @@ void TutorialApp::RenderPassGBuffer()
         m_pDeviceContext->PSSetConstantBuffers(0, 1, &m_pStaticMeshConstantBuffer);
         m_pDeviceContext->UpdateSubresource(m_pStaticMeshConstantBuffer, 0, nullptr, &cb, 0, 0);
 
-        m_pDeviceContext->VSSetConstantBuffers(8, 1, m_cbFrame.GetAddressOf());
-        m_pDeviceContext->UpdateSubresource(m_cbFrame.Get(), 0, nullptr, &cbFrame, 0, 0);
+
 
         // Vertex/Index Buffer
         UINT stride = sizeof(Vertex);
@@ -1704,37 +1684,22 @@ void TutorialApp::RenderPassGBuffer()
         if (mat.hasRoughnessMap && mat.roughnessSRV)
             m_pDeviceContext->PSSetShaderResources(6, 1, &mat.roughnessSRV);
 
-
-        CBGeometry geo = {};
-        geo.World =
-            XMMatrixTranspose(
-                XMMatrixScaling(object1.transform.GetScale().x,
-                    object1.transform.GetScale().y,
-                    object1.transform.GetScale().z) *
-                XMMatrixRotationRollPitchYaw(object1.transform.GetRotation().x,
-                    object1.transform.GetRotation().y,
-                    object1.transform.GetRotation().z) *
-                XMMatrixTranslation(ObjectPos.x, ObjectPos.y, ObjectPos.z)
-            );
-        geo.BaseColor = Vector4(1, 1, 1, 1);
-
         m_pDeviceContext->UpdateSubresource(m_cbGeometry.Get(), 0, nullptr, &geo, 0, 0);
-
 
         // Draw 호출
         m_pDeviceContext->DrawIndexed(static_cast<UINT>(section.Indices.size()), 0, 0);
     }
 
-    ID3D11RenderTargetView* nullRTVs[3] = { nullptr, nullptr, nullptr };
-    m_pDeviceContext->OMSetRenderTargets(3, nullRTVs, nullptr);
+    //ID3D11RenderTargetView* nullRTVs[3] = { nullptr, nullptr, nullptr };
+    //m_pDeviceContext->OMSetRenderTargets(3, nullRTVs, nullptr);
     m_pDeviceContext->PSSetShaderResources(7, 1, nullSRV);
 }
 
 void TutorialApp::RenderPassDirectionalLight()
 {
-
     float blendFactor[4] = { 1.0f, 1.0f, 1.0f, 1.0f };
     m_pDeviceContext->OMSetBlendState(m_blenderStateAdditive.Get(), blendFactor, 0xffffffff);
+    //m_pDeviceContext->OMSetBlendState(nullptr, blendFactor, 0xffffffff);
     m_pDeviceContext->OMSetRenderTargets(1, m_sceneHDRRTV.GetAddressOf(), m_pDepthStencilView.Get());
     m_pDeviceContext->OMSetDepthStencilState(m_depthTestOffWriteOff.Get(), 0);
 
@@ -1768,6 +1733,30 @@ void TutorialApp::RenderPassDirectionalLight()
 
     ID3D11ShaderResourceView* nullSRVs[4] = { nullptr, nullptr, nullptr, nullptr };
     m_pDeviceContext->PSSetShaderResources(20, 4, nullSRVs);
+}
+
+void TutorialApp::RenderSkybox()
+{
+    m_pDeviceContext->OMSetDepthStencilState(m_pSkyboxDepthStencilState, 0);
+    m_pDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+    m_pDeviceContext->IASetVertexBuffers(0, 1, &m_pSkyboxVertexBuffer, &m_SkyboxVertexBufferStride, &m_SkyboxVertexBufferOffset);
+    m_pDeviceContext->IASetIndexBuffer(m_pSkyboxIndexBuffer, DXGI_FORMAT_R16_UINT, 0);
+    m_pDeviceContext->IASetInputLayout(m_pSkyboxInputLayout.Get());
+    m_pDeviceContext->VSSetShader(m_pSkyboxVertexShader.Get(), nullptr, 0);
+    m_pDeviceContext->PSSetShader(m_pSkyboxPixelShader.Get(), nullptr, 0);
+
+    // 상수 버퍼 업데이트
+    SkyBoxCB cbSky;
+    cbSky.mView = XMMatrixTranspose(XMMatrixScaling(10, 10, 10) * m_Camera.GetViewMatrixNoTranslation(m_View));
+    cbSky.mProjection = XMMatrixTranspose(m_Projection);
+    m_pDeviceContext->VSSetConstantBuffers(1, 1, &m_pSkyboxConstantBuffer);
+    m_pDeviceContext->UpdateSubresource(m_pSkyboxConstantBuffer, 0, nullptr, &cbSky, 0, 0);
+
+    m_pDeviceContext->PSSetShaderResources(0, 1, currentEnv->SkyBox.GetAddressOf());
+    m_pDeviceContext->PSSetSamplers(2, 1, m_pSamplerLinear.GetAddressOf());
+    m_pDeviceContext->DrawIndexed(m_nSkyboxIndices, 0, 0);
+    // 원래 상태 복원
+    m_pDeviceContext->OMSetDepthStencilState(nullptr, 0); 
 }
 
 //void TutorialApp::RenderPassPointLight()

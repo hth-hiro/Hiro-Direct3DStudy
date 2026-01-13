@@ -85,7 +85,7 @@ void Camera::GetViewMatrix(Matrix& out)
 	//m_View = XMMatrixLookAtLH(Eye, At, Up);
 
     Vector3 eye = m_World.Translation();
-    Vector3 target = m_World.Translation() + GetForward();
+    Vector3 target = m_World.Translation() + GetForward() + Vector3(0,0,0.1f);
     Vector3 up = m_World.Up();
     out = XMMatrixLookAtLH(eye, target, up);
 }

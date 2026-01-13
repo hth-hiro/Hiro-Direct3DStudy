@@ -207,6 +207,7 @@ struct PS_INPUT_DEFERRED
     float4 positionCS : SV_Position;
     float3 normalWS : TEXCOORD0;
     float3 positionWS : TEXCOORD1;
+    float2 uv : TEXTCOORD2;
 };
 
 struct PS_INPUT_QUAD

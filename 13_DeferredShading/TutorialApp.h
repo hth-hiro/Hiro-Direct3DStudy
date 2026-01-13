@@ -325,11 +325,13 @@ public:
     bool m_UseDeferredRendering = true;
     //bool m_EnableDirectionLightPass = true;
 
+    bool CreateQuad();
     bool CreateShaders();
     bool CreateDepthBuffer();
     bool CreateGBuffer();
     void RenderPassGBuffer();
     void RenderPassDirectionalLight();
+    void RenderSkybox();
     //void RenderPassPointLight();
     void ReleaseGBuffer();
 };

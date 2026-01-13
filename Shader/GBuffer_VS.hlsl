@@ -14,6 +14,7 @@ PS_INPUT_DEFERRED main(VS_INPUT_DEFERRED input)
     float3 nW = normalize(mul(input.normal, (float3x3) GeometryWorld));
     output.normalWS = nW;
     output.positionWS = posW.xyz;
+    output.uv = input.uv;
     
     return output;
 }

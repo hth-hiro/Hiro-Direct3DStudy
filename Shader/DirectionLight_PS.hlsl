@@ -21,5 +21,6 @@ float4 main(PS_INPUT_QUAD input) : SV_Target
     float3 lightColor = gDirLightColor.rgb;
     
     float3 colorLinear = baseColor * lightColor * ndotl * intensity;
+
     return float4(colorLinear, 1.0f);
 }
