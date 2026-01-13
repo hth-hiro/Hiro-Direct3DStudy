@@ -113,7 +113,7 @@ public:
 	ComPtr<ID3D11PixelShader> m_pPixelShader;						// 픽셀 셰이더.	
 	ComPtr<ID3D11InputLayout> m_pInputLayout;						// 입력 레이아웃.
 	ComPtr<ID3D11SamplerState> m_pSamplerLinear;					// 샘플러 스테이트
-    ComPtr<ID3D11SamplerState> m_pSamplerPoint;					// 샘플러 스테이트
+    ComPtr<ID3D11SamplerState> m_pSamplerPoint;					    // 샘플러 스테이트
 	ComPtr<ID3D11BlendState> m_pBlendState;							// 블렌더 스테이트
 
 	ComPtr<ID3D11RasterizerState> m_pRasterStateNoCull;				// 컬링 여부(컬링 안함)
@@ -136,6 +136,7 @@ public:
 	ID3D11DepthStencilState* m_pSkyboxDepthStencilState = nullptr;	// 뎊스 스텐실 스테이트
 
     /*-------지오메트리 버퍼---------*/
+    ComPtr<ID3D11Buffer> m_cbFrame;
     ComPtr<ID3D11Buffer>  m_cbGeometry;
     ComPtr<ID3D11Buffer>  m_cbPointLight;
     ComPtr<ID3D11Buffer>  m_cbDirectionalLight;
@@ -145,6 +146,8 @@ public:
     ComPtr<ID3D11Texture2D> m_geometryTextures[GBufferCount] = {};
     ComPtr<ID3D11RenderTargetView> m_geometryRTVs[GBufferCount] = {};
     ComPtr<ID3D11ShaderResourceView> m_geometrySRVs[GBufferCount] = {};
+
+    ComPtr<ID3D11ShaderResourceView> m_depthSRV = nullptr;
 
     /*-------지오메트리 패스---------*/
     ComPtr<ID3D11VertexShader> m_gBufferVS;
@@ -161,8 +164,8 @@ public:
     ComPtr<ID3D11PixelShader> m_directionalLightPS;
     ComPtr<ID3D11InputLayout> m_lightPassInputLayout;
     
-    ComPtr<ID3D11VertexShader> m_pointVS;
-    ComPtr<ID3D11PixelShader> m_pointPS;
+    //ComPtr<ID3D11VertexShader> m_pointVS;
+    //ComPtr<ID3D11PixelShader> m_pointPS;
     ComPtr<ID3D11InputLayout> m_quadInputLayout;
     ComPtr<ID3D11Buffer>    m_quadVB;
     ComPtr<ID3D11Buffer>    m_quadIB;
@@ -175,7 +178,8 @@ public:
     ComPtr<ID3D11DepthStencilState> m_depthStateLightVolume;    // Depth off, Write off
     ComPtr<ID3D11DepthStencilState> m_depthTestOffWriteOff;     
 
-
+    /*-------블렌더 스테이트---------*/
+    ComPtr<ID3D11BlendState> m_blenderStateAdditive;
 
 	Matrix m_World;
 	Matrix m_View;
@@ -311,23 +315,18 @@ public:
     ////////////////////////////////////////////////////////
     // DeferrdShading
 
-
-
-
-    
     // Directional Light
     Vector3 m_directionalLightDir = Vector3(1.0, -1.0f, 0.5f);
     Vector3 m_directionalLightColor = Vector3(0.1, 0.1, 0.1f);
     float m_directionalLightIntensity = 1.0f;
 
     bool m_UseDeferredRendering = true;
-    bool m_EnableDirectionLightPass = true;
-    bool m_EnablePointLightPass = true;
-    bool m_ShowPointLightDebugVolume = false;
+    //bool m_EnableDirectionLightPass = true;
 
+    bool CreateShaders();
     bool CreateGBuffer();
     void RenderPassGBuffer();
     void RenderPassDirectionalLight();
-    void RenderPassPointLight();
+    //void RenderPassPointLight();
     void ReleaseGBuffer();
 };

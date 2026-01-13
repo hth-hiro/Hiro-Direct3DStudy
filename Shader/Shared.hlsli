@@ -96,8 +96,14 @@ cbuffer CBGeometry : register(b6)
 
 cbuffer CBDirectionalLight : register(b7)
 {
-    float4 gDirLightDirectionWS;    // w = intensity
+    float4 gDirLightDirectionWS; // w = intensity
     float4 gDirLightColor;
+}
+
+cbuffer CBFrame : register(b8)
+{
+    matrix GeoMetryView;
+    matrix GeoMetryProjection;
 }
 
 // SkyBox

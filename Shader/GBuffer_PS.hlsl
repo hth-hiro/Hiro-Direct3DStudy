@@ -5,12 +5,12 @@
 //--------------------------------------------------------------------------------------
 struct GBufferOut
 {
-    float4 BaseColor : SV_Target20;
-    float4 Normal : SV_Target21;
-    float4 Position : SV_Target22;
+    float4 BaseColor : SV_Target0;
+    float4 Normal : SV_Target1;
+    float4 Position : SV_Target2;
 };
 
-GBufferOut main(PS_INPUT_DEFERRED input) : SV_Target
+GBufferOut main(PS_INPUT_DEFERRED input)
 {
     GBufferOut o;
     

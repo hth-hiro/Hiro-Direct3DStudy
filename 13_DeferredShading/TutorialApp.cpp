@@ -30,6 +30,12 @@ struct SkyBoxCB
 };
 
 // G-Buffer
+struct CBFrame
+{
+    Matrix View;
+    Matrix Projection;
+};
+
 struct CBGeometry
 {
     Matrix World;
@@ -276,6 +282,10 @@ void TutorialApp::Render()
     m_pDeviceContext->PSSetShader(nullptr, nullptr, 0);
 
     // 상수 버퍼 업데이트
+    CBFrame cbFrame;
+    cbFrame.View = m_View.Transpose();
+    cbFrame.Projection = m_Projection.Transpose();
+
     ConstantBuffer cb;
     cb.mWorld = XMMatrixTranspose(
         XMMatrixScaling(object1.transform.GetScale().x,
@@ -353,208 +363,215 @@ void TutorialApp::Render()
 
     // 3. 일반 오브젝트 렌더 ===========================================================================================
     
-    // Forward 방식
-
-    m_pDeviceContext->IASetInputLayout(m_pInputLayout.Get());
-    m_pDeviceContext->VSSetShader(m_pVertexShader.Get(), nullptr, 0);
-    m_pDeviceContext->PSSetShader(m_pPixelShader.Get(), nullptr, 0);
-    m_pDeviceContext->RSSetState(m_pRasterStateNoCull.Get());
-    // Sampler
-    m_pDeviceContext->PSSetSamplers(0, 1, m_pSamplerLinear.GetAddressOf());
-    // ShadowMapSRV
-    m_pDeviceContext->PSSetShaderResources(7, 1, m_pShadowMapSRV.GetAddressOf());
-
-    // IBL 적용 여부 분기, 매핑 여부 결정
-    if (useIBL)
+    if (m_UseDeferredRendering)
     {
-        m_pDeviceContext->PSSetShaderResources(10, 1, currentEnv->Diffuse.GetAddressOf());
-        m_pDeviceContext->PSSetShaderResources(11, 1, currentEnv->Specular.GetAddressOf());
-        m_pDeviceContext->PSSetShaderResources(12, 1, currentEnv->BRDF_LUT.GetAddressOf());
+        RenderPassGBuffer();
+        RenderPassDirectionalLight();
     }
     else
     {
-        m_pDeviceContext->PSSetShaderResources(0, 1, nullSRV);
-        m_pDeviceContext->PSSetShaderResources(10, 1, nullSRV);
-        m_pDeviceContext->PSSetShaderResources(11, 1, nullSRV);
-        m_pDeviceContext->PSSetShaderResources(12, 1, nullSRV);
+        // Forward 방식
+        m_pDeviceContext->IASetInputLayout(m_pInputLayout.Get());
+        m_pDeviceContext->VSSetShader(m_pVertexShader.Get(), nullptr, 0);
+        m_pDeviceContext->PSSetShader(m_pPixelShader.Get(), nullptr, 0);
+        m_pDeviceContext->RSSetState(m_pRasterStateNoCull.Get());
+        // Sampler
+        m_pDeviceContext->PSSetSamplers(0, 1, m_pSamplerLinear.GetAddressOf());
+        // ShadowMapSRV
+        m_pDeviceContext->PSSetShaderResources(7, 1, m_pShadowMapSRV.GetAddressOf());
+
+        // IBL 적용 여부 분기, 매핑 여부 결정
+        if (useIBL)
+        {
+            m_pDeviceContext->PSSetShaderResources(10, 1, currentEnv->Diffuse.GetAddressOf());
+            m_pDeviceContext->PSSetShaderResources(11, 1, currentEnv->Specular.GetAddressOf());
+            m_pDeviceContext->PSSetShaderResources(12, 1, currentEnv->BRDF_LUT.GetAddressOf());
+        }
+        else
+        {
+            m_pDeviceContext->PSSetShaderResources(0, 1, nullSRV);
+            m_pDeviceContext->PSSetShaderResources(10, 1, nullSRV);
+            m_pDeviceContext->PSSetShaderResources(11, 1, nullSRV);
+            m_pDeviceContext->PSSetShaderResources(12, 1, nullSRV);
+        }
+
+        // Object - StaticMesh
+        for (auto& section : m_StaticMesh.m_StaticMeshSection)
+        {
+            int matIdx = section.materialIndex;
+            if (matIdx < 0 || matIdx >= m_StaticMesh.m_Materials.size())
+                continue;
+
+            Material& mat = m_StaticMesh.m_Materials[matIdx];
+
+            cb.mWorld = XMMatrixTranspose(
+                XMMatrixScaling(object1.transform.GetScale().x,
+                    object1.transform.GetScale().y,
+                    object1.transform.GetScale().z) *
+                XMMatrixRotationRollPitchYaw(object1.transform.GetRotation().x,
+                    object1.transform.GetRotation().y,
+                    object1.transform.GetRotation().z) *
+                XMMatrixTranslation(ObjectPos.x, ObjectPos.y, ObjectPos.z)
+            );
+
+            //cb.mWorld = XMMatrixTranspose(XMMatrixScaling(object1.transform.GetScale().x, object1.transform.GetScale().y, object1.transform.GetScale().z))
+            //    * XMMatrixTranspose(XMMatrixRotationRollPitchYaw(object1.transform.GetRotation().x, object1.transform.GetRotation().y, object1.transform.GetRotation().z))
+            //    * XMMatrixTranspose(XMMatrixTranslation(ObjectPos.x, ObjectPos.y, ObjectPos.z))
+            //    * XMMatrixTranspose(m_StaticMesh.m_World);
+            cb.mView = XMMatrixTranspose(m_View);
+            cb.mProjection = XMMatrixTranspose(m_Projection);
+            cb.vLightDir = m_LightDirsEvaluated;
+
+            // 머티리얼 정보
+            cb.vMaterialAmbient = object1.ambient;
+            cb.vMaterialDiffuse = object1.diffuse;
+            cb.vMaterialSpecular = object1.specular;
+            cb.vShininess = { object1.shininess };
+
+            cb.vAmbientColor = m_AmbientColor;
+            cb.vDiffuseColor = m_DiffuseColor;
+            cb.vSpecularColor = m_SpecularColor;
+            cb.cameraPos = m_cameraPos;
+            cb.UseLighting = useLighting;
+
+            // 텍스처 관련
+            cb.hasTexture = mat.hasTexture ? 1 : 0;
+            cb.solidColor = mat.hasTexture ? XMFLOAT4(1, 1, 1, 1) : mat.solidColor;
+            cb.hasNormalMap = mat.hasNormalMap ? 1 : 0;
+            cb.hasSpecularMap = mat.hasSpecularMap ? 1 : 0;
+            cb.hasEmissiveMap = mat.hasEmissiveMap ? 1 : 0;
+
+            cb.hasMetallicMap = mat.hasMetallicMap ? 1 : 0;
+            cb.hasRoughnessMap = mat.hasRoughnessMap ? 1 : 0;
+
+            // PBR
+            cb.metallic = object1.metallic;
+            cb.roughness = object1.roughness;
+            cb.albedo = object1.albedo;
+            cb.gamma = object1.gamma;
+            cb.ao = ambientOcclusion;
+            cb.UseTexture = useTexture;
+            cb.UseCustomAlbedo = useCustomAlbedo;
+
+            // IBL
+            cb.UseIBL = useIBL;
+
+            cb.ShadowView = XMMatrixTranspose(m_ShadowView);
+            cb.ShadowProjection = XMMatrixTranspose(m_ShadowProjection);
+
+            // 상수버퍼 업데이트
+            m_pDeviceContext->VSSetConstantBuffers(0, 1, &m_pStaticMeshConstantBuffer);
+            m_pDeviceContext->PSSetConstantBuffers(0, 1, &m_pStaticMeshConstantBuffer);
+            m_pDeviceContext->UpdateSubresource(m_pStaticMeshConstantBuffer, 0, nullptr, &cb, 0, 0);
+
+            // Vertex/Index Buffer
+            UINT stride = sizeof(Vertex);
+            UINT offset = 0;
+            m_pDeviceContext->IASetVertexBuffers(0, 1, section.VertexBuffer.GetAddressOf(), &stride, &offset);
+            m_pDeviceContext->IASetIndexBuffer(section.IndexBuffer.Get(), DXGI_FORMAT_R16_UINT, 0);
+            m_pDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+
+            // PS 텍스처 바인딩
+            for (int i = 1; i <= 6; i++)
+                m_pDeviceContext->PSSetShaderResources(i, 1, nullSRV);
+
+            if (mat.hasTexture && mat.diffuseSRV)
+                m_pDeviceContext->PSSetShaderResources(1, 1, &mat.diffuseSRV);
+            if (mat.hasNormalMap && mat.normalSRV)
+                m_pDeviceContext->PSSetShaderResources(2, 1, &mat.normalSRV);
+            if (mat.hasSpecularMap && mat.specularSRV)
+                m_pDeviceContext->PSSetShaderResources(3, 1, &mat.specularSRV);
+            if (mat.hasEmissiveMap && mat.emissiveSRV)
+                m_pDeviceContext->PSSetShaderResources(4, 1, &mat.emissiveSRV);
+            if (mat.hasMetallicMap && mat.metallicSRV)
+                m_pDeviceContext->PSSetShaderResources(5, 1, &mat.metallicSRV);
+            if (mat.hasRoughnessMap && mat.roughnessSRV)
+                m_pDeviceContext->PSSetShaderResources(6, 1, &mat.roughnessSRV);
+
+            // Draw 호출
+            m_pDeviceContext->DrawIndexed(static_cast<UINT>(section.Indices.size()), 0, 0);
+        }
+
+        //for (auto& section : ground.m_StaticMeshSection)
+        //{
+        //    int matIdx = section.materialIndex;
+        //    if (matIdx < 0 || matIdx >= ground.m_Materials.size())
+        //        continue;
+
+        //    Material& mat = ground.m_Materials[matIdx];
+
+        //    cb.mWorld = XMMatrixTranspose(XMMatrixScaling(0.01, 0.01, 0.01)) * XMMatrixTranspose(XMMatrixTranslation(0, -100, 0)) * XMMatrixTranspose(ground.m_World);
+        //    cb.mView = XMMatrixTranspose(m_View);
+        //    cb.mProjection = XMMatrixTranspose(m_Projection);
+        //    cb.vLightDir = m_LightDirsEvaluated;
+
+        //    // 머티리얼 정보
+        //    cb.vMaterialAmbient = mat.ambient;
+        //    cb.vMaterialDiffuse = mat.diffuse;
+        //    cb.vMaterialSpecular = mat.specular;
+        //    cb.vShininess = mat.shininess;
+
+        //    cb.vAmbientColor = m_AmbientColor;
+        //    cb.vDiffuseColor = m_DiffuseColor;
+        //    cb.vSpecularColor = m_SpecularColor;
+        //    cb.cameraPos = m_cameraPos;
+        //    cb.UseLighting = useLighting;
+
+        //    // PBR
+        //    //cb.metalness = m_Metalness;
+        //    //cb.roughness = m_Roughness;
+        //    //cb.albedo = m_Albedo;
+
+        //    // 땅은 그냥 고정값으로 들어가게 설정
+        //    cb.metallic = 0.f;
+        //    cb.roughness = 0.5f;
+        //    cb.albedo = Vector4(0, 0, 0, 1);
+
+        //    // 텍스처 관련
+        //    cb.hasTexture = mat.hasTexture ? 1 : 0;
+        //    cb.solidColor = mat.hasTexture ? XMFLOAT4(1, 1, 1, 1) : mat.solidColor;
+        //    cb.hasNormalMap = mat.hasNormalMap ? 1 : 0;
+        //    cb.hasSpecularMap = mat.hasSpecularMap ? 1 : 0;
+        //    cb.hasEmissiveMap = mat.hasEmissiveMap ? 1 : 0;
+
+        //    cb.hasMetallicMap = mat.hasMetallicMap ? 1 : 0;
+        //    cb.hasRoughnessMap = mat.hasRoughnessMap ? 1 : 0;
+
+        //    cb.ShadowView = XMMatrixTranspose(m_ShadowView);
+        //    cb.ShadowProjection = XMMatrixTranspose(m_ShadowProjection);
+
+        //    // 상수버퍼 업데이트
+        //    m_pDeviceContext->VSSetConstantBuffers(0, 1, &m_pStaticMeshConstantBuffer);
+        //    m_pDeviceContext->PSSetConstantBuffers(0, 1, &m_pStaticMeshConstantBuffer);
+        //    m_pDeviceContext->UpdateSubresource(m_pStaticMeshConstantBuffer, 0, nullptr, &cb, 0, 0);
+
+        //    // Vertex/Index Buffer
+        //    UINT stride = sizeof(Vertex);
+        //    UINT offset = 0;
+        //    m_pDeviceContext->IASetVertexBuffers(0, 1, &section.VertexBuffer, &stride, &offset);
+        //    m_pDeviceContext->IASetIndexBuffer(section.IndexBuffer, DXGI_FORMAT_R16_UINT, 0);
+        //    m_pDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+
+        //    // PS 텍스처 바인딩
+        //    ID3D11ShaderResourceView* nullSRV[1] = { nullptr };
+        //    for (int i = 0; i <= 4; i++)
+        //        m_pDeviceContext->PSSetShaderResources(i, 1, nullSRV);
+
+        //    if (mat.hasTexture && mat.diffuseSRV)
+        //        m_pDeviceContext->PSSetShaderResources(0, 1, &mat.diffuseSRV);
+        //    if (mat.hasNormalMap && mat.normalSRV)
+        //        m_pDeviceContext->PSSetShaderResources(2, 1, &mat.normalSRV);
+        //    if (mat.hasSpecularMap && mat.specularSRV)
+        //        m_pDeviceContext->PSSetShaderResources(3, 1, &mat.specularSRV);
+        //    if (mat.hasEmissiveMap && mat.emissiveSRV)
+        //        m_pDeviceContext->PSSetShaderResources(4, 1, &mat.emissiveSRV);
+
+        //    // Draw 호출
+        //    m_pDeviceContext->DrawIndexed(static_cast<UINT>(section.Indices.size()), 0, 0);
+        //}
+
+        m_pDeviceContext->PSSetShaderResources(7, 1, nullSRV);
     }
-
-    // Object - StaticMesh
-    for (auto& section : m_StaticMesh.m_StaticMeshSection)
-    {
-        int matIdx = section.materialIndex;
-        if (matIdx < 0 || matIdx >= m_StaticMesh.m_Materials.size())
-            continue;
-
-        Material& mat = m_StaticMesh.m_Materials[matIdx];
-
-        cb.mWorld = XMMatrixTranspose(
-            XMMatrixScaling(object1.transform.GetScale().x,
-                object1.transform.GetScale().y,
-                object1.transform.GetScale().z) *
-            XMMatrixRotationRollPitchYaw(object1.transform.GetRotation().x,
-                object1.transform.GetRotation().y,
-                object1.transform.GetRotation().z) *
-            XMMatrixTranslation(ObjectPos.x, ObjectPos.y, ObjectPos.z)
-        );
-
-        //cb.mWorld = XMMatrixTranspose(XMMatrixScaling(object1.transform.GetScale().x, object1.transform.GetScale().y, object1.transform.GetScale().z))
-        //    * XMMatrixTranspose(XMMatrixRotationRollPitchYaw(object1.transform.GetRotation().x, object1.transform.GetRotation().y, object1.transform.GetRotation().z))
-        //    * XMMatrixTranspose(XMMatrixTranslation(ObjectPos.x, ObjectPos.y, ObjectPos.z))
-        //    * XMMatrixTranspose(m_StaticMesh.m_World);
-        cb.mView = XMMatrixTranspose(m_View);
-        cb.mProjection = XMMatrixTranspose(m_Projection);
-        cb.vLightDir = m_LightDirsEvaluated;
-
-        // 머티리얼 정보
-        cb.vMaterialAmbient = object1.ambient;
-        cb.vMaterialDiffuse = object1.diffuse;
-        cb.vMaterialSpecular = object1.specular;
-        cb.vShininess = { object1.shininess };
-
-        cb.vAmbientColor = m_AmbientColor;
-        cb.vDiffuseColor = m_DiffuseColor;
-        cb.vSpecularColor = m_SpecularColor;
-        cb.cameraPos = m_cameraPos;
-        cb.UseLighting = useLighting;
-
-        // 텍스처 관련
-        cb.hasTexture = mat.hasTexture ? 1 : 0;
-        cb.solidColor = mat.hasTexture ? XMFLOAT4(1, 1, 1, 1) : mat.solidColor;
-        cb.hasNormalMap = mat.hasNormalMap ? 1 : 0;
-        cb.hasSpecularMap = mat.hasSpecularMap ? 1 : 0;
-        cb.hasEmissiveMap = mat.hasEmissiveMap ? 1 : 0;
-
-        cb.hasMetallicMap = mat.hasMetallicMap ? 1 : 0;
-        cb.hasRoughnessMap = mat.hasRoughnessMap ? 1 : 0;
-
-        // PBR
-        cb.metallic = object1.metallic;
-        cb.roughness = object1.roughness;
-        cb.albedo = object1.albedo;
-        cb.gamma = object1.gamma;
-        cb.ao = ambientOcclusion;
-        cb.UseTexture = useTexture;
-        cb.UseCustomAlbedo = useCustomAlbedo;
-
-        // IBL
-        cb.UseIBL = useIBL;
-
-        cb.ShadowView = XMMatrixTranspose(m_ShadowView);
-        cb.ShadowProjection = XMMatrixTranspose(m_ShadowProjection);
-
-        // 상수버퍼 업데이트
-        m_pDeviceContext->VSSetConstantBuffers(0, 1, &m_pStaticMeshConstantBuffer);
-        m_pDeviceContext->PSSetConstantBuffers(0, 1, &m_pStaticMeshConstantBuffer);
-        m_pDeviceContext->UpdateSubresource(m_pStaticMeshConstantBuffer, 0, nullptr, &cb, 0, 0);
-
-        // Vertex/Index Buffer
-        UINT stride = sizeof(Vertex);
-        UINT offset = 0;
-        m_pDeviceContext->IASetVertexBuffers(0, 1, section.VertexBuffer.GetAddressOf(), &stride, &offset);
-        m_pDeviceContext->IASetIndexBuffer(section.IndexBuffer.Get(), DXGI_FORMAT_R16_UINT, 0);
-        m_pDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-
-        // PS 텍스처 바인딩
-        for (int i = 1; i <= 6; i++)
-            m_pDeviceContext->PSSetShaderResources(i, 1, nullSRV);
-
-        if (mat.hasTexture && mat.diffuseSRV)
-            m_pDeviceContext->PSSetShaderResources(1, 1, &mat.diffuseSRV);
-        if (mat.hasNormalMap && mat.normalSRV)
-            m_pDeviceContext->PSSetShaderResources(2, 1, &mat.normalSRV);
-        if (mat.hasSpecularMap && mat.specularSRV)
-            m_pDeviceContext->PSSetShaderResources(3, 1, &mat.specularSRV);
-        if (mat.hasEmissiveMap && mat.emissiveSRV)
-            m_pDeviceContext->PSSetShaderResources(4, 1, &mat.emissiveSRV);
-        if (mat.hasMetallicMap && mat.metallicSRV)
-            m_pDeviceContext->PSSetShaderResources(5, 1, &mat.metallicSRV);
-        if (mat.hasRoughnessMap && mat.roughnessSRV)
-            m_pDeviceContext->PSSetShaderResources(6, 1, &mat.roughnessSRV);
-
-        // Draw 호출
-        m_pDeviceContext->DrawIndexed(static_cast<UINT>(section.Indices.size()), 0, 0);
-    }
-
-    //for (auto& section : ground.m_StaticMeshSection)
-    //{
-    //    int matIdx = section.materialIndex;
-    //    if (matIdx < 0 || matIdx >= ground.m_Materials.size())
-    //        continue;
-
-    //    Material& mat = ground.m_Materials[matIdx];
-
-    //    cb.mWorld = XMMatrixTranspose(XMMatrixScaling(0.01, 0.01, 0.01)) * XMMatrixTranspose(XMMatrixTranslation(0, -100, 0)) * XMMatrixTranspose(ground.m_World);
-    //    cb.mView = XMMatrixTranspose(m_View);
-    //    cb.mProjection = XMMatrixTranspose(m_Projection);
-    //    cb.vLightDir = m_LightDirsEvaluated;
-
-    //    // 머티리얼 정보
-    //    cb.vMaterialAmbient = mat.ambient;
-    //    cb.vMaterialDiffuse = mat.diffuse;
-    //    cb.vMaterialSpecular = mat.specular;
-    //    cb.vShininess = mat.shininess;
-
-    //    cb.vAmbientColor = m_AmbientColor;
-    //    cb.vDiffuseColor = m_DiffuseColor;
-    //    cb.vSpecularColor = m_SpecularColor;
-    //    cb.cameraPos = m_cameraPos;
-    //    cb.UseLighting = useLighting;
-
-    //    // PBR
-    //    //cb.metalness = m_Metalness;
-    //    //cb.roughness = m_Roughness;
-    //    //cb.albedo = m_Albedo;
-
-    //    // 땅은 그냥 고정값으로 들어가게 설정
-    //    cb.metallic = 0.f;
-    //    cb.roughness = 0.5f;
-    //    cb.albedo = Vector4(0, 0, 0, 1);
-
-    //    // 텍스처 관련
-    //    cb.hasTexture = mat.hasTexture ? 1 : 0;
-    //    cb.solidColor = mat.hasTexture ? XMFLOAT4(1, 1, 1, 1) : mat.solidColor;
-    //    cb.hasNormalMap = mat.hasNormalMap ? 1 : 0;
-    //    cb.hasSpecularMap = mat.hasSpecularMap ? 1 : 0;
-    //    cb.hasEmissiveMap = mat.hasEmissiveMap ? 1 : 0;
-
-    //    cb.hasMetallicMap = mat.hasMetallicMap ? 1 : 0;
-    //    cb.hasRoughnessMap = mat.hasRoughnessMap ? 1 : 0;
-
-    //    cb.ShadowView = XMMatrixTranspose(m_ShadowView);
-    //    cb.ShadowProjection = XMMatrixTranspose(m_ShadowProjection);
-
-    //    // 상수버퍼 업데이트
-    //    m_pDeviceContext->VSSetConstantBuffers(0, 1, &m_pStaticMeshConstantBuffer);
-    //    m_pDeviceContext->PSSetConstantBuffers(0, 1, &m_pStaticMeshConstantBuffer);
-    //    m_pDeviceContext->UpdateSubresource(m_pStaticMeshConstantBuffer, 0, nullptr, &cb, 0, 0);
-
-    //    // Vertex/Index Buffer
-    //    UINT stride = sizeof(Vertex);
-    //    UINT offset = 0;
-    //    m_pDeviceContext->IASetVertexBuffers(0, 1, &section.VertexBuffer, &stride, &offset);
-    //    m_pDeviceContext->IASetIndexBuffer(section.IndexBuffer, DXGI_FORMAT_R16_UINT, 0);
-    //    m_pDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-
-    //    // PS 텍스처 바인딩
-    //    ID3D11ShaderResourceView* nullSRV[1] = { nullptr };
-    //    for (int i = 0; i <= 4; i++)
-    //        m_pDeviceContext->PSSetShaderResources(i, 1, nullSRV);
-
-    //    if (mat.hasTexture && mat.diffuseSRV)
-    //        m_pDeviceContext->PSSetShaderResources(0, 1, &mat.diffuseSRV);
-    //    if (mat.hasNormalMap && mat.normalSRV)
-    //        m_pDeviceContext->PSSetShaderResources(2, 1, &mat.normalSRV);
-    //    if (mat.hasSpecularMap && mat.specularSRV)
-    //        m_pDeviceContext->PSSetShaderResources(3, 1, &mat.specularSRV);
-    //    if (mat.hasEmissiveMap && mat.emissiveSRV)
-    //        m_pDeviceContext->PSSetShaderResources(4, 1, &mat.emissiveSRV);
-
-    //    // Draw 호출
-    //    m_pDeviceContext->DrawIndexed(static_cast<UINT>(section.Indices.size()), 0, 0);
-    //}
-
-    m_pDeviceContext->PSSetShaderResources(7, 1, nullSRV);
 
     // Tone Mapping
     m_pDeviceContext->OMSetDepthStencilState(nullptr, 0);
@@ -590,6 +607,16 @@ void TutorialApp::Render()
     // 텍스처 해제
     ID3D11ShaderResourceView* nullSrv[1] = { nullptr };
     m_pDeviceContext->PSSetShaderResources(13, 1, nullSrv);
+
+
+
+
+
+
+
+
+
+
 
     // 4. GUI 렌더 ======================================================================================
     ImGui_ImplDX11_NewFrame();
@@ -711,6 +738,8 @@ void TutorialApp::Render()
     ImGui::DragFloat("Ambient Occlusion", &ambientOcclusion, 0.01f, 0.0f, 1.0f);
     if (ImGui::Button("Reset")) { object1.Reset(); ambientOcclusion = 1.0f; }
     ImGui::Text("");
+
+    ImGui::Checkbox("Use Deferred Shading", &m_UseDeferredRendering);
     ImGui::End();
 
     // etc... ImGui...
@@ -835,8 +864,18 @@ bool TutorialApp::InitD3D()
     blendDesc.RenderTarget[0].DestBlendAlpha = D3D11_BLEND_ZERO; // 알파 블렌딩 대상
     blendDesc.RenderTarget[0].BlendOpAlpha = D3D11_BLEND_OP_ADD;
     blendDesc.RenderTarget[0].RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;
+    HR_T(m_pDevice->CreateBlendState(&blendDesc, m_pBlendState.GetAddressOf()));
 
-    HR_T(m_pDevice->CreateBlendState(&blendDesc, &m_pBlendState));
+    blendDesc = {};
+    blendDesc.RenderTarget[0].BlendEnable = true;
+    blendDesc.RenderTarget[0].SrcBlend = D3D11_BLEND_ONE;
+    blendDesc.RenderTarget[0].DestBlend = D3D11_BLEND_ONE;
+    blendDesc.RenderTarget[0].BlendOp = D3D11_BLEND_OP_ADD;
+    blendDesc.RenderTarget[0].SrcBlendAlpha = D3D11_BLEND_ONE;
+    blendDesc.RenderTarget[0].DestBlendAlpha = D3D11_BLEND_ONE;
+    blendDesc.RenderTarget[0].BlendOpAlpha = D3D11_BLEND_OP_ADD;
+    blendDesc.RenderTarget[0].RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;
+    HR_T(m_pDevice->CreateBlendState(&blendDesc, m_blenderStateAdditive.GetAddressOf()));
 
     D3D11_RASTERIZER_DESC rasterDesc = {};
     rasterDesc.FillMode = D3D11_FILL_SOLID;       // 실선으로 채움, D3D11_FILL_WIREFRAME 가능
@@ -1006,6 +1045,18 @@ bool TutorialApp::InitScene()
     sampDesc.MaxLOD = D3D11_FLOAT32_MAX;                    // 밉맵 최대값
     HR_T(m_pDevice->CreateSamplerState(&sampDesc, &m_pSamplerLinear));
 
+    sampDesc = {};
+    sampDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_POINT;
+    sampDesc.AddressU = D3D11_TEXTURE_ADDRESS_CLAMP;
+    sampDesc.AddressV = D3D11_TEXTURE_ADDRESS_CLAMP;
+    sampDesc.AddressW = D3D11_TEXTURE_ADDRESS_CLAMP;
+    sampDesc.MipLODBias = 0.0f;
+    sampDesc.MaxAnisotropy = 1;
+    sampDesc.ComparisonFunc = D3D11_COMPARISON_ALWAYS;
+    sampDesc.BorderColor[0] = sampDesc.BorderColor[1] = sampDesc.BorderColor[2] = sampDesc.BorderColor[3] = 0.0f;
+    sampDesc.MinLOD = 0.0f;
+    sampDesc.MaxLOD = D3D11_FLOAT32_MAX;
+    HR_T(m_pDevice->CreateSamplerState(&sampDesc, m_pSamplerPoint.GetAddressOf()));
 
     // Depth Test On, Write On
     D3D11_DEPTH_STENCIL_DESC dsDesc = {};
@@ -1321,6 +1372,28 @@ bool TutorialApp::InitScene()
 
     m_LightDirsEvaluated = m_InitialLightDirs;
 
+    // Deferred Shading
+    if (!CreateShaders())
+        return false;
+
+    {
+        D3D11_BUFFER_DESC bd = {};
+        bd.Usage = D3D11_USAGE_DEFAULT;
+        bd.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+
+        bd.ByteWidth = sizeof(CBFrame);
+        HR_T(m_pDevice->CreateBuffer(&bd, nullptr, m_cbFrame.GetAddressOf()));
+
+        bd.ByteWidth = sizeof(CBGeometry);
+        HR_T(m_pDevice->CreateBuffer(&bd, nullptr, m_cbGeometry.GetAddressOf()));
+
+        bd.ByteWidth = sizeof(CBDirectionalLight);
+        HR_T(m_pDevice->CreateBuffer(&bd, nullptr, m_cbDirectionalLight.GetAddressOf()));
+
+        bd.ByteWidth = sizeof(Vector4);
+        HR_T(m_pDevice->CreateBuffer(&bd, nullptr, m_cbScreenSize.GetAddressOf()));
+    }
+
     return true;
 }
 
@@ -1336,6 +1409,50 @@ void TutorialApp::UninitScene()
 
     SAFE_RELEASE(m_pShadowConstantBuffer);
     SAFE_RELEASE(m_pStaticMeshConstantBuffer);
+}
+
+bool TutorialApp::CreateShaders()
+{
+    {
+        ComPtr<ID3DBlob> vsBlob;
+        HR_T(CompileShaderFromFile(L"../Shader/GBuffer_VS.hlsl", "main", "vs_5_0", vsBlob.GetAddressOf()));
+
+        D3D11_INPUT_ELEMENT_DESC layout[] =
+        {
+            { "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0,0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+            { "TEXCOORD", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 12, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+        };
+
+        HR_T(m_pDevice->CreateInputLayout(layout, ARRAYSIZE(layout), vsBlob->GetBufferPointer(), vsBlob->GetBufferSize(), m_gBufferInputLayout.GetAddressOf()));
+        HR_T(m_pDevice->CreateVertexShader(vsBlob->GetBufferPointer(), vsBlob->GetBufferSize(), nullptr, m_gBufferVS.GetAddressOf()));
+        
+        ComPtr<ID3DBlob> psBlob;
+        HR_T(CompileShaderFromFile(L"../Shader/GBuffer_PS.hlsl", "main", "ps_5_0", psBlob.GetAddressOf()));
+        HR_T(m_pDevice->CreatePixelShader(psBlob->GetBufferPointer(), psBlob->GetBufferSize(), nullptr, m_gBufferPS.GetAddressOf()));
+    }
+
+    {
+        ComPtr<ID3DBlob> vsBlob;
+        HR_T(CompileShaderFromFile(L"../Shader/Quad_VS.hlsl", "main", "vs_5_0", vsBlob.GetAddressOf()));
+
+        D3D11_INPUT_ELEMENT_DESC layout[] =
+        {
+            { "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0,0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+            { "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 12, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+        };
+
+        HR_T(m_pDevice->CreateInputLayout(layout, ARRAYSIZE(layout), vsBlob->GetBufferPointer(), vsBlob->GetBufferSize(), m_quadInputLayout.GetAddressOf()));
+        
+        ComPtr<ID3DBlob> vsDirBlob;
+        HR_T(CompileShaderFromFile(L"../Shader/DirectionLight_VS.hlsl", "main", "vs_5_0", vsDirBlob.GetAddressOf()));
+        HR_T(m_pDevice->CreateVertexShader(vsDirBlob->GetBufferPointer(), vsDirBlob->GetBufferSize(), nullptr, m_directionalLightVS.GetAddressOf()));
+
+        ComPtr<ID3DBlob> psDirBlob;
+        HR_T(CompileShaderFromFile(L"../Shader/DirectionLight_PS.hlsl", "main", "ps_5_0", psDirBlob.GetAddressOf()));
+        HR_T(m_pDevice->CreatePixelShader(psDirBlob->GetBufferPointer(), psDirBlob->GetBufferSize(), nullptr, m_directionalLightPS.GetAddressOf()));
+    }
+
+    return true;
 }
 
 bool TutorialApp::CreateGBuffer()
@@ -1390,64 +1507,203 @@ void TutorialApp::RenderPassGBuffer()
 
     m_pDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
     m_pDeviceContext->IASetVertexBuffers(0, 1, m_geometryVB.GetAddressOf(), &m_geometryVBStride, &m_geometryVBOffset);
+
     m_pDeviceContext->IASetIndexBuffer(m_geometryIB.Get(), DXGI_FORMAT_R16_UINT, 0);
+
     m_pDeviceContext->IASetInputLayout(m_gBufferInputLayout.Get());
     m_pDeviceContext->VSSetShader(m_gBufferVS.Get(), nullptr, 0);
-    m_pDeviceContext->VSSetConstantBuffers(6, 1, m_cbGeometry.GetAddressOf());
     m_pDeviceContext->PSSetShader(m_gBufferPS.Get(), nullptr, 0);
+
+
+    m_pDeviceContext->VSSetConstantBuffers(6, 1, m_cbGeometry.GetAddressOf());
     m_pDeviceContext->PSSetConstantBuffers(6, 1, m_cbGeometry.GetAddressOf());
+
+    ID3D11ShaderResourceView* nullSRV[1] = { nullptr };
+    Vector3 ObjectPos = { object1.transform.GetPosition().x, object1.transform.GetPosition().y , object1.transform.GetPosition().z };
+    ConstantBuffer cb;
+    CBFrame cbFrame;
+    m_pDeviceContext->IASetInputLayout(m_gBufferInputLayout.Get());
+    m_pDeviceContext->VSSetShader(m_gBufferVS.Get(), nullptr, 0);
+    m_pDeviceContext->PSSetShader(m_gBufferPS.Get(), nullptr, 0);
+    m_pDeviceContext->RSSetState(m_pRasterStateNoCull.Get());
+    // Sampler
+    m_pDeviceContext->PSSetSamplers(0, 1, m_pSamplerLinear.GetAddressOf());
+    // ShadowMapSRV
+    m_pDeviceContext->PSSetShaderResources(7, 1, m_pShadowMapSRV.GetAddressOf());
+
+    // IBL 적용 여부 분기, 매핑 여부 결정
+    if (useIBL)
+    {
+        m_pDeviceContext->PSSetShaderResources(10, 1, currentEnv->Diffuse.GetAddressOf());
+        m_pDeviceContext->PSSetShaderResources(11, 1, currentEnv->Specular.GetAddressOf());
+        m_pDeviceContext->PSSetShaderResources(12, 1, currentEnv->BRDF_LUT.GetAddressOf());
+    }
+    else
+    {
+        m_pDeviceContext->PSSetShaderResources(0, 1, nullSRV);
+        m_pDeviceContext->PSSetShaderResources(10, 1, nullSRV);
+        m_pDeviceContext->PSSetShaderResources(11, 1, nullSRV);
+        m_pDeviceContext->PSSetShaderResources(12, 1, nullSRV);
+    }
+
+    // Object - StaticMesh
+    for (auto& section : m_StaticMesh.m_StaticMeshSection)
+    {
+        int matIdx = section.materialIndex;
+        if (matIdx < 0 || matIdx >= m_StaticMesh.m_Materials.size())
+            continue;
+
+        Material& mat = m_StaticMesh.m_Materials[matIdx];
+
+        cb.mWorld = XMMatrixTranspose(
+            XMMatrixScaling(object1.transform.GetScale().x,
+                object1.transform.GetScale().y,
+                object1.transform.GetScale().z) *
+            XMMatrixRotationRollPitchYaw(object1.transform.GetRotation().x,
+                object1.transform.GetRotation().y,
+                object1.transform.GetRotation().z) *
+            XMMatrixTranslation(ObjectPos.x, ObjectPos.y, ObjectPos.z)
+        );
+
+        cbFrame.View = m_View.Transpose();
+        cbFrame.Projection = m_Projection.Transpose();
+
+        cb.mView = XMMatrixTranspose(m_View);
+        cb.mProjection = XMMatrixTranspose(m_Projection);
+        cb.vLightDir = m_LightDirsEvaluated;
+
+        // 머티리얼 정보
+        cb.vMaterialAmbient = object1.ambient;
+        cb.vMaterialDiffuse = object1.diffuse;
+        cb.vMaterialSpecular = object1.specular;
+        cb.vShininess = { object1.shininess };
+
+        cb.vAmbientColor = m_AmbientColor;
+        cb.vDiffuseColor = m_DiffuseColor;
+        cb.vSpecularColor = m_SpecularColor;
+        cb.cameraPos = m_cameraPos;
+        cb.UseLighting = useLighting;
+
+        // 텍스처 관련
+        cb.hasTexture = mat.hasTexture ? 1 : 0;
+        cb.solidColor = mat.hasTexture ? XMFLOAT4(1, 1, 1, 1) : mat.solidColor;
+        cb.hasNormalMap = mat.hasNormalMap ? 1 : 0;
+        cb.hasSpecularMap = mat.hasSpecularMap ? 1 : 0;
+        cb.hasEmissiveMap = mat.hasEmissiveMap ? 1 : 0;
+
+        cb.hasMetallicMap = mat.hasMetallicMap ? 1 : 0;
+        cb.hasRoughnessMap = mat.hasRoughnessMap ? 1 : 0;
+
+        // PBR
+        cb.metallic = object1.metallic;
+        cb.roughness = object1.roughness;
+        cb.albedo = object1.albedo;
+        cb.gamma = object1.gamma;
+        cb.ao = ambientOcclusion;
+        cb.UseTexture = useTexture;
+        cb.UseCustomAlbedo = useCustomAlbedo;
+
+        // IBL
+        cb.UseIBL = useIBL;
+
+        cb.ShadowView = XMMatrixTranspose(m_ShadowView);
+        cb.ShadowProjection = XMMatrixTranspose(m_ShadowProjection);
+
+        // 상수버퍼 업데이트
+        m_pDeviceContext->VSSetConstantBuffers(0, 1, &m_pStaticMeshConstantBuffer);
+        m_pDeviceContext->PSSetConstantBuffers(0, 1, &m_pStaticMeshConstantBuffer);
+        m_pDeviceContext->UpdateSubresource(m_pStaticMeshConstantBuffer, 0, nullptr, &cb, 0, 0);
+
+        m_pDeviceContext->VSSetConstantBuffers(8, 1, m_cbFrame.GetAddressOf());
+        m_pDeviceContext->UpdateSubresource(m_cbFrame.Get(), 8, nullptr, &cbFrame, 0, 0);
+
+        // Vertex/Index Buffer
+        UINT stride = sizeof(Vertex);
+        UINT offset = 0;
+        m_pDeviceContext->IASetVertexBuffers(0, 1, section.VertexBuffer.GetAddressOf(), &stride, &offset);
+        m_pDeviceContext->IASetIndexBuffer(section.IndexBuffer.Get(), DXGI_FORMAT_R16_UINT, 0);
+        m_pDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+
+        // PS 텍스처 바인딩
+        for (int i = 1; i <= 6; i++)
+            m_pDeviceContext->PSSetShaderResources(i, 1, nullSRV);
+
+        if (mat.hasTexture && mat.diffuseSRV)
+            m_pDeviceContext->PSSetShaderResources(1, 1, &mat.diffuseSRV);
+        if (mat.hasNormalMap && mat.normalSRV)
+            m_pDeviceContext->PSSetShaderResources(2, 1, &mat.normalSRV);
+        if (mat.hasSpecularMap && mat.specularSRV)
+            m_pDeviceContext->PSSetShaderResources(3, 1, &mat.specularSRV);
+        if (mat.hasEmissiveMap && mat.emissiveSRV)
+            m_pDeviceContext->PSSetShaderResources(4, 1, &mat.emissiveSRV);
+        if (mat.hasMetallicMap && mat.metallicSRV)
+            m_pDeviceContext->PSSetShaderResources(5, 1, &mat.metallicSRV);
+        if (mat.hasRoughnessMap && mat.roughnessSRV)
+            m_pDeviceContext->PSSetShaderResources(6, 1, &mat.roughnessSRV);
+
+        // Draw 호출
+        m_pDeviceContext->DrawIndexed(static_cast<UINT>(section.Indices.size()), 0, 0);
+    }
+
+    ID3D11RenderTargetView* nullRTVs[3] = { nullptr, nullptr, nullptr };
+    m_pDeviceContext->OMSetRenderTargets(3, nullRTVs, nullptr);
+    m_pDeviceContext->PSSetShaderResources(7, 1, nullSRV);
 }
 
 void TutorialApp::RenderPassDirectionalLight()
 {
+
     float blendFactor[4] = { 1.0f, 1.0f, 1.0f, 1.0f };
-    m_pDeviceContext->OMSetBlendState(m_pBlendState.Get(), blendFactor, 0xffffffff);
-    m_pDeviceContext->OMSetRenderTargets(1, m_pRenderTargetView.GetAddressOf(), m_pDepthStencilView.Get());
+    m_pDeviceContext->OMSetBlendState(m_blenderStateAdditive.Get(), blendFactor, 0xffffffff);
+    m_pDeviceContext->OMSetRenderTargets(1, m_sceneHDRRTV.GetAddressOf(), m_pDepthStencilView.Get());
     m_pDeviceContext->OMSetDepthStencilState(m_depthTestOffWriteOff.Get(), 0);
 
     ID3D11ShaderResourceView* srvs[4] = {
-        m_geometrySRVs[0].Get(), m_geometrySRVs[1].Get(), m_geometrySRVs[2].Get()};
+        m_geometrySRVs[0].Get(), m_geometrySRVs[1].Get(), m_geometrySRVs[2].Get(), m_depthSRV.Get()};
+
     m_pDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
     m_pDeviceContext->IASetVertexBuffers(0, 1, m_quadVB.GetAddressOf(), &m_quadVBStride, &m_quadVBOffset);
     m_pDeviceContext->IASetInputLayout(m_quadInputLayout.Get());
 
     m_pDeviceContext->VSSetShader(m_directionalLightVS.Get(), nullptr, 0);
-    m_pDeviceContext->PSSetShaderResources(0, GBufferCount, srvs);
+    m_pDeviceContext->PSSetShaderResources(20, 4, srvs);
     m_pDeviceContext->PSSetSamplers(0, 1, m_pSamplerLinear.GetAddressOf());
     m_pDeviceContext->PSSetSamplers(3, 1, m_pSamplerPoint.GetAddressOf());
 
     Vector3 dirLightDirWS = m_directionalLightDir;
     dirLightDirWS.Normalize();
 
-    CBDirectionalLight cbDirLight;
+    CBDirectionalLight cbDirLight = {};
     cbDirLight.DirectionWs = Vector4(dirLightDirWS.x, dirLightDirWS.y, dirLightDirWS.z, m_directionalLightIntensity);
     cbDirLight.Color_Intensity = Vector4(m_directionalLightColor.x, m_directionalLightColor.y, m_directionalLightColor.z, 1.0f);
     m_pDeviceContext->UpdateSubresource(m_cbDirectionalLight.Get(), 0, nullptr, &cbDirLight, 0, 0);
 
     m_pDeviceContext->PSSetShader(m_directionalLightPS.Get(), nullptr, 0);
-    m_pDeviceContext->PSSetConstantBuffers(2, 1, m_cbDirectionalLight.GetAddressOf());
+    m_pDeviceContext->PSSetConstantBuffers(7, 1, m_cbDirectionalLight.GetAddressOf());
+
+    m_pDeviceContext->IASetIndexBuffer(m_quadIB.Get(), DXGI_FORMAT_R16_UINT, 0);
     m_pDeviceContext->DrawIndexed(m_quadIndexCount, 0, 0);
 
     m_pDeviceContext->OMSetBlendState(nullptr, blendFactor, 0xffffffff);
 
     ID3D11ShaderResourceView* nullSRVs[4] = { nullptr, nullptr, nullptr, nullptr };
-    m_pDeviceContext->PSSetShaderResources(0, 4, nullSRVs);
+    m_pDeviceContext->PSSetShaderResources(20, 4, nullSRVs);
 }
 
-void TutorialApp::RenderPassPointLight()
-{
-    m_pDeviceContext->OMSetRenderTargets(1, m_pRenderTargetView.GetAddressOf(), m_pDepthStencilView.Get());
-    float blenderFactor[4] = { 1.0f, 1.0f, 1.0f, 1.0f };
-    m_pDeviceContext->OMSetBlendState(m_pBlendState.Get(), blenderFactor, 0xffffffff);
-    m_pDeviceContext->OMSetDepthStencilState(m_depthStateLightVolume.Get(), 0);
-    m_pDeviceContext->RSSetState(nullptr);
-
-    Vector4 screenSize((float)m_ClientWidth, (float)m_ClientHeight, 0.0f, 0.0f);
-    m_pDeviceContext->UpdateSubresource(m_cbScreenSize.Get(), 0, nullptr, &screenSize, 0, 0);
-
-    //m_pDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-    //m_pDeviceContext->IASetVertexBuffers(0, 1, m_)
-}
+//void TutorialApp::RenderPassPointLight()
+//{
+//    m_pDeviceContext->OMSetRenderTargets(1, m_pRenderTargetView.GetAddressOf(), m_pDepthStencilView.Get());
+//    float blenderFactor[4] = { 1.0f, 1.0f, 1.0f, 1.0f };
+//    m_pDeviceContext->OMSetBlendState(m_blenderStateAdditive.Get(), blenderFactor, 0xffffffff);
+//    m_pDeviceContext->OMSetDepthStencilState(m_depthStateLightVolume.Get(), 0);
+//    m_pDeviceContext->RSSetState(nullptr);
+//
+//    Vector4 screenSize((float)m_ClientWidth, (float)m_ClientHeight, 0.0f, 0.0f);
+//    m_pDeviceContext->UpdateSubresource(m_cbScreenSize.Get(), 0, nullptr, &screenSize, 0, 0);
+//
+//    m_pDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+//    //m_pDeviceContext->IASetVertexBuffers(0, 1, m_)
+//}
 
 void TutorialApp::ReleaseGBuffer()
 {
