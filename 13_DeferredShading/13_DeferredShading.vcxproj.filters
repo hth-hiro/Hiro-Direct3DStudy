@@ -86,4 +86,9 @@
       <Filter>Shader</Filter>
     </FxCompile>
   </ItemGroup>
+  <ItemGroup>
+    <None Include="..\Shader\Shared.hlsli">
+      <Filter>Shader</Filter>
+    </None>
+  </ItemGroup>
 </Project>

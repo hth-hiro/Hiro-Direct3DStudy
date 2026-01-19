@@ -1,4 +1,4 @@
-#include "Shared.hlsli"
+#include "../Shader/Shared.hlsli"
 
 //--------------------------------------------------------------------------------------
 // Pixel Shader

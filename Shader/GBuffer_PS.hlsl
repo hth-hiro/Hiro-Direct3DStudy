@@ -16,9 +16,15 @@ GBufferOut main(PS_INPUT_DEFERRED input)
     
     float4 texColor = txDiffuse.Sample(samLinear, input.uv);
     
-    o.BaseColor = texColor * GeometryColor;
+    float4 color = texColor * GeometryColor;
+    
+    color.a = 1.0f;
+    
+    //o.BaseColor = texColor * GeometryColor;
+    o.BaseColor = color;
 
     float3 n = normalize(input.normalWS);
+    
     o.Normal = float4(EncodeNormal(n), 1.0f);
 
     o.Position = float4(input.positionWS, 1.0f);

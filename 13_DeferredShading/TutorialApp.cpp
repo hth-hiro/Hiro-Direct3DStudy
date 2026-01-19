@@ -334,7 +334,7 @@ void TutorialApp::Render()
     {
         RenderPassGBuffer();
 
-        m_pDeviceContext->OMSetRenderTargets(1, m_sceneHDRRTV.GetAddressOf(), m_pDepthStencilView.Get());
+        
         m_pDeviceContext->RSSetViewports(1, &m_MainViewport);
         RenderSkybox();
         RenderPassDirectionalLight();
@@ -363,10 +363,6 @@ void TutorialApp::Render()
         m_pDeviceContext->IASetInputLayout(m_pInputLayout.Get());
         m_pDeviceContext->VSSetShader(m_pVertexShader.Get(), nullptr, 0);
         m_pDeviceContext->PSSetShader(m_pPixelShader.Get(), nullptr, 0);
-
-
-
-
 
         m_pDeviceContext->IASetInputLayout(m_pInputLayout.Get());
         m_pDeviceContext->VSSetShader(m_pVertexShader.Get(), nullptr, 0);
@@ -496,7 +492,7 @@ void TutorialApp::Render()
     m_pDeviceContext->OMSetBlendState(nullptr, nullptr, 0xffffffff); // 블렌딩 OFF
 
     // Tone Mapping
-    m_pDeviceContext->OMSetDepthStencilState(nullptr, 0);
+    m_pDeviceContext->OMSetDepthStencilState(m_depthTestOffWriteOff.Get(), 0);
     m_pDeviceContext->OMSetRenderTargets(1, m_pRenderTargetView.GetAddressOf(), nullptr);
     m_pDeviceContext->RSSetViewports(1, &m_MainViewport);
 
@@ -508,7 +504,7 @@ void TutorialApp::Render()
     UINT fsOffset = 0;
     ID3D11Buffer* fsVB = m_fullscreenVB.Get();
     m_pDeviceContext->IASetVertexBuffers(0, 1, &fsVB, &fsStride, &fsOffset);
-
+    //m_pDeviceContext->IASetIndexBuffer(0)
     m_pDeviceContext->VSSetShader(m_toneMapVertexShader.Get(), nullptr, 0);
     m_pDeviceContext->PSSetShader(m_toneMapPixelShader.Get(), nullptr, 0);
 
@@ -521,10 +517,13 @@ void TutorialApp::Render()
 
     m_pDeviceContext->PSSetShaderResources(13, 1, m_sceneHDRSRV.GetAddressOf());
 
-    m_pDeviceContext->PSSetSamplers(2, 1, m_pSamplerLinear.GetAddressOf());
+    m_pDeviceContext->PSSetSamplers(0, 1, m_pSamplerLinear.GetAddressOf());
 
     // 인덱스 없이 VB에 6개를 넣음
     m_pDeviceContext->Draw(6, 0);
+    //m_pDeviceContext->IASetIndexBuffer(m_quadIB.Get(), DXGI_FORMAT_R16_UINT, 0);
+    //m_pDeviceContext->DrawIndexed(m_quadIndexCount, 0, 0);
+
 
     // 텍스처 해제
     ID3D11ShaderResourceView* nullSrv[1] = { nullptr };
@@ -1690,17 +1689,21 @@ void TutorialApp::RenderPassGBuffer()
         m_pDeviceContext->DrawIndexed(static_cast<UINT>(section.Indices.size()), 0, 0);
     }
 
-    //ID3D11RenderTargetView* nullRTVs[3] = { nullptr, nullptr, nullptr };
-    //m_pDeviceContext->OMSetRenderTargets(3, nullRTVs, nullptr);
+    ID3D11RenderTargetView* nullRTVs[3] = { nullptr, nullptr, nullptr };
+    m_pDeviceContext->OMSetRenderTargets(3, nullRTVs, nullptr);
     m_pDeviceContext->PSSetShaderResources(7, 1, nullSRV);
 }
 
 void TutorialApp::RenderPassDirectionalLight()
 {
+    //m_pDeviceContext->OMSetRenderTargets(1, m_sceneHDRRTV.GetAddressOf(), m_pDepthStencilView.Get());
+    m_pDeviceContext->OMSetRenderTargets(1, m_sceneHDRRTV.GetAddressOf(), nullptr);
+    //m_pDeviceContext->OMSetRenderTargets(1, m_pRenderTargetView.GetAddressOf(), nullptr);
     float blendFactor[4] = { 1.0f, 1.0f, 1.0f, 1.0f };
-    m_pDeviceContext->OMSetBlendState(m_blenderStateAdditive.Get(), blendFactor, 0xffffffff);
+    //m_pDeviceContext->OMSetBlendState(m_blenderStateAdditive.Get(), blendFactor, 0xffffffff);
+    m_pDeviceContext->OMSetBlendState(nullptr, nullptr, 0xffffffff);
     //m_pDeviceContext->OMSetBlendState(nullptr, blendFactor, 0xffffffff);
-    m_pDeviceContext->OMSetRenderTargets(1, m_sceneHDRRTV.GetAddressOf(), m_pDepthStencilView.Get());
+    //m_pDeviceContext->OMSetRenderTargets(1, m_sceneHDRRTV.GetAddressOf(), m_pDepthStencilView.Get());
     m_pDeviceContext->OMSetDepthStencilState(m_depthTestOffWriteOff.Get(), 0);
 
     ID3D11ShaderResourceView* srvs[4] = {
@@ -1733,11 +1736,18 @@ void TutorialApp::RenderPassDirectionalLight()
 
     ID3D11ShaderResourceView* nullSRVs[4] = { nullptr, nullptr, nullptr, nullptr };
     m_pDeviceContext->PSSetShaderResources(20, 4, nullSRVs);
+    //m_pDeviceContext->OMSetRenderTargets(1, m_sceneHDRRTV.GetAddressOf(), nullptr);
+    //m_pDeviceContext->OMSetDepthStencilState(m_depthTestOffWriteOff.Get(), 0);
+
+    //m_pDeviceContext->IASetIndexBuffer(m_quadIB.Get(), DXGI_FORMAT_R16_UINT, 0);
+    //m_pDeviceContext->DrawIndexed(m_quadIndexCount, 0, 0);
 }
 
 void TutorialApp::RenderSkybox()
 {
+    m_pDeviceContext->OMSetRenderTargets(1, m_sceneHDRRTV.GetAddressOf(), nullptr);
     m_pDeviceContext->OMSetDepthStencilState(m_pSkyboxDepthStencilState, 0);
+    m_pDeviceContext->RSSetState(m_pRasterStateBackCull.Get());
     m_pDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
     m_pDeviceContext->IASetVertexBuffers(0, 1, &m_pSkyboxVertexBuffer, &m_SkyboxVertexBufferStride, &m_SkyboxVertexBufferOffset);
     m_pDeviceContext->IASetIndexBuffer(m_pSkyboxIndexBuffer, DXGI_FORMAT_R16_UINT, 0);
@@ -1753,10 +1763,11 @@ void TutorialApp::RenderSkybox()
     m_pDeviceContext->UpdateSubresource(m_pSkyboxConstantBuffer, 0, nullptr, &cbSky, 0, 0);
 
     m_pDeviceContext->PSSetShaderResources(0, 1, currentEnv->SkyBox.GetAddressOf());
-    m_pDeviceContext->PSSetSamplers(2, 1, m_pSamplerLinear.GetAddressOf());
+    m_pDeviceContext->PSSetSamplers(0, 1, m_pSamplerLinear.GetAddressOf());
     m_pDeviceContext->DrawIndexed(m_nSkyboxIndices, 0, 0);
     // 원래 상태 복원
     m_pDeviceContext->OMSetDepthStencilState(nullptr, 0); 
+    m_pDeviceContext->RSSetState(m_pRasterStateNoCull.Get()); 
 }
 
 //void TutorialApp::RenderPassPointLight()
